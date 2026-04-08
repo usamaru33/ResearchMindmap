@@ -1,0 +1,63 @@
+:root {
+  /* Colors - MindNode inspired palette */
+  --color-bg: #fafbfc;
+  --color-surface: #ffffff;
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-border: #e5e7eb;
+  --color-border-hover: #d1d5db;
+  --color-accent: #6366f1;
+  --color-accent-light: #eef2ff;
+  --color-danger: #ef4444;
+  --color-danger-light: #fef2f2;
+
+  /* Year-based node accent colors */
+  --color-year-2024: #8b5cf6;
+  --color-year-2023: #6366f1;
+  --color-year-2022: #3b82f6;
+  --color-year-2021: #06b6d4;
+  --color-year-2020: #10b981;
+  --color-year-2019: #84cc16;
+  --color-year-2018: #eab308;
+  --color-year-2017: #f97316;
+  --color-year-2016: #f43f5e;
+  --color-year-older: #6b7280;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-node: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-node-hover: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-node-selected: 0 0 0 2px var(--color-accent), 0 4px 16px rgba(99, 102, 241, 0.15);
+
+  /* Borders */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+
+  /* Sidebar */
+  --sidebar-width: 360px;
+}

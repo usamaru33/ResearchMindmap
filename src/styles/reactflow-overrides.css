@@ -1,0 +1,87 @@
+/* React Flow style overrides for MindNode-like appearance */
+
+.react-flow__node {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.react-flow__node.selected {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.react-flow__handle {
+  width: 8px;
+  height: 8px;
+  background: var(--color-border);
+  border: 2px solid var(--color-surface);
+  transition: all var(--transition-fast);
+}
+
+.react-flow__handle:hover {
+  background: var(--color-accent);
+  width: 12px;
+  height: 12px;
+}
+
+.react-flow__edge-path {
+  stroke-linecap: round;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke-width: 3 !important;
+}
+
+.react-flow__edge-text {
+  font-size: var(--font-size-xs);
+  fill: var(--color-text-secondary);
+}
+
+.react-flow__edge-textbg {
+  fill: var(--color-surface);
+  rx: 4;
+  ry: 4;
+}
+
+.react-flow__selection {
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: var(--radius-sm);
+}
+
+.react-flow__controls {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  fill: var(--color-text-secondary);
+  width: 28px;
+  height: 28px;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--color-accent-light);
+  fill: var(--color-accent);
+}
+
+.react-flow__minimap {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.react-flow__background pattern circle {
+  fill: #d4d4d8;
+}
+
+.react-flow__attribution {
+  display: none;
+}
