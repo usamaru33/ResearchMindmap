@@ -13,11 +13,12 @@ import {
   type EdgeChange,
   type Connection,
 } from '@xyflow/react';
-import type { PaperNode, PaperEdge, MindMapAction } from '../../types';
+import type { PaperNode, PaperEdge, MindMapAction, LayoutDirection } from '../../types';
 import { PaperNode as PaperNodeComponent } from '../PaperNode/PaperNode';
 import { Toolbar } from '../Toolbar/Toolbar';
 import { useAutoLayout } from '../../hooks/useAutoLayout';
 import { getYearColor, generateId, RELATIONSHIP_OPTIONS } from '../../utils/helpers';
+import { LayoutDirectionContext } from './layoutDirectionContext';
 import styles from './MindMap.module.css';
 
 const nodeTypes = { paper: PaperNodeComponent };
@@ -25,7 +26,7 @@ const nodeTypes = { paper: PaperNodeComponent };
 interface MindMapProps {
   nodes: PaperNode[];
   edges: PaperEdge[];
-  layoutDirection: 'TB' | 'LR';
+  layoutDirection: LayoutDirection;
   dispatch: React.Dispatch<MindMapAction>;
   onAddPaper: () => void;
 }
@@ -46,18 +47,32 @@ export function MindMap({ nodes, edges, layoutDirection, dispatch, onAddPaper }:
     }
   }, [nodes.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Removals go through the reducer so that references, derived edges and
+  // the selection stay consistent; all other changes are applied directly.
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) => {
-      const updated = applyNodeChanges(changes, nodes) as PaperNode[];
-      dispatch({ type: 'SET_NODES', payload: updated });
+    (changes: NodeChange<PaperNode>[]) => {
+      const removedIds = changes.filter((c) => c.type === 'remove').map((c) => c.id);
+      const rest = changes.filter((c) => c.type !== 'remove');
+      if (rest.length > 0) {
+        dispatch({ type: 'SET_NODES', payload: applyNodeChanges(rest, nodes) });
+      }
+      if (removedIds.length > 0) {
+        dispatch({ type: 'DELETE_PAPERS', payload: removedIds });
+      }
     },
     [nodes, dispatch],
   );
 
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => {
-      const updated = applyEdgeChanges(changes, edges) as PaperEdge[];
-      dispatch({ type: 'SET_EDGES', payload: updated });
+    (changes: EdgeChange<PaperEdge>[]) => {
+      const removedIds = changes.filter((c) => c.type === 'remove').map((c) => c.id);
+      const rest = changes.filter((c) => c.type !== 'remove');
+      if (rest.length > 0) {
+        dispatch({ type: 'SET_EDGES', payload: applyEdgeChanges(rest, edges) });
+      }
+      if (removedIds.length > 0) {
+        dispatch({ type: 'REMOVE_CONNECTIONS', payload: removedIds });
+      }
     },
     [edges, dispatch],
   );
@@ -117,72 +132,74 @@ export function MindMap({ nodes, edges, layoutDirection, dispatch, onAddPaper }:
   }, []);
 
   return (
-    <div className={styles.wrapper}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodeClick={onNodeClick}
-        onPaneClick={onPaneClick}
-        nodeTypes={nodeTypes}
-        fitView
-        fitViewOptions={{ padding: 0.3 }}
-        minZoom={0.1}
-        maxZoom={2}
-        defaultEdgeOptions={{ type: 'smoothstep' }}
-        proOptions={{ hideAttribution: true }}
-      >
-        <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />
-        <Controls position="bottom-right" showInteractive={false} />
-        <MiniMap
-          position="bottom-left"
-          pannable
-          zoomable
-          nodeColor={minimapNodeColor}
-          maskColor="rgba(250, 251, 252, 0.7)"
-        />
-        <Panel position="top-right">
-          <Toolbar
-            layoutDirection={layoutDirection}
-            onAutoLayout={handleAutoLayout}
-            onAddPaper={onAddPaper}
-            onFitView={handleFitView}
-            onToggleDirection={handleToggleDirection}
+    <LayoutDirectionContext.Provider value={layoutDirection}>
+      <div className={styles.wrapper}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onNodeClick={onNodeClick}
+          onPaneClick={onPaneClick}
+          nodeTypes={nodeTypes}
+          fitView
+          fitViewOptions={{ padding: 0.3 }}
+          minZoom={0.1}
+          maxZoom={2}
+          defaultEdgeOptions={{ type: 'smoothstep' }}
+          proOptions={{ hideAttribution: true }}
+        >
+          <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />
+          <Controls position="bottom-right" showInteractive={false} />
+          <MiniMap
+            position="bottom-left"
+            pannable
+            zoomable
+            nodeColor={minimapNodeColor}
+            maskColor="rgba(250, 251, 252, 0.7)"
           />
-        </Panel>
-      </ReactFlow>
+          <Panel position="top-right">
+            <Toolbar
+              layoutDirection={layoutDirection}
+              onAutoLayout={handleAutoLayout}
+              onAddPaper={onAddPaper}
+              onFitView={handleFitView}
+              onToggleDirection={handleToggleDirection}
+            />
+          </Panel>
+        </ReactFlow>
 
-      {pendingConnection && (
-        <>
-          <div className={styles.overlay} onClick={cancelConnection} />
-          <div className={styles.connectionDialog}>
-            <h3>Add Connection</h3>
-            <select
-              value={selectedRelationship}
-              onChange={(e) => setSelectedRelationship(e.target.value)}
-            >
-              {RELATIONSHIP_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-            <div className={styles.dialogActions}>
-              <button className={styles.dialogBtn} onClick={cancelConnection}>
-                Cancel
-              </button>
-              <button
-                className={`${styles.dialogBtn} ${styles.dialogBtnPrimary}`}
-                onClick={confirmConnection}
+        {pendingConnection && (
+          <>
+            <div className={styles.overlay} onClick={cancelConnection} />
+            <div className={styles.connectionDialog}>
+              <h3>Add Connection</h3>
+              <select
+                value={selectedRelationship}
+                onChange={(e) => setSelectedRelationship(e.target.value)}
               >
-                Add
-              </button>
+                {RELATIONSHIP_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+              <div className={styles.dialogActions}>
+                <button className={styles.dialogBtn} onClick={cancelConnection}>
+                  Cancel
+                </button>
+                <button
+                  className={`${styles.dialogBtn} ${styles.dialogBtnPrimary}`}
+                  onClick={confirmConnection}
+                >
+                  Add
+                </button>
+              </div>
             </div>
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </LayoutDirectionContext.Provider>
   );
 }
