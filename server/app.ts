@@ -3,6 +3,7 @@ import type { HealthResponse } from '../shared/types';
 import type { AppConfig } from './config';
 import { ApiHttpError } from './http/errors';
 import { queryRoutes } from './routes/query';
+import { sourceStatuses } from './sources/registry';
 
 export const VERSION = '0.1.0';
 
@@ -13,7 +14,7 @@ export function createApp(config: AppConfig) {
     const body: HealthResponse = {
       ok: true,
       version: VERSION,
-      sources: [],
+      sources: sourceStatuses(config),
       llm: config.anthropicApiKey
         ? { enabled: true, model: config.anthropicModel }
         : { enabled: false, model: null, reason: 'ANTHROPIC_API_KEY が未設定' },
