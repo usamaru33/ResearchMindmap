@@ -195,3 +195,15 @@ export interface ExpandResponse {
   total: number;
   warnings: string[];
 }
+
+export interface ResolveItem {
+  input: string;
+  kind?: 'doi' | 'arxiv' | 'openalex' | 'pmid' | 'title';
+  ok: boolean;
+  paper?: Paper;
+  error?: string;
+}
+
+export interface ResolveResponse {
+  items: ResolveItem[];
+}
