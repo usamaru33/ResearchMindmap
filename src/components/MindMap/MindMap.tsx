@@ -35,6 +35,8 @@ interface MindMapProps {
   onAddPaper: () => void;
   onToggleSearch: () => void;
   searchOpen: boolean;
+  onToggleLibrary: () => void;
+  libraryOpen: boolean;
 }
 
 export function MindMap({
@@ -46,6 +48,8 @@ export function MindMap({
   onAddPaper,
   onToggleSearch,
   searchOpen,
+  onToggleLibrary,
+  libraryOpen,
 }: MindMapProps) {
   const { fitView } = useReactFlow();
   const { applyLayout } = useAutoLayout();
@@ -193,6 +197,8 @@ export function MindMap({
               onAddPaper={onAddPaper}
               onToggleSearch={onToggleSearch}
               searchOpen={searchOpen}
+              onToggleLibrary={onToggleLibrary}
+              libraryOpen={libraryOpen}
               onFitView={handleFitView}
               onToggleDirection={handleToggleDirection}
               showCitations={showCitations}

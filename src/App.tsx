@@ -3,6 +3,7 @@ import { useReactFlow } from '@xyflow/react';
 import { MindMap } from './components/MindMap/MindMap';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { DetailPanel } from './components/DetailPanel/DetailPanel';
+import { Library } from './components/Library/Library';
 import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
 import { SearchPanel, type BuildMode, type BuildTarget } from './components/SearchPanel/SearchPanel';
 import { apiPost } from './api/client';
@@ -29,7 +30,7 @@ export default function App() {
   const mapIds = useMemo(() => new Set(state.nodes.map((n) => n.id)), [state.nodes]);
   const allPapers = getAllPapers();
   const knownTags = useMemo(() => tagCounts(allPapers.map((p) => p.tags)).map(([t]) => t), [allPapers]);
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, getNode, setCenter } = useReactFlow();
 
   const selectedPaper = getSelectedPaper();
   // The paper form and the detail panel compete for attention; search can sit next to details.
@@ -57,6 +58,23 @@ export default function App() {
       }
     },
     [dispatch, projects],
+  );
+
+  const handleToggleLibrary = useCallback(() => {
+    dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'library' ? 'closed' : 'library' });
+  }, [dispatch, state.sidebarMode]);
+
+  const handleFocusPaper = useCallback(
+    (id: string) => {
+      dispatch({ type: 'SELECT_NODE', payload: id });
+      const node = getNode(id);
+      if (node) {
+        const w = node.measured?.width ?? 280;
+        const h = node.measured?.height ?? 110;
+        setCenter(node.position.x + w / 2, node.position.y + h / 2, { zoom: 1, duration: 400 });
+      }
+    },
+    [dispatch, getNode, setCenter],
   );
 
   const handleCloseSidebar = useCallback(() => {
@@ -119,6 +137,20 @@ export default function App() {
           dispatch({ type: 'ADD_PAPERS', payload: { papers, center } });
           dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'closed' });
         }}
+        libraryPanel={
+          <Library
+            papers={allPapers}
+            knownTags={knownTags}
+            selectedId={state.selectedNodeId}
+            onFocus={handleFocusPaper}
+            onUpdate={(ids, patch) => {
+              for (const p of allPapers.filter((x) => ids.includes(x.id))) {
+                dispatch({ type: 'UPDATE_PAPER_META', payload: { id: p.id, patch: patch(p) } });
+              }
+            }}
+            onDelete={(ids) => dispatch({ type: 'DELETE_PAPERS', payload: ids })}
+          />
+        }
         searchPanel={
           <SearchPanel
             search={search.state}
@@ -152,6 +184,8 @@ export default function App() {
           onAddPaper={handleAddPaper}
           onToggleSearch={handleToggleSearch}
           searchOpen={state.sidebarMode === 'search'}
+          onToggleLibrary={handleToggleLibrary}
+          libraryOpen={state.sidebarMode === 'library'}
         />
       </div>
       <DetailPanel
