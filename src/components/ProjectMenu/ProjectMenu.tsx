@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { ProjectSummary } from '../../store/projects';
 import type { ExportFormat } from '../../utils/bibliography';
 import styles from './ProjectMenu.module.css';
@@ -17,6 +17,8 @@ interface ProjectMenuProps {
   onExportBibliography: (format: ExportFormat) => void;
   /** Resolves with the number of papers added. */
   onImportBibliography: (file: File) => Promise<number>;
+  /** Controls shown next to the project button (undo/redo, help). */
+  extra?: ReactNode;
 }
 
 function formatDate(iso: string): string {
@@ -37,6 +39,7 @@ export function ProjectMenu({
   onImport,
   onExportBibliography,
   onImportBibliography,
+  extra,
 }: ProjectMenuProps) {
   const [open, setOpen] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
@@ -93,15 +96,18 @@ export function ProjectMenu({
 
   return (
     <div className={styles.root} ref={rootRef}>
-      <button
-        className={styles.trigger}
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-      >
-        <span className={styles.triggerLabel}>{activeName}</span>
-        <span aria-hidden>▾</span>
-      </button>
+      <div className={styles.row}>
+        <button
+          className={styles.trigger}
+          onClick={() => setOpen((v) => !v)}
+          aria-haspopup="menu"
+          aria-expanded={open}
+        >
+          <span className={styles.triggerLabel}>{activeName}</span>
+          <span aria-hidden>▾</span>
+        </button>
+        {extra}
+      </div>
       {saveError && (
         <div className={styles.warning} role="alert">
           {saveError}

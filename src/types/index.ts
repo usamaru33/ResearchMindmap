@@ -98,7 +98,7 @@ export type MindMapAction =
   | { type: 'SELECT_NODE'; payload: string | null }
   | { type: 'SET_SIDEBAR_MODE'; payload: SidebarMode }
   | { type: 'SET_LAYOUT_DIRECTION'; payload: 'TB' | 'LR' }
-  | { type: 'APPLY_LAYOUT'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
+  | { type: 'APPLY_LAYOUT'; payload: { nodes: MapNode[]; edges: PaperEdge[] }; /** false for automatic layouts (load, import) */ record?: boolean }
   | { type: 'LOAD_MAP'; payload: MapSnapshot }
   | { type: 'IMPORT_GRAPH'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
   | { type: 'ADD_HISTORY'; payload: HistoryEntry }

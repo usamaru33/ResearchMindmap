@@ -9,6 +9,9 @@ import { ComparisonTable } from './components/Comparison/ComparisonTable';
 import { ScreeningPanel } from './components/Screening/ScreeningPanel';
 import { clusterGroups } from './store/groups';
 import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
+import { UndoButtons } from './components/ProjectMenu/UndoButtons';
+import { ShortcutHelp } from './components/Shortcuts/ShortcutHelp';
+import { useShortcuts } from './hooks/useShortcuts';
 import { SearchPanel, type BuildMode, type BuildTarget } from './components/SearchPanel/SearchPanel';
 import { apiPost } from './api/client';
 import { buildGraphElements } from './store/graphImport';
@@ -27,7 +30,7 @@ export default function App() {
   const [initialProject] = useState(() =>
     loadInitialProject(() => createProject('Sample: Transformers & friends', sampleNodes)),
   );
-  const { state, dispatch, getSelectedPaper, getAllPapers, getCitedBy, getReferences } =
+  const { state, dispatch, canUndo, canRedo, getSelectedPaper, getAllPapers, getCitedBy, getReferences } =
     useMindMapStore(initialProject);
   const projects = useProjects(initialProject, state, dispatch);
   const search = useSearch();
@@ -35,7 +38,8 @@ export default function App() {
   const mapIds = useMemo(() => new Set(state.nodes.map((n) => n.id)), [state.nodes]);
   const allPapers = getAllPapers();
   const knownTags = useMemo(() => tagCounts(allPapers.map((p) => p.tags)).map(([t]) => t), [allPapers]);
-  const { screenToFlowPosition, getNode, setCenter } = useReactFlow();
+  const { screenToFlowPosition, getNode, setCenter, fitView } = useReactFlow();
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const selectedPaper = getSelectedPaper();
   // The paper form and the detail panel compete for attention; search can sit next to details.
@@ -50,6 +54,22 @@ export default function App() {
   const handleToggleSearch = useCallback(() => {
     dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'search' ? 'closed' : 'search' });
   }, [dispatch, state.sidebarMode]);
+
+  useShortcuts({
+    undo: () => dispatch({ type: 'UNDO' }),
+    redo: () => dispatch({ type: 'REDO' }),
+    openSearch: () => {
+      dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'search' });
+      window.setTimeout(() => document.querySelector<HTMLTextAreaElement>('[data-query-input]')?.focus(), 50);
+    },
+    fitView: () => fitView({ padding: 0.2, duration: 300 }),
+    toggleHelp: () => setHelpOpen((v) => !v),
+    closePanels: () => {
+      if (helpOpen) setHelpOpen(false);
+      else if (state.sidebarMode !== 'closed') dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'closed' });
+      else dispatch({ type: 'SELECT_NODE', payload: null });
+    },
+  });
 
   const recordHistory = useCallback(
     (kind: 'query' | 'vague', text: string, resultCount: number) =>
@@ -248,6 +268,15 @@ export default function App() {
           onDelete={projects.removeActive}
           onExport={projects.exportActive}
           onImport={projects.importFile}
+          extra={
+            <UndoButtons
+              canUndo={canUndo}
+              canRedo={canRedo}
+              onUndo={() => dispatch({ type: 'UNDO' })}
+              onRedo={() => dispatch({ type: 'REDO' })}
+              onHelp={() => setHelpOpen(true)}
+            />
+          }
           onExportBibliography={(format) => exportPapers(allPapers, format, projects.activeProject.name)}
           onImportBibliography={async (file) => {
             const papers = parseBibliography(await file.text());
@@ -292,6 +321,7 @@ export default function App() {
           dispatch({ type: 'ADD_LINKED_PAPERS', payload: { anchorId, papers, kind } })
         }
       />
+      {helpOpen && <ShortcutHelp onClose={() => setHelpOpen(false)} />}
     </div>
   );
 }

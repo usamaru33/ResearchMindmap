@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { MapSnapshot, MindMapAction, MindMapState } from '../types';
+import type { MapSnapshot, MindMapState } from '../types';
+import type { UndoAction } from '../store/undo';
 import {
   ProjectStore,
   createProject,
@@ -63,7 +64,7 @@ type ProjectMeta = Pick<Project, 'id' | 'name' | 'createdAt'>;
 export function useProjects(
   initial: Project,
   state: MindMapState,
-  dispatch: React.Dispatch<MindMapAction>,
+  dispatch: React.Dispatch<UndoAction>,
 ) {
   const [meta, setMeta] = useState<ProjectMeta>({
     id: initial.id,

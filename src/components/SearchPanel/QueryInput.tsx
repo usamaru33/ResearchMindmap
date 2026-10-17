@@ -52,6 +52,7 @@ export function QueryInput({ value, parse, canonical, onChange, onSubmit }: Quer
       </div>
       <textarea
         id={id}
+        data-query-input
         className={`${styles.input} ${styles.queryInput} ${errors.length ? styles.inputError : ''}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
