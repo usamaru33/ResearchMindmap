@@ -27,6 +27,7 @@ function stateOf(papers: Paper[]): MindMapState {
     layoutDirection: 'LR',
     viewRequest: { kind: 'fit', seq: 0 },
     aspects: [],
+    history: [],
   };
 }
 
@@ -273,5 +274,33 @@ describe('comparison aspects', () => {
 
   it('loads aspects from a snapshot', () => {
     expect(initMindMapState({ nodes: [], edges: [], layoutDirection: 'LR', aspects: ['A'] }).aspects).toEqual(['A']);
+  });
+});
+
+describe('search history', () => {
+  const entry = (id: string, text: string, kind: 'query' | 'vague' = 'query') => ({ id, kind, text, at: '2026-01-01', resultCount: 1 });
+
+  it('adds newest first, moves repeats to the top and keeps pins', () => {
+    let s = stateOf([]);
+    s = mindMapReducer(s, { type: 'ADD_HISTORY', payload: entry('1', 'vr') });
+    s = mindMapReducer(s, { type: 'ADD_HISTORY', payload: entry('2', 'haptics') });
+    s = mindMapReducer(s, { type: 'PIN_HISTORY', payload: '1' });
+    s = mindMapReducer(s, { type: 'ADD_HISTORY', payload: entry('3', 'vr') });
+    expect(s.history.map((h) => [h.id, h.text, !!h.pinned])).toEqual([
+      ['3', 'vr', true],
+      ['2', 'haptics', false],
+    ]);
+    s = mindMapReducer(s, { type: 'REMOVE_HISTORY', payload: '2' });
+    expect(s.history.map((h) => h.id)).toEqual(['3']);
+  });
+
+  it('caps unpinned entries but never drops pinned ones', () => {
+    let s = stateOf([]);
+    s = mindMapReducer(s, { type: 'ADD_HISTORY', payload: entry('p', 'pinned') });
+    s = mindMapReducer(s, { type: 'PIN_HISTORY', payload: 'p' });
+    for (let i = 0; i < 60; i++) s = mindMapReducer(s, { type: 'ADD_HISTORY', payload: entry(`e${i}`, `q${i}`) });
+    expect(s.history.length).toBeLessThanOrEqual(51);
+    expect(s.history.some((h) => h.id === 'p')).toBe(true);
+    expect(s.history[0].id).toBe('e59');
   });
 });

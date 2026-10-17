@@ -12,6 +12,8 @@ interface VagueSearchProps {
   onBuildMap: BuildMapHandler;
   /** Hand a generated query over to the query tab. */
   onUseQuery: (query: string) => void;
+  description: string;
+  onDescriptionChange: (text: string) => void;
 }
 
 const EXAMPLES = [
@@ -22,9 +24,17 @@ const EXAMPLES = [
 
 const hasJapanese = (text: string) => /[぀-ヿ㐀-鿿]/.test(text);
 
-export function VagueSearch({ search, onSearch, llmEnabled, mapIds, onBuildMap, onUseQuery }: VagueSearchProps) {
+export function VagueSearch({
+  search,
+  onSearch,
+  llmEnabled,
+  mapIds,
+  onBuildMap,
+  onUseQuery,
+  description,
+  onDescriptionChange: setDescription,
+}: VagueSearchProps) {
   const id = useId();
-  const [description, setDescription] = useState('');
   const [useLlm, setUseLlm] = useState(true);
   const [yearFrom, setYearFrom] = useState('');
   const [yearTo, setYearTo] = useState('');

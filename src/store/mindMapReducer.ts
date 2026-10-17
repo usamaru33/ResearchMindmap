@@ -203,6 +203,7 @@ function addLinkedPapers(state: MindMapState, anchorId: string, papers: Paper[],
 }
 
 const GRID_COLUMNS = 4;
+const HISTORY_LIMIT = 50;
 
 /** Add papers in a grid around `center`; papers already in the map are refreshed instead. */
 function addPapers(state: MindMapState, papers: Paper[], center: { x: number; y: number }): MindMapState {
@@ -285,6 +286,7 @@ export function initMindMapState(snapshot: MapSnapshot): MindMapState {
     layoutDirection: snapshot.layoutDirection,
     viewRequest: { kind: needsLayout(snapshot.nodes) ? 'layout' : 'fit', seq: 0 },
     aspects: snapshot.aspects ?? [],
+    history: snapshot.history ?? [],
   };
 }
 
@@ -356,6 +358,26 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
         viewRequest: { ...next.viewRequest, seq: state.viewRequest.seq + 1 },
       };
     }
+
+    case 'ADD_HISTORY': {
+      const e = action.payload;
+      // Re-running a search moves it to the top (keeping its pin) instead of duplicating it.
+      const same = state.history.find((h) => h.kind === e.kind && h.text === e.text);
+      const rest = state.history.filter((h) => h !== same);
+      const unpinned = rest.filter((h) => !h.pinned);
+      const trimmed = [...rest.filter((h) => h.pinned), ...unpinned.slice(0, HISTORY_LIMIT - 1)];
+      const kept = state.history.filter((h) => trimmed.includes(h));
+      return { ...state, history: [{ ...e, pinned: same?.pinned }, ...kept] };
+    }
+
+    case 'PIN_HISTORY':
+      return {
+        ...state,
+        history: state.history.map((h) => (h.id === action.payload ? { ...h, pinned: !h.pinned } : h)),
+      };
+
+    case 'REMOVE_HISTORY':
+      return { ...state, history: state.history.filter((h) => h.id !== action.payload) };
 
     case 'SET_ASPECTS': {
       const aspects = [...new Set(action.payload.map((a) => a.trim()).filter(Boolean))];

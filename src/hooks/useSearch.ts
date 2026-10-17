@@ -14,15 +14,18 @@ function useApiRequest<Req, Res>(path: string) {
   const seq = useRef(0);
 
   const run = useCallback(
-    async (request: Req) => {
+    async (request: Req): Promise<Res | null> => {
       const id = ++seq.current;
       setState({ status: 'loading', startedAt: Date.now(), request });
       try {
         const response = await apiPost<Res>(path, request);
         // Ignore responses of requests that were superseded by a newer one.
-        if (id === seq.current) setState({ status: 'done', request, response });
+        if (id !== seq.current) return null;
+        setState({ status: 'done', request, response });
+        return response;
       } catch (err) {
         if (id === seq.current) setState({ status: 'error', request, message: (err as Error).message });
+        return null;
       }
     },
     [path],
