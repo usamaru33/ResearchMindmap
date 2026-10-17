@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { formatQuery, parseQuery } from '../../../shared/query';
 import type { SearchRequest, SourceName, SourceStatus } from '../../../shared/types';
 import type { SearchState } from '../../hooks/useSearch';
+import { useSettings } from '../../hooks/settingsContext';
+import { SOURCE_LIMIT_OPTIONS } from '../../store/settings';
 import { QueryInput } from './QueryInput';
 import { Elapsed, ResultsSection, type BuildMapHandler } from './ResultsSection';
 import { SourceReports } from './SearchResults';
@@ -21,8 +23,12 @@ interface QuerySearchProps {
 
 export function QuerySearch({ search, onSearch, sources, healthError, mapIds, onBuildMap, text, onTextChange }: QuerySearchProps) {
   const [chips, setChips] = useState<FilterChips>(EMPTY_CHIPS);
-  const [excluded, setExcluded] = useState<Set<SourceName>>(new Set());
-  const [limitPerSource, setLimitPerSource] = useState(25);
+  const { settings } = useSettings();
+  // Until the user touches a control here, follow the saved defaults.
+  const [excludedOverride, setExcluded] = useState<Set<SourceName> | null>(null);
+  const [limitOverride, setLimitPerSource] = useState<number | null>(null);
+  const excluded = excludedOverride ?? new Set(settings.excludedSources);
+  const limitPerSource = limitOverride ?? settings.limitPerSource;
 
   const textParse = useMemo(() => (text.trim() ? parseQuery(text) : null), [text]);
   const combined = combineQuery(text, chips);
@@ -103,7 +109,7 @@ export function QuerySearch({ search, onSearch, sources, healthError, mapIds, on
             <label className={styles.inlineSelect}>
               per source
               <select value={limitPerSource} onChange={(e) => setLimitPerSource(Number(e.target.value))}>
-                {[10, 25, 50].map((n) => (
+                {SOURCE_LIMIT_OPTIONS.map((n) => (
                   <option key={n} value={n}>
                     {n}
                   </option>
@@ -124,8 +130,8 @@ export function QuerySearch({ search, onSearch, sources, healthError, mapIds, on
                   disabled={!s.enabled}
                   checked={s.enabled && !excluded.has(s.name)}
                   onChange={() =>
-                    setExcluded((prev) => {
-                      const next = new Set(prev);
+                    setExcluded(() => {
+                      const next = new Set(excluded);
                       if (next.has(s.name)) next.delete(s.name);
                       else next.add(s.name);
                       return next;

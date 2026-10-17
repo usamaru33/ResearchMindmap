@@ -3,6 +3,7 @@ import { toBibtex } from '../../../shared/biblio/bibtex';
 import type { Paper } from '../../types';
 import type { PaperGroup } from '../../store/groups';
 import { useApiHealth } from '../../hooks/useApiHealth';
+import { useSettings } from '../../hooks/settingsContext';
 import { useStream } from '../../hooks/useStream';
 import { downloadText, safeFileName } from '../../utils/download';
 import { MiniMarkdown } from '../common/MiniMarkdown';
@@ -26,8 +27,9 @@ export function WritingPanel({ papers, initialIds, groups, projectName, onFocusP
     () => new Set(initialIds.length ? initialIds : papers.slice(0, 80).map((p) => p.id)),
   );
   const [topic, setTopic] = useState('');
-  const [lang, setLang] = useState<'ja' | 'en'>('ja');
-  const [useLlm, setUseLlm] = useState(true);
+  const { settings } = useSettings();
+  const [lang, setLang] = useState<'ja' | 'en'>(settings.aiLanguage);
+  const [useLlm, setUseLlm] = useState(settings.useLlm);
   const [copied, setCopied] = useState(false);
   const draft = useStream('/api/llm/related-work');
 

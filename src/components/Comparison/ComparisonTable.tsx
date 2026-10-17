@@ -3,6 +3,7 @@ import type { AspectFillResponse } from '../../../shared/types';
 import type { Paper } from '../../types';
 import { apiPost } from '../../api/client';
 import { useApiHealth } from '../../hooks/useApiHealth';
+import { useSettings } from '../../hooks/settingsContext';
 import { EMPTY_FILTERS, filterPapers } from '../../store/library';
 import { comparisonCsv } from '../../utils/comparisonCsv';
 import { downloadText, safeFileName } from '../../utils/download';
@@ -59,6 +60,7 @@ export function ComparisonTable({
   onFocusPaper,
 }: ComparisonTableProps) {
   const health = useApiHealth();
+  const { settings } = useSettings();
   const llmEnabled = health.status === 'ok' && health.health.llm.enabled;
   const [newAspect, setNewAspect] = useState('');
   const [filter, setFilter] = useState('');
@@ -86,8 +88,8 @@ export function ComparisonTable({
       const res = await apiPost<AspectFillResponse>('/api/llm/fill-aspect', {
         aspect,
         papers: targets,
-        lang: 'ja',
-        useLlm: llmEnabled,
+        lang: settings.aiLanguage,
+        useLlm: llmEnabled && settings.useLlm,
       });
       const filled = Object.fromEntries(Object.entries(res.values).filter(([, v]) => v));
       onSetValues(aspect, filled);

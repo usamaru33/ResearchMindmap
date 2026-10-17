@@ -21,6 +21,7 @@ import { ClusterNode } from '../MapNodes/ClusterNode';
 import { QueryRootNode } from '../MapNodes/QueryRootNode';
 import { Toolbar } from '../Toolbar/Toolbar';
 import { useAutoLayout } from '../../hooks/useAutoLayout';
+import { useSettings } from '../../hooks/settingsContext';
 import { getYearColor, generateId, RELATIONSHIP_OPTIONS } from '../../utils/helpers';
 import { LayoutDirectionContext } from './layoutDirectionContext';
 import { MapViewContext, type ColorMode, type MapView } from './mapViewContext';
@@ -76,6 +77,7 @@ export function MindMap({
 }: MindMapProps) {
   const { fitView } = useReactFlow();
   const { applyLayout } = useAutoLayout();
+  const { settings } = useSettings();
   const [pendingConnection, setPendingConnection] = useState<Connection | null>(null);
   const [selectedRelationship, setSelectedRelationship] = useState(RELATIONSHIP_OPTIONS[0]);
   const [showCitations, setShowCitations] = useState(true);
@@ -119,13 +121,13 @@ export function MindMap({
       .slice(0, 20);
     if (clusters.length === 0) return '名前を付けるクラスタがありません';
     try {
-      const res = await apiPost<ClusterNamesResponse>('/api/llm/cluster-names', { clusters, lang: 'ja' });
+      const res = await apiPost<ClusterNamesResponse>('/api/llm/cluster-names', { clusters, lang: settings.aiLanguage, useLlm: settings.useLlm });
       dispatch({ type: 'RENAME_CLUSTERS', payload: res.names });
       return `${Object.keys(res.names).length} 個のクラスタ名を更新しました`;
     } catch (err) {
       return (err as Error).message;
     }
-  }, [nodes, edges, papers, dispatch]);
+  }, [nodes, edges, papers, dispatch, settings]);
 
   const visibleEdges = useMemo(
     () =>
