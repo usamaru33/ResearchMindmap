@@ -6,12 +6,13 @@ import { QuerySearch } from './QuerySearch';
 import type { BuildMapHandler } from './ResultsSection';
 import { VagueSearch } from './VagueSearch';
 import { SearchHistory } from './SearchHistory';
-import type { HistoryEntry } from '../../types';
+import type { HistoryEntry, Paper } from '../../types';
+import { ExploreSearch } from '../Explore/ExploreSearch';
 import styles from './SearchPanel.module.css';
 
 export type { BuildMapHandler, BuildMode, BuildTarget } from './ResultsSection';
 
-type Tab = 'query' | 'vague';
+type Tab = 'query' | 'vague' | 'explore';
 
 interface SearchPanelProps {
   search: SearchState;
@@ -19,6 +20,8 @@ interface SearchPanelProps {
   vague: VagueState;
   onVague: (request: VagueSearchRequest) => void;
   mapIds: Set<string>;
+  /** Papers on the current map (for the co-author network). */
+  mapPapers: Paper[];
   onBuildMap: BuildMapHandler;
   history: HistoryEntry[];
   onPinHistory: (id: string) => void;
@@ -31,6 +34,7 @@ export function SearchPanel({
   vague,
   onVague,
   mapIds,
+  mapPapers,
   onBuildMap,
   history,
   onPinHistory,
@@ -79,6 +83,15 @@ export function SearchPanel({
         >
           なんとなく検索
         </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'explore'}
+          className={`${styles.tab} ${tab === 'explore' ? styles.tabActive : ''}`}
+          onClick={() => setTab('explore')}
+        >
+          著者・会議
+        </button>
       </div>
 
       <SearchHistory entries={history} onUse={applyEntry} onRerun={rerun} onPin={onPinHistory} onRemove={onRemoveHistory} />
@@ -110,6 +123,9 @@ export function SearchPanel({
             setTab('query');
           }}
         />
+      </div>
+      <div hidden={tab !== 'explore'} className={styles.panel}>
+        <ExploreSearch mapIds={mapIds} mapPapers={mapPapers} onBuildMap={onBuildMap} />
       </div>
     </div>
   );
