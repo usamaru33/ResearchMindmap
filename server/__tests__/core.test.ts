@@ -80,6 +80,12 @@ describe('mergePaperLists', () => {
     expect(papers).toHaveLength(2);
   });
 
+  it('keeps the original id when merged records have no external ids', () => {
+    const a = makePaper({ id: 'my-uuid', title: 'A Long Enough Title For Matching', year: 2020 });
+    const b = makePaper({ title: 'A long enough title for matching', year: 2020 });
+    expect(mergePaperLists([[a], [b]]).papers[0].id).toBe('my-uuid');
+  });
+
   it('prefers a non-uppercase title', () => {
     const { papers } = mergePaperLists([[p('GRAPH NEURAL NETWORKS IN PRACTICE', { ids: { doi: '10.1/x' } })], [p('Graph Neural Networks in Practice', { ids: { doi: '10.1/x' } })]]);
     expect(papers[0].title).toBe('Graph Neural Networks in Practice');
