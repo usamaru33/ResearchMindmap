@@ -11,6 +11,7 @@ function PaperNodeComponent({ id, data, selected }: NodeProps) {
   const nodeData = data as unknown as PaperNodeData;
   const { paper } = nodeData;
   const view = useMapView();
+  const role = view.roles.get(id);
   const accent = accentColor(view.colorMode, paper, nodeData.accent);
   const yearColor = badgeColor(view.colorMode, paper, accent);
   const scale = view.sizeByCitations ? citationScale(paper.citationCount, view.maxCitations) : 1;
@@ -50,6 +51,11 @@ function PaperNodeComponent({ id, data, selected }: NodeProps) {
           ...(scale !== 1 ? { zoom: scale } : {}),
         }}
       >
+        {role && (
+          <span className={`${styles.role} ${role === 'foundation' ? styles.roleFoundation : styles.roleRecent}`}>
+            {role === 'foundation' ? '基礎論文' : '最新の発展'}
+          </span>
+        )}
         <div className={styles.header}>
           <span className={styles.yearBadge} style={{ backgroundColor: yearColor }}>
             {paper.year}

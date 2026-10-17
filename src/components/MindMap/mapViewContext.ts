@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 import type { Paper, SourceName } from '../../../shared/types';
+import type { PaperRole } from '../../store/keyPapers';
 import { getYearColor } from '../../utils/helpers';
 import { statusInfo } from '../../utils/reading';
 
@@ -11,9 +12,10 @@ export interface MapView {
   /** Ids that match the map filter, or null when no filter is active. */
   highlight: Set<string> | null;
   maxCitations: number;
+  roles: Map<string, PaperRole>;
 }
 
-export const DEFAULT_VIEW: MapView = { colorMode: 'year', sizeByCitations: false, highlight: null, maxCitations: 0 };
+export const DEFAULT_VIEW: MapView = { colorMode: 'year', sizeByCitations: false, highlight: null, maxCitations: 0, roles: new Map() };
 
 export const MapViewContext = createContext<MapView>(DEFAULT_VIEW);
 
