@@ -25,6 +25,7 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose }: S
       <div className={styles.body}>
         {isOpen && (
           <PaperForm
+            key={mode === 'edit' ? selectedPaper?.id : 'new'}
             paper={mode === 'edit' ? selectedPaper : null}
             allPapers={allPapers}
             onSubmit={onSubmit}
