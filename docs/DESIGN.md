@@ -356,7 +356,8 @@ RQL → parse → AST
 | GET | `/api/papers/:id/references` | — | `{ papers }` |
 | GET | `/api/papers/:id/citations` | `?limit` | `{ papers }` |
 | GET | `/api/papers/:id/related` | `?limit` | `{ papers }` |
-| POST | `/api/resolve` | `{ inputs: string[] }`（DOI / arXiv ID / URL / タイトル） | `{ papers, failed[] }` |
+| POST | `/api/resolve` | `{ inputs: string[] (≤100) }`（DOI / arXiv ID・URL / OpenAlex ID / PubMed ID / タイトル。行頭の `-` `1.` `[3]` は無視） | `{ items: [{ input, kind, ok, paper?, error? }] }`（DOI は OpenAlex → Crossref、arXiv は OpenAlex → arXiv API、タイトルは完全一致のうち被引用数最大） |
+| POST | `/api/papers/expand` | `{ paper, kind: 'references' \| 'citations' \| 'related', limit? }` | `{ kind, papers, total, warnings }` |
 | POST | `/api/llm/summarize` | `{ paper, lang }` | SSE |
 | POST | `/api/llm/related-work` | `{ papers, topic, style, lang }` | SSE |
 | POST | `/api/llm/gaps` | `{ papers }` | `{ gaps: [{title, evidence[], paperIds[]}] }` |

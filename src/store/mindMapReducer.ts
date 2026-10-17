@@ -202,6 +202,34 @@ function addLinkedPapers(state: MindMapState, anchorId: string, papers: Paper[],
   };
 }
 
+const GRID_COLUMNS = 4;
+
+/** Add papers in a grid around `center`; papers already in the map are refreshed instead. */
+function addPapers(state: MindMapState, papers: Paper[], center: { x: number; y: number }): MindMapState {
+  const existingNodes = state.nodes.filter(isPaperNode);
+  const idMap = matchExisting(existingNodes.map((n) => n.data.paper), papers);
+  const byId = new Map(existingNodes.map((n) => [n.id, n]));
+  const now = new Date().toISOString();
+  const updates = new Map<string, Paper>();
+  const fresh: Paper[] = [];
+  for (const p of papers) {
+    const id = idMap.get(p.id) ?? p.id;
+    const hit = byId.get(id);
+    if (hit) updates.set(id, mergeImportedPaper(hit.data.paper, { ...p, id }));
+    else if (!fresh.some((f) => f.id === id)) fresh.push({ ...p, id, addedAt: p.addedAt ?? now });
+  }
+  const cols = Math.min(GRID_COLUMNS, fresh.length) || 1;
+  const rows = Math.ceil(fresh.length / cols);
+  const placed = fresh.map((p, i) =>
+    createPaperNode(p, {
+      x: center.x + ((i % cols) - (cols - 1) / 2) * LINK_COLUMN_WIDTH - 140,
+      y: center.y + (Math.floor(i / cols) - (rows - 1) / 2) * LINK_ROW_HEIGHT - 55,
+    }),
+  );
+  const nodes = [...state.nodes.map((n) => (updates.has(n.id) ? updatePaper(n, () => updates.get(n.id)!) : n)), ...placed];
+  return { ...state, nodes, edges: rebuildEdges(nodes, state.edges), viewRequest: { kind: 'fit', seq: state.viewRequest.seq + 1 } };
+}
+
 function deletePapers(state: MindMapState, ids: string[]): MindMapState {
   const removed = new Set(ids);
   if (removed.size === 0) return state;
@@ -327,6 +355,9 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
         viewRequest: { ...next.viewRequest, seq: state.viewRequest.seq + 1 },
       };
     }
+
+    case 'ADD_PAPERS':
+      return addPapers(state, action.payload.papers, action.payload.center);
 
     case 'ADD_LINKED_PAPERS':
       return addLinkedPapers(state, action.payload.anchorId, action.payload.papers, action.payload.kind);

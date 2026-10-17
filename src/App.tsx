@@ -110,6 +110,12 @@ export default function App() {
         allPapers={getAllPapers()}
         onSubmit={handleSubmitPaper}
         onClose={handleCloseSidebar}
+        mapIds={mapIds}
+        onAddPapers={(papers) => {
+          const center = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+          dispatch({ type: 'ADD_PAPERS', payload: { papers, center } });
+          dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'closed' });
+        }}
         searchPanel={
           <SearchPanel
             search={search.state}

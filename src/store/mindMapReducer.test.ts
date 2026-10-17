@@ -204,3 +204,29 @@ describe('paper identity across sources', () => {
     expect(p.ids?.doi).toBe('10.1/x');
   });
 });
+
+describe('ADD_PAPERS', () => {
+  it('places new papers in a grid and refreshes ones already in the map', () => {
+    const known = createPaperNode({ ...paper('known'), ids: { doi: '10.1234/k' }, notes: 'mine' }, { x: 7, y: 7 });
+    let s = initMindMapState({ nodes: [known], edges: [], layoutDirection: 'LR' });
+    s = mindMapReducer(s, {
+      type: 'ADD_PAPERS',
+      payload: {
+        center: { x: 0, y: 0 },
+        papers: [
+          { ...paper('doi:10.1234/k'), ids: { doi: '10.1234/k' }, abstract: 'fresh' },
+          paper('n1'),
+          paper('n2'),
+          paper('n1'),
+        ],
+      },
+    });
+    expect(s.nodes.map((n) => n.id)).toEqual(['known', 'n1', 'n2']);
+    const k = s.nodes.filter(isPaperNode)[0];
+    expect(k.position).toEqual({ x: 7, y: 7 });
+    expect(k.data.paper).toMatchObject({ notes: 'mine', abstract: 'fresh' });
+    const [n1, n2] = s.nodes.slice(1);
+    expect(n1.position.y).toBe(n2.position.y);
+    expect(n1.position.x).toBeLessThan(n2.position.x);
+  });
+});

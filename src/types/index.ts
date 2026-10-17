@@ -86,6 +86,7 @@ export type MindMapAction =
   | { type: 'APPLY_LAYOUT'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
   | { type: 'LOAD_MAP'; payload: MapSnapshot }
   | { type: 'IMPORT_GRAPH'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
+  | { type: 'ADD_PAPERS'; payload: { papers: Paper[]; center: { x: number; y: number } } }
   | { type: 'ADD_LINKED_PAPERS'; payload: { anchorId: string; papers: Paper[]; kind: ExpandKind } }
   | { type: 'REQUEST_VIEW'; payload: ViewRequest['kind'] };
 
