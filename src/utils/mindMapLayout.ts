@@ -27,6 +27,8 @@ interface Block {
   clusterId: string;
   paperIds: string[];
   cols: number;
+  /** Widest paper card in the block (cards grow when sized by citations). */
+  colWidth: number;
   width: number;
   height: number;
 }
@@ -65,12 +67,14 @@ export function mindMapLayout(nodes: MapNode[], edges: PaperEdge[]): { nodes: Ma
         const cols = Math.max(1, Math.ceil(paperIds.length / MAX_ROWS_PER_COLUMN));
         const rows = Math.ceil(paperIds.length / cols) || 1;
         const paperH = Math.max(...paperIds.map((id) => size(byId.get(id)!).h), SIZE.paper.h);
+        const colWidth = Math.max(...paperIds.map((id) => size(byId.get(id)!).w), SIZE.paper.w);
         const clusterH = size(byId.get(clusterId)!).h;
         return {
           clusterId,
           paperIds,
           cols,
-          width: cols * (SIZE.paper.w + GAP.paperX),
+          colWidth,
+          width: cols * (colWidth + GAP.paperX),
           height: Math.max(clusterH, rows * paperH + (rows - 1) * GAP.paperY),
         };
       });
@@ -117,8 +121,8 @@ export function mindMapLayout(nodes: MapNode[], edges: PaperEdge[]): { nodes: Ma
           const row = i % rows;
           const x =
             side === 'right'
-              ? clusterX + cs.w + GAP.clusterToPaper + col * (SIZE.paper.w + GAP.paperX)
-              : clusterX - GAP.clusterToPaper - (col + 1) * SIZE.paper.w - col * GAP.paperX;
+              ? clusterX + cs.w + GAP.clusterToPaper + col * (b.colWidth + GAP.paperX)
+              : clusterX - GAP.clusterToPaper - (col + 1) * b.colWidth - col * GAP.paperX;
           positions.set(id, { x, y: y + row * (paperH + GAP.paperY) });
           sides.set(id, side);
           placed.add(id);
