@@ -38,7 +38,7 @@
 
 | # | 状態 | ブランチ | 内容 | 機能ID | 完了条件 |
 |---|---|---|---|---|---|
-| 3.1 | ☐ | `feat/llm-foundation` | `server/llm/`（クライアント、設定、テスト用の差し込み口）、`/api/health` に LLM の状態を表示、フロントに LLM の有効/無効表示 | — | キーなしで `llm.enabled: false`。偽クライアントでテストできる |
+| 3.1 | ☑ | `feat/llm-foundation` | `server/llm/`（クライアント、設定、テスト用の差し込み口）、`/api/health` に LLM の状態を表示、フロントに LLM の有効/無効表示 | — | キーなしで `llm.enabled: false`。偽クライアントでテストできる |
 | 3.2 | ☐ | `feat/vague-search` | `/api/vague-search`（意味検索 + クエリ展開 + 関連度検索 → RRF → 再ランキング）、UI のモード切替、展開されたクエリから通常検索へ移る導線 | A3 | キーなしのフォールバックで、smoke-test の例文の上位に関連論文が来る。LLM 版は偽クライアントでテストする |
 
 ## M4 研究支援機能（R3）
