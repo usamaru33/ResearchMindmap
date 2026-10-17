@@ -46,7 +46,7 @@ export type PaperEdge = Edge<PaperEdgeData>;
 
 export type LayoutDirection = 'TB' | 'LR';
 
-export type SidebarMode = 'closed' | 'search' | 'library' | 'write' | 'compare' | 'add' | 'edit';
+export type SidebarMode = 'closed' | 'search' | 'library' | 'write' | 'compare' | 'screen' | 'add' | 'edit';
 
 export interface MindMapState {
   nodes: MapNode[];

@@ -17,6 +17,8 @@ interface ToolbarProps {
   writeOpen: boolean;
   onToggleCompare: () => void;
   compareOpen: boolean;
+  onToggleScreen: () => void;
+  screenOpen: boolean;
   showCitations: boolean;
   onToggleCitations: () => void;
   viewMenu: ReactNode;
@@ -36,6 +38,8 @@ export function Toolbar({
   writeOpen,
   onToggleCompare,
   compareOpen,
+  onToggleScreen,
+  screenOpen,
   showCitations,
   onToggleCitations,
   viewMenu,
@@ -86,6 +90,14 @@ export function Toolbar({
         title="Literature comparison table"
       >
         Compare
+      </button>
+      <button
+        className={`${styles.btn} ${screenOpen ? styles.btnActive : ''}`}
+        onClick={onToggleScreen}
+        aria-pressed={screenOpen}
+        title="Systematic review screening"
+      >
+        Screen
       </button>
       <button className={styles.btn} onClick={onAddPaper}>
         + Add Paper

@@ -14,7 +14,10 @@ function PaperNodeComponent({ id, data, selected }: NodeProps) {
   const accent = accentColor(view.colorMode, paper, nodeData.accent);
   const yearColor = badgeColor(view.colorMode, paper, accent);
   const scale = view.sizeByCitations ? citationScale(paper.citationCount, view.maxCitations) : 1;
-  const dimmed = view.highlight !== null && !view.highlight.has(id);
+  // Excluded papers fade in screening mode so the included set stands out.
+  const dimmed =
+    (view.highlight !== null && !view.highlight.has(id)) ||
+    (view.colorMode === 'screening' && paper.screening?.decision === 'exclude');
   // "To read" is the default; only show a status once the user has set one.
   const status = paper.status && paper.status !== 'unread' ? statusInfo(paper.status) : undefined;
   const directional = useHandlePositions();

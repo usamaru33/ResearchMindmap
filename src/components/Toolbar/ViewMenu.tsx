@@ -8,6 +8,7 @@ const MODES: Array<{ value: ColorMode; label: string }> = [
   { value: 'cluster', label: 'Cluster' },
   { value: 'status', label: 'Reading status' },
   { value: 'source', label: 'Source' },
+  { value: 'screening', label: 'Screening' },
 ];
 
 interface ViewMenuProps {
