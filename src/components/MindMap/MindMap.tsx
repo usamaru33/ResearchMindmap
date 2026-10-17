@@ -13,7 +13,7 @@ import {
   type EdgeChange,
   type Connection,
 } from '@xyflow/react';
-import type { PaperNode, PaperEdge, MindMapAction, LayoutDirection } from '../../types';
+import type { PaperNode, PaperEdge, MindMapAction, LayoutDirection, ViewRequest } from '../../types';
 import { PaperNode as PaperNodeComponent } from '../PaperNode/PaperNode';
 import { Toolbar } from '../Toolbar/Toolbar';
 import { useAutoLayout } from '../../hooks/useAutoLayout';
@@ -27,25 +27,38 @@ interface MindMapProps {
   nodes: PaperNode[];
   edges: PaperEdge[];
   layoutDirection: LayoutDirection;
+  viewRequest: ViewRequest;
   dispatch: React.Dispatch<MindMapAction>;
   onAddPaper: () => void;
 }
 
-export function MindMap({ nodes, edges, layoutDirection, dispatch, onAddPaper }: MindMapProps) {
+export function MindMap({
+  nodes,
+  edges,
+  layoutDirection,
+  viewRequest,
+  dispatch,
+  onAddPaper,
+}: MindMapProps) {
   const { fitView } = useReactFlow();
   const { applyLayout } = useAutoLayout();
   const [pendingConnection, setPendingConnection] = useState<Connection | null>(null);
   const [selectedRelationship, setSelectedRelationship] = useState(RELATIONSHIP_OPTIONS[0]);
-  const initialLayoutDone = useRef(false);
 
-  // Initial auto-layout
+  // Run the layout / fit the view whenever the store asks for it (initial
+  // load, project switch, imported results). Node measurements are only
+  // available after the first paint, hence the animation frame.
+  const handledSeq = useRef(-1);
   useEffect(() => {
-    if (!initialLayoutDone.current && nodes.length > 0) {
-      initialLayoutDone.current = true;
+    if (handledSeq.current === viewRequest.seq) return;
+    handledSeq.current = viewRequest.seq;
+    if (viewRequest.kind === 'layout' && nodes.length > 0) {
       const result = applyLayout(nodes, edges, layoutDirection);
       dispatch({ type: 'APPLY_LAYOUT', payload: result });
+    } else {
+      window.requestAnimationFrame(() => fitView({ padding: 0.2, duration: 300 }));
     }
-  }, [nodes.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [viewRequest]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Removals go through the reducer so that references, derived edges and
   // the selection stay consistent; all other changes are applied directly.
