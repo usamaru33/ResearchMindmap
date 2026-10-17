@@ -51,6 +51,15 @@ export default function App() {
     dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'search' ? 'closed' : 'search' });
   }, [dispatch, state.sidebarMode]);
 
+  const recordHistory = useCallback(
+    (kind: 'query' | 'vague', text: string, resultCount: number) =>
+      dispatch({
+        type: 'ADD_HISTORY',
+        payload: { id: crypto.randomUUID(), kind, text, at: new Date().toISOString(), resultCount },
+      }),
+    [dispatch],
+  );
+
   const handleBuildMap = useCallback(
     async (papers: Paper[], target: BuildTarget, query: string, mode: BuildMode) => {
       const graph = await apiPost<GraphBuildResponse>('/api/graph/build', { papers });
@@ -210,9 +219,18 @@ export default function App() {
         searchPanel={
           <SearchPanel
             search={search.state}
-            onSearch={search.run}
+            onSearch={async (req) => {
+              const res = await search.run(req);
+              if (res) recordHistory('query', req.query, res.results.length);
+            }}
             vague={vague.state}
-            onVague={vague.run}
+            onVague={async (req) => {
+              const res = await vague.run(req);
+              if (res) recordHistory('vague', req.description, res.results.length);
+            }}
+            history={state.history}
+            onPinHistory={(id) => dispatch({ type: 'PIN_HISTORY', payload: id })}
+            onRemoveHistory={(id) => dispatch({ type: 'REMOVE_HISTORY', payload: id })}
             mapIds={mapIds}
             onBuildMap={handleBuildMap}
           />

@@ -1,4 +1,4 @@
-import type { LayoutDirection, MapNode, PaperEdge } from '../types';
+import type { HistoryEntry, LayoutDirection, MapNode, PaperEdge } from '../types';
 
 export const PROJECT_SCHEMA_VERSION = 1;
 const PREFIX = 'rmm:v1:';
@@ -23,6 +23,7 @@ export interface Project {
   edges: PaperEdge[];
   layoutDirection: LayoutDirection;
   aspects?: string[];
+  history?: HistoryEntry[];
 }
 
 /** Minimal Storage interface so tests can pass an in-memory implementation. */
@@ -161,6 +162,7 @@ export function parseProjectFile(text: string, now = new Date().toISOString()): 
     edges: sanitizeEdges(p.edges),
     layoutDirection: p.layoutDirection === 'TB' ? 'TB' : 'LR',
     aspects: Array.isArray(p.aspects) ? p.aspects.filter((a): a is string => typeof a === 'string') : [],
+    history: Array.isArray(p.history) ? p.history : [],
   });
 }
 

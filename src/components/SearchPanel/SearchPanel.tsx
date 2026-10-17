@@ -5,6 +5,8 @@ import type { SearchState, VagueState } from '../../hooks/useSearch';
 import { QuerySearch } from './QuerySearch';
 import type { BuildMapHandler } from './ResultsSection';
 import { VagueSearch } from './VagueSearch';
+import { SearchHistory } from './SearchHistory';
+import type { HistoryEntry } from '../../types';
 import styles from './SearchPanel.module.css';
 
 export type { BuildMapHandler, BuildMode, BuildTarget } from './ResultsSection';
@@ -18,12 +20,41 @@ interface SearchPanelProps {
   onVague: (request: VagueSearchRequest) => void;
   mapIds: Set<string>;
   onBuildMap: BuildMapHandler;
+  history: HistoryEntry[];
+  onPinHistory: (id: string) => void;
+  onRemoveHistory: (id: string) => void;
 }
 
-export function SearchPanel({ search, onSearch, vague, onVague, mapIds, onBuildMap }: SearchPanelProps) {
+export function SearchPanel({
+  search,
+  onSearch,
+  vague,
+  onVague,
+  mapIds,
+  onBuildMap,
+  history,
+  onPinHistory,
+  onRemoveHistory,
+}: SearchPanelProps) {
   const health = useApiHealth();
   const [tab, setTab] = useState<Tab>('query');
   const [queryText, setQueryText] = useState('');
+  const [description, setDescription] = useState('');
+
+  const applyEntry = (e: HistoryEntry) => {
+    if (e.kind === 'vague') {
+      setDescription(e.text);
+      setTab('vague');
+    } else {
+      setQueryText(e.text);
+      setTab('query');
+    }
+  };
+  const rerun = (e: HistoryEntry) => {
+    applyEntry(e);
+    if (e.kind === 'vague') onVague({ description: e.text });
+    else onSearch({ query: e.text });
+  };
   const sources = health.status === 'ok' ? health.health.sources : [];
   const llmEnabled = health.status === 'ok' && health.health.llm.enabled;
 
@@ -50,6 +81,8 @@ export function SearchPanel({ search, onSearch, vague, onVague, mapIds, onBuildM
         </button>
       </div>
 
+      <SearchHistory entries={history} onUse={applyEntry} onRerun={rerun} onPin={onPinHistory} onRemove={onRemoveHistory} />
+
       {/* Both tabs stay mounted so switching keeps their input and results. */}
       <div hidden={tab !== 'query'} className={styles.panel}>
         <QuerySearch
@@ -70,6 +103,8 @@ export function SearchPanel({ search, onSearch, vague, onVague, mapIds, onBuildM
           llmEnabled={llmEnabled}
           mapIds={mapIds}
           onBuildMap={onBuildMap}
+          description={description}
+          onDescriptionChange={setDescription}
           onUseQuery={(q) => {
             setQueryText(q);
             setTab('query');

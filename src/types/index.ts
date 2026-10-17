@@ -58,6 +58,17 @@ export interface MindMapState {
   viewRequest: ViewRequest;
   /** Comparison-table columns, in order. */
   aspects: string[];
+  /** Searches run in this project, newest first. */
+  history: HistoryEntry[];
+}
+
+export interface HistoryEntry {
+  id: string;
+  kind: 'query' | 'vague';
+  text: string;
+  at: string;
+  resultCount: number;
+  pinned?: boolean;
 }
 
 export interface ViewRequest {
@@ -70,6 +81,7 @@ export interface MapSnapshot {
   edges: PaperEdge[];
   layoutDirection: LayoutDirection;
   aspects?: string[];
+  history?: HistoryEntry[];
 }
 
 export type MindMapAction =
@@ -89,6 +101,9 @@ export type MindMapAction =
   | { type: 'APPLY_LAYOUT'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
   | { type: 'LOAD_MAP'; payload: MapSnapshot }
   | { type: 'IMPORT_GRAPH'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
+  | { type: 'ADD_HISTORY'; payload: HistoryEntry }
+  | { type: 'PIN_HISTORY'; payload: string }
+  | { type: 'REMOVE_HISTORY'; payload: string }
   | { type: 'SET_ASPECTS'; payload: string[] }
   | { type: 'RENAME_ASPECT'; payload: { from: string; to: string } }
   | { type: 'SET_ASPECT_VALUES'; payload: { aspect: string; values: Record<string, string> } }
