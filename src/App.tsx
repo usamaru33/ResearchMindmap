@@ -9,6 +9,7 @@ import { SearchPanel, type BuildMode, type BuildTarget } from './components/Sear
 import { apiPost } from './api/client';
 import { buildGraphElements } from './store/graphImport';
 import { tagCounts } from './utils/reading';
+import { exportPapers, parseBibliography } from './utils/bibliography';
 import { useMindMapStore } from './hooks/useMindMapStore';
 import { loadInitialProject, useProjects } from './hooks/useProjects';
 import { useSearch, useVagueSearch } from './hooks/useSearch';
@@ -174,6 +175,15 @@ export default function App() {
           onDelete={projects.removeActive}
           onExport={projects.exportActive}
           onImport={projects.importFile}
+          onExportBibliography={(format) => exportPapers(allPapers, format, projects.activeProject.name)}
+          onImportBibliography={async (file) => {
+            const papers = parseBibliography(await file.text());
+            if (papers.length) {
+              const center = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+              dispatch({ type: 'ADD_PAPERS', payload: { papers, center } });
+            }
+            return papers.length;
+          }}
         />
         <MindMap
           nodes={state.nodes}

@@ -2,6 +2,7 @@ import type { ExpandKind } from '../../../shared/types';
 import type { Paper } from '../../types';
 import { ExpandSection } from './ExpandSection';
 import { ReadingSection } from './ReadingSection';
+import { CiteSection } from './CiteSection';
 import { getYearColor } from '../../utils/helpers';
 import styles from './DetailPanel.module.css';
 
@@ -107,6 +108,8 @@ export function DetailPanel({
                 <div className={styles.futureWorkText}>{paper.futureWork}</div>
               </div>
             )}
+
+            <CiteSection key={`cite-${paper.id}`} paper={paper} />
 
             <ExpandSection
               key={`expand-${paper.id}`}
