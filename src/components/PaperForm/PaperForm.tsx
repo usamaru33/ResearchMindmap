@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { Paper } from '../../types';
 import { generateId } from '../../utils/helpers';
 import styles from './PaperForm.module.css';
@@ -11,46 +11,23 @@ interface PaperFormProps {
 }
 
 export function PaperForm({ paper, allPapers, onSubmit, onCancel }: PaperFormProps) {
-  const [title, setTitle] = useState('');
-  const [authors, setAuthors] = useState('');
-  const [belongs, setBelongs] = useState('');
-  const [year, setYear] = useState(2024);
-  const [venue, setVenue] = useState('');
-  const [abstract_, setAbstract] = useState('');
-  const [challenges, setChallenges] = useState('');
-  const [futureWork, setFutureWork] = useState('');
-  const [references, setReferences] = useState<string[]>([]);
-  const [thumbnailUrl, setThumbnailUrl] = useState('');
-
-  useEffect(() => {
-    if (paper) {
-      setTitle(paper.title);
-      setAuthors(paper.authors.join(', '));
-      setBelongs(paper.belongs);
-      setYear(paper.year);
-      setVenue(paper.venue);
-      setAbstract(paper.abstract);
-      setChallenges(paper.challenges);
-      setFutureWork(paper.futureWork);
-      setReferences(paper.references);
-      setThumbnailUrl(paper.thumbnailUrl ?? '');
-    } else {
-      setTitle('');
-      setAuthors('');
-      setBelongs('');
-      setYear(2024);
-      setVenue('');
-      setAbstract('');
-      setChallenges('');
-      setFutureWork('');
-      setReferences([]);
-      setThumbnailUrl('');
-    }
-  }, [paper]);
+  // Initial values come from props; the parent remounts this form (via `key`)
+  // when switching papers, so no effect is needed to sync state.
+  const [title, setTitle] = useState(paper?.title ?? '');
+  const [authors, setAuthors] = useState(paper?.authors.join(', ') ?? '');
+  const [belongs, setBelongs] = useState(paper?.belongs ?? '');
+  const [year, setYear] = useState(paper?.year ?? new Date().getFullYear());
+  const [venue, setVenue] = useState(paper?.venue ?? '');
+  const [abstract_, setAbstract] = useState(paper?.abstract ?? '');
+  const [challenges, setChallenges] = useState(paper?.challenges ?? '');
+  const [futureWork, setFutureWork] = useState(paper?.futureWork ?? '');
+  const [references, setReferences] = useState<string[]>(paper?.references ?? []);
+  const [thumbnailUrl, setThumbnailUrl] = useState(paper?.thumbnailUrl ?? '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
+      ...paper,
       id: paper?.id ?? generateId(),
       title: title.trim(),
       authors: authors.split(',').map((a) => a.trim()).filter(Boolean),

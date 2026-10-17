@@ -45,3 +45,34 @@
   background: var(--color-border);
   align-self: stretch;
 }
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 var(--space-xs);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: default;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+
+.dot_ok {
+  background: #10b981;
+}
+
+.dot_error {
+  background: var(--color-danger);
+}
+
+.dot_loading,
+.dot_off {
+  background: var(--color-text-muted);
+}

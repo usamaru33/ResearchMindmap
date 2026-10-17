@@ -1,18 +1,7 @@
 import type { Node, Edge } from '@xyflow/react';
+import type { Paper } from '../../shared/types';
 
-export interface Paper {
-  id: string;
-  title: string;
-  authors: string[];
-  belongs: string;
-  year: number;
-  venue: string;
-  abstract: string;
-  challenges: string;
-  futureWork: string;
-  references: string[];
-  thumbnailUrl?: string;
-}
+export type { Paper } from '../../shared/types';
 
 export interface PaperNodeData extends Record<string, unknown> {
   paper: Paper;

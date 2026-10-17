@@ -1,73 +1,49 @@
-# React + TypeScript + Vite
+# Research Mind Map
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+論文データベースを横断検索して、研究領域のマインドマップを作るアプリです。
 
-Currently, two official plugins are available:
+- **横断クエリ検索**: ACM DL / IEEE Xplore 形式のブール検索クエリで、OpenAlex・Semantic Scholar・Crossref・arXiv・PubMed・IEEE・DBLP をまとめて検索
+- **なんとなく検索**: 「こういう研究」を自然文で書くと、意味の近い論文を探す
+- **マインドマップ**: 検索結果から、引用関係とトピックのクラスタを持つ地図を自動で作る
+- **研究支援**: 読書管理、引用の展開、BibTeX 出力、関連研究の下書きなど（[機能一覧](docs/FEATURES.md)）
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+> 開発中です。進み具合は [docs/ROADMAP.md](docs/ROADMAP.md) を見てください。
 
-## React Compiler
+## 必要なもの
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js 22 以上
 
-## Expanding the ESLint configuration
+## 使い方
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+cp .env.example .env     # APIキーは任意（下記）
+npm run dev              # http://localhost:5173 （API は :8787）
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### APIキー（すべて任意）
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| 変数 | 無いとき |
+|---|---|
+| `OPENALEX_API_KEY` | 同じ IP からの利用者で共有する、少ない無料枠（$0.10/日）で動く。無料のキーで $1/日 になる |
+| `SEMANTIC_SCHOLAR_API_KEY` | 回数制限（429）で結果が欠けることがある |
+| `IEEE_API_KEY` | IEEE Xplore は使わない（IEEE の論文は OpenAlex / Crossref から取る） |
+| `NCBI_API_KEY` | PubMed の回数上限が低い |
+| `ANTHROPIC_API_KEY` | LLM を使う機能は、LLM なしの代替処理で動く |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 開発
+
+```bash
+npm run dev:server   # API サーバーのみ（tsx watch）
+npm test             # Vitest
+npm run lint
+npm run build
 ```
+
+| ディレクトリ | 内容 |
+|---|---|
+| `src/` | フロントエンド（React + @xyflow/react） |
+| `server/` | API サーバー（Hono） |
+| `shared/` | フロントとサーバーで共有する型と関数 |
+| `docs/` | [設計書](docs/DESIGN.md)・[機能一覧](docs/FEATURES.md)・[工程表](docs/ROADMAP.md) |
+| `.claude/skills/` | このリポジトリ用の Claude Code skills |
