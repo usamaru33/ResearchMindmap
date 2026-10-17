@@ -8,6 +8,8 @@ interface ToolbarProps {
   onAddPaper: () => void;
   onFitView: () => void;
   onToggleDirection: () => void;
+  onToggleSearch: () => void;
+  searchOpen: boolean;
 }
 
 export function Toolbar({
@@ -16,6 +18,8 @@ export function Toolbar({
   onAddPaper,
   onFitView,
   onToggleDirection,
+  onToggleSearch,
+  searchOpen,
 }: ToolbarProps) {
   const apiHealth = useApiHealth();
   const apiTitle =
@@ -34,6 +38,13 @@ export function Toolbar({
 
   return (
     <div className={styles.toolbar}>
+      <button
+        className={`${styles.btn} ${searchOpen ? styles.btnActive : ''}`}
+        onClick={onToggleSearch}
+        aria-pressed={searchOpen}
+      >
+        Search
+      </button>
       <button className={styles.btn} onClick={onAddPaper}>
         + Add Paper
       </button>

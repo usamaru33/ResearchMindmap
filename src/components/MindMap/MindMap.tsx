@@ -30,6 +30,8 @@ interface MindMapProps {
   viewRequest: ViewRequest;
   dispatch: React.Dispatch<MindMapAction>;
   onAddPaper: () => void;
+  onToggleSearch: () => void;
+  searchOpen: boolean;
 }
 
 export function MindMap({
@@ -39,6 +41,8 @@ export function MindMap({
   viewRequest,
   dispatch,
   onAddPaper,
+  onToggleSearch,
+  searchOpen,
 }: MindMapProps) {
   const { fitView } = useReactFlow();
   const { applyLayout } = useAutoLayout();
@@ -177,6 +181,8 @@ export function MindMap({
               layoutDirection={layoutDirection}
               onAutoLayout={handleAutoLayout}
               onAddPaper={onAddPaper}
+              onToggleSearch={onToggleSearch}
+              searchOpen={searchOpen}
               onFitView={handleFitView}
               onToggleDirection={handleToggleDirection}
             />

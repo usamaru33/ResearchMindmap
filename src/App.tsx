@@ -1,11 +1,13 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { MindMap } from './components/MindMap/MindMap';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { DetailPanel } from './components/DetailPanel/DetailPanel';
 import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
+import { SearchPanel } from './components/SearchPanel/SearchPanel';
 import { useMindMapStore } from './hooks/useMindMapStore';
 import { loadInitialProject, useProjects } from './hooks/useProjects';
+import { useSearch } from './hooks/useSearch';
 import { createProject } from './store/projects';
 import { sampleNodes } from './data/sampleData';
 import type { Paper } from './types';
@@ -18,15 +20,23 @@ export default function App() {
   const { state, dispatch, getSelectedPaper, getAllPapers, getCitedBy, getReferences } =
     useMindMapStore(initialProject);
   const projects = useProjects(initialProject, state, dispatch);
+  const search = useSearch();
+  const mapIds = useMemo(() => new Set(state.nodes.map((n) => n.id)), [state.nodes]);
   const { screenToFlowPosition } = useReactFlow();
 
   const selectedPaper = getSelectedPaper();
-  const showDetailPanel = selectedPaper !== null && state.sidebarMode === 'closed';
+  // The paper form and the detail panel compete for attention; search can sit next to details.
+  const showDetailPanel =
+    selectedPaper !== null && state.sidebarMode !== 'add' && state.sidebarMode !== 'edit';
 
   const handleAddPaper = useCallback(() => {
     dispatch({ type: 'SELECT_NODE', payload: null });
     dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'add' });
   }, [dispatch]);
+
+  const handleToggleSearch = useCallback(() => {
+    dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'search' ? 'closed' : 'search' });
+  }, [dispatch, state.sidebarMode]);
 
   const handleCloseSidebar = useCallback(() => {
     dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'closed' });
@@ -82,6 +92,7 @@ export default function App() {
         allPapers={getAllPapers()}
         onSubmit={handleSubmitPaper}
         onClose={handleCloseSidebar}
+        searchPanel={<SearchPanel search={search.state} onSearch={search.run} mapIds={mapIds} />}
       />
       <div className={styles.canvas}>
         <ProjectMenu
@@ -103,6 +114,8 @@ export default function App() {
           viewRequest={state.viewRequest}
           dispatch={dispatch}
           onAddPaper={handleAddPaper}
+          onToggleSearch={handleToggleSearch}
+          searchOpen={state.sidebarMode === 'search'}
         />
       </div>
       <DetailPanel

@@ -67,6 +67,22 @@ function retryAfterMs(res: Response): number | undefined {
   return Number.isNaN(date) ? undefined : Math.max(0, date - Date.now());
 }
 
+/** Short, human-readable failure text (APIs often return long JSON or HTML bodies). */
+export function describeFailure(source: string, status: number, body: string): string {
+  if (status === 429) return `${source}: 回数制限に達しました（429）。しばらく待つか APIキーを設定してください`;
+  if (status === 401 || status === 403) return `${source}: アクセスが拒否されました（${status}）。APIキーを確認してください`;
+  let detail = '';
+  try {
+    const json = JSON.parse(body) as { message?: unknown; error?: unknown };
+    const msg = json.message ?? json.error;
+    detail = typeof msg === 'string' ? msg : '';
+  } catch {
+    detail = /<html/i.test(body) ? '' : body;
+  }
+  detail = detail.replace(/\s+/g, ' ').trim().slice(0, 120);
+  return `${source}: HTTP ${status}${detail ? ` ${detail}` : ''}`;
+}
+
 export class HttpClient {
   private readonly fetchImpl: typeof fetch;
   private readonly cache: Cache;
@@ -134,8 +150,8 @@ export class HttpClient {
           });
           this.log(`[http] ${source} ${res.status} ${Date.now() - started}ms ${redactUrl(url).slice(0, 140)}`);
           if (!res.ok) {
-            const body = (await res.text().catch(() => '')).slice(0, 200);
-            const err = new HttpError(source, res.status, `${source}: HTTP ${res.status} ${body}`.trim());
+            const body = await res.text().catch(() => '');
+            const err = new HttpError(source, res.status, describeFailure(source, res.status, body));
             (err as HttpError & { retryAfter?: number }).retryAfter = retryAfterMs(res);
             throw err;
           }
