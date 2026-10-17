@@ -6,6 +6,7 @@ import { useApiHealth } from '../../hooks/useApiHealth';
 import { useStream } from '../../hooks/useStream';
 import { downloadText, safeFileName } from '../../utils/download';
 import { MiniMarkdown } from '../common/MiniMarkdown';
+import { GapsView } from './GapsView';
 import styles from './WritingPanel.module.css';
 
 interface WritingPanelProps {
@@ -14,9 +15,11 @@ interface WritingPanelProps {
   initialIds: string[];
   groups: PaperGroup[];
   projectName: string;
+  onFocusPaper: (id: string) => void;
 }
 
-export function WritingPanel({ papers, initialIds, groups, projectName }: WritingPanelProps) {
+export function WritingPanel({ papers, initialIds, groups, projectName, onFocusPaper }: WritingPanelProps) {
+  const [tab, setTab] = useState<'draft' | 'gaps'>('draft');
   const health = useApiHealth();
   const llmEnabled = health.status === 'ok' && health.health.llm.enabled;
   const [selected, setSelected] = useState<Set<string>>(
@@ -57,6 +60,26 @@ export function WritingPanel({ papers, initialIds, groups, projectName }: Writin
 
   return (
     <div className={styles.panel}>
+      <div className={styles.tabs} role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'draft'}
+          className={`${styles.tab} ${tab === 'draft' ? styles.tabActive : ''}`}
+          onClick={() => setTab('draft')}
+        >
+          関連研究の下書き
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'gaps'}
+          className={`${styles.tab} ${tab === 'gaps' ? styles.tabActive : ''}`}
+          onClick={() => setTab('gaps')}
+        >
+          研究ギャップ
+        </button>
+      </div>
       <label className={styles.field}>
         <span className={styles.label}>Your topic</span>
         <textarea
@@ -114,42 +137,57 @@ export function WritingPanel({ papers, initialIds, groups, projectName }: Writin
         </div>
       )}
 
-      <button type="button" className={styles.primary} onClick={generate} disabled={streaming || chosen.length === 0}>
-        {streaming ? 'Writing…' : llmEnabled && useLlm ? 'Draft related work' : 'Build outline (LLM なし)'}
-      </button>
+      {tab === 'gaps' && (
+        <GapsView
+          papers={chosen}
+          groups={groups}
+          topic={topic}
+          lang={lang}
+          useLlm={llmEnabled && useLlm}
+          onFocusPaper={onFocusPaper}
+        />
+      )}
 
-      {draft.state.status === 'error' && <div className={styles.error}>{draft.state.message}</div>}
-      {text && (
-        <div className={styles.output}>
-          <div className={styles.outputHeader}>
-            {draft.state.status === 'done' && (
-              <span className={draft.state.mode === 'llm' ? styles.badge : styles.badgeMuted}>
-                {draft.state.mode === 'llm' ? 'LLM draft' : '雛形（LLM なし）'}
-              </span>
-            )}
-            <span className={styles.outputActions}>
-              <button type="button" className={styles.link} onClick={copy} disabled={streaming}>
-                {copied ? 'Copied ✓' : 'Copy Markdown'}
-              </button>
-              <button
-                type="button"
-                className={styles.link}
-                disabled={streaming}
-                onClick={() => downloadText(`${safeFileName(projectName)}-related-work.md`, text, 'text/markdown')}
-              >
-                .md
-              </button>
-              <button
-                type="button"
-                className={styles.link}
-                onClick={() => downloadText(`${safeFileName(projectName)}.bib`, toBibtex(chosen), 'application/x-bibtex')}
-              >
-                .bib
-              </button>
-            </span>
-          </div>
-          <MiniMarkdown text={text} className={styles.markdown} />
-        </div>
+      {tab === 'draft' && (
+        <>
+          <button type="button" className={styles.primary} onClick={generate} disabled={streaming || chosen.length === 0}>
+            {streaming ? 'Writing…' : llmEnabled && useLlm ? 'Draft related work' : 'Build outline (LLM なし)'}
+          </button>
+
+          {draft.state.status === 'error' && <div className={styles.error}>{draft.state.message}</div>}
+          {text && (
+            <div className={styles.output}>
+              <div className={styles.outputHeader}>
+                {draft.state.status === 'done' && (
+                  <span className={draft.state.mode === 'llm' ? styles.badge : styles.badgeMuted}>
+                    {draft.state.mode === 'llm' ? 'LLM draft' : '雛形（LLM なし）'}
+                  </span>
+                )}
+                <span className={styles.outputActions}>
+                  <button type="button" className={styles.link} onClick={copy} disabled={streaming}>
+                    {copied ? 'Copied ✓' : 'Copy Markdown'}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.link}
+                    disabled={streaming}
+                    onClick={() => downloadText(`${safeFileName(projectName)}-related-work.md`, text, 'text/markdown')}
+                  >
+                    .md
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.link}
+                    onClick={() => downloadText(`${safeFileName(projectName)}.bib`, toBibtex(chosen), 'application/x-bibtex')}
+                  >
+                    .bib
+                  </button>
+                </span>
+              </div>
+              <MiniMarkdown text={text} className={styles.markdown} />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

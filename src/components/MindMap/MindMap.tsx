@@ -22,6 +22,10 @@ import { useAutoLayout } from '../../hooks/useAutoLayout';
 import { getYearColor, generateId, RELATIONSHIP_OPTIONS } from '../../utils/helpers';
 import { LayoutDirectionContext } from './layoutDirectionContext';
 import { MapViewContext, type ColorMode, type MapView } from './mapViewContext';
+import { MapActionsContext, type MapActions } from './mapActionsContext';
+import { clusterGroups } from '../../store/groups';
+import { apiPost } from '../../api/client';
+import type { ClusterNamesResponse } from '../../../shared/types';
 import { ViewMenu } from '../Toolbar/ViewMenu';
 import { EMPTY_FILTERS, filterPapers } from '../../store/library';
 import { isCitationEdge } from '../../store/mindMapReducer';
@@ -81,6 +85,33 @@ export function MindMap({
     }),
     [colorMode, sizeByCitations, highlight, papers],
   );
+
+  const actions: MapActions = useMemo(
+    () => ({ renameCluster: (id, label) => dispatch({ type: 'RENAME_CLUSTERS', payload: { [id]: label } }) }),
+    [dispatch],
+  );
+  const clusterCount = useMemo(() => nodes.filter((n) => n.type === 'cluster').length, [nodes]);
+
+  const nameClusters = useCallback(async () => {
+    const titleOf = new Map(papers.map((p) => [p.id, p.title]));
+    const clusters = nodes
+      .filter((n) => n.type === 'cluster')
+      .map((n) => ({
+        id: n.id,
+        label: String(n.data.label),
+        titles: (clusterGroups([n], edges)[0]?.paperIds ?? []).map((id) => titleOf.get(id) ?? '').filter(Boolean).slice(0, 15),
+      }))
+      .filter((c) => c.titles.length > 0 && !/^(other|papers)$/i.test(c.label))
+      .slice(0, 20);
+    if (clusters.length === 0) return '名前を付けるクラスタがありません';
+    try {
+      const res = await apiPost<ClusterNamesResponse>('/api/llm/cluster-names', { clusters, lang: 'ja' });
+      dispatch({ type: 'RENAME_CLUSTERS', payload: res.names });
+      return `${Object.keys(res.names).length} 個のクラスタ名を更新しました`;
+    } catch (err) {
+      return (err as Error).message;
+    }
+  }, [nodes, edges, papers, dispatch]);
 
   const visibleEdges = useMemo(
     () =>
@@ -209,99 +240,103 @@ export function MindMap({
   }, []);
 
   return (
-    <MapViewContext.Provider value={view}>
-      <LayoutDirectionContext.Provider value={layoutDirection}>
-        <div className={styles.wrapper}>
-          <ReactFlow
-            nodes={nodes}
-            edges={visibleEdges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onNodeClick={onNodeClick}
-            onPaneClick={onPaneClick}
-            nodeTypes={nodeTypes}
-            fitView
-            fitViewOptions={{ padding: 0.3 }}
-            minZoom={0.1}
-            maxZoom={2}
-            defaultEdgeOptions={{ type: 'smoothstep' }}
-            proOptions={{ hideAttribution: true }}
-          >
-            <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />
-            <Controls position="bottom-right" showInteractive={false} />
-            <MiniMap
-              position="bottom-left"
-              pannable
-              zoomable
-              nodeColor={minimapNodeColor}
-              maskColor="rgba(250, 251, 252, 0.7)"
-            />
-            <Panel position="top-right">
-              <Toolbar
-                layoutDirection={layoutDirection}
-                onAutoLayout={handleAutoLayout}
-                onAddPaper={onAddPaper}
-                onToggleSearch={onToggleSearch}
-                searchOpen={searchOpen}
-                onToggleLibrary={onToggleLibrary}
-                libraryOpen={libraryOpen}
-              onToggleWrite={onToggleWrite}
-              writeOpen={writeOpen}
-                onFitView={handleFitView}
-                onToggleDirection={handleToggleDirection}
-                showCitations={showCitations}
-                onToggleCitations={() => setShowCitations((v) => !v)}
-                viewMenu={
-                  <ViewMenu
-                    colorMode={colorMode}
-                    onColorMode={setColorMode}
-                    sizeByCitations={sizeByCitations}
-                    onSizeByCitations={(on) => {
-                    setSizeByCitations(on);
-                    // Re-run the layout once React Flow has measured the resized cards.
-                    window.setTimeout(() => dispatch({ type: 'REQUEST_VIEW', payload: 'layout' }), 120);
-                  }}
-                    filter={filter}
-                    onFilter={setFilter}
-                    matchCount={highlight ? highlight.size : null}
-                  />
-                }
+    <MapActionsContext.Provider value={actions}>
+      <MapViewContext.Provider value={view}>
+        <LayoutDirectionContext.Provider value={layoutDirection}>
+          <div className={styles.wrapper}>
+            <ReactFlow
+              nodes={nodes}
+              edges={visibleEdges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onNodeClick={onNodeClick}
+              onPaneClick={onPaneClick}
+              nodeTypes={nodeTypes}
+              fitView
+              fitViewOptions={{ padding: 0.3 }}
+              minZoom={0.1}
+              maxZoom={2}
+              defaultEdgeOptions={{ type: 'smoothstep' }}
+              proOptions={{ hideAttribution: true }}
+            >
+              <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />
+              <Controls position="bottom-right" showInteractive={false} />
+              <MiniMap
+                position="bottom-left"
+                pannable
+                zoomable
+                nodeColor={minimapNodeColor}
+                maskColor="rgba(250, 251, 252, 0.7)"
               />
-            </Panel>
-          </ReactFlow>
+              <Panel position="top-right">
+                <Toolbar
+                  layoutDirection={layoutDirection}
+                  onAutoLayout={handleAutoLayout}
+                  onAddPaper={onAddPaper}
+                  onToggleSearch={onToggleSearch}
+                  searchOpen={searchOpen}
+                  onToggleLibrary={onToggleLibrary}
+                  libraryOpen={libraryOpen}
+                onToggleWrite={onToggleWrite}
+                writeOpen={writeOpen}
+                  onFitView={handleFitView}
+                  onToggleDirection={handleToggleDirection}
+                  showCitations={showCitations}
+                  onToggleCitations={() => setShowCitations((v) => !v)}
+                  viewMenu={
+                    <ViewMenu
+                      colorMode={colorMode}
+                      onColorMode={setColorMode}
+                      sizeByCitations={sizeByCitations}
+                      onSizeByCitations={(on) => {
+                      setSizeByCitations(on);
+                      // Re-run the layout once React Flow has measured the resized cards.
+                      window.setTimeout(() => dispatch({ type: 'REQUEST_VIEW', payload: 'layout' }), 120);
+                    }}
+                      filter={filter}
+                      onFilter={setFilter}
+                      matchCount={highlight ? highlight.size : null}
+                    clusterCount={clusterCount}
+                    onNameClusters={nameClusters}
+                    />
+                  }
+                />
+              </Panel>
+            </ReactFlow>
 
-          {pendingConnection && (
-            <>
-              <div className={styles.overlay} onClick={cancelConnection} />
-              <div className={styles.connectionDialog}>
-                <h3>Add Connection</h3>
-                <select
-                  value={selectedRelationship}
-                  onChange={(e) => setSelectedRelationship(e.target.value)}
-                >
-                  {RELATIONSHIP_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-                <div className={styles.dialogActions}>
-                  <button className={styles.dialogBtn} onClick={cancelConnection}>
-                    Cancel
-                  </button>
-                  <button
-                    className={`${styles.dialogBtn} ${styles.dialogBtnPrimary}`}
-                    onClick={confirmConnection}
+            {pendingConnection && (
+              <>
+                <div className={styles.overlay} onClick={cancelConnection} />
+                <div className={styles.connectionDialog}>
+                  <h3>Add Connection</h3>
+                  <select
+                    value={selectedRelationship}
+                    onChange={(e) => setSelectedRelationship(e.target.value)}
                   >
-                    Add
-                  </button>
+                    {RELATIONSHIP_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                  <div className={styles.dialogActions}>
+                    <button className={styles.dialogBtn} onClick={cancelConnection}>
+                      Cancel
+                    </button>
+                    <button
+                      className={`${styles.dialogBtn} ${styles.dialogBtnPrimary}`}
+                      onClick={confirmConnection}
+                    >
+                      Add
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </>
-          )}
-        </div>
-      </LayoutDirectionContext.Provider>
-    </MapViewContext.Provider>
+              </>
+            )}
+          </div>
+        </LayoutDirectionContext.Provider>
+      </MapViewContext.Provider>
+    </MapActionsContext.Provider>
   );
 }

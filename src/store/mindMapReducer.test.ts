@@ -244,3 +244,14 @@ describe('UPDATE_PAPER_META', () => {
     expect(s.edges).toBe(edges);
   });
 });
+
+describe('RENAME_CLUSTERS', () => {
+  it('renames cluster nodes and ignores blank names and non-clusters', () => {
+    const c = { id: 'c1', type: 'cluster' as const, position: { x: 0, y: 0 }, data: { label: 'Old', level: 'keyword', size: 1, color: '#000' } };
+    let s = initMindMapState({ nodes: [c, createPaperNode(paper('alpha'), { x: 0, y: 0 })], edges: [], layoutDirection: 'LR' });
+    s = mindMapReducer(s, { type: 'RENAME_CLUSTERS', payload: { c1: '  New name ', alpha: 'x', c2: 'y' } });
+    expect(s.nodes[0].data).toMatchObject({ label: 'New name' });
+    s = mindMapReducer(s, { type: 'RENAME_CLUSTERS', payload: { c1: '   ' } });
+    expect(s.nodes[0].data).toMatchObject({ label: 'New name' });
+  });
+});

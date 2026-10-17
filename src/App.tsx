@@ -176,6 +176,7 @@ export default function App() {
             initialIds={draftIds}
             groups={groups}
             projectName={projects.activeProject.name}
+            onFocusPaper={handleFocusPaper}
           />
         }
         searchPanel={
