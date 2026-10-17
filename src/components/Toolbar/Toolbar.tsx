@@ -10,6 +10,8 @@ interface ToolbarProps {
   onToggleDirection: () => void;
   onToggleSearch: () => void;
   searchOpen: boolean;
+  showCitations: boolean;
+  onToggleCitations: () => void;
 }
 
 export function Toolbar({
@@ -20,6 +22,8 @@ export function Toolbar({
   onToggleDirection,
   onToggleSearch,
   searchOpen,
+  showCitations,
+  onToggleCitations,
 }: ToolbarProps) {
   const apiHealth = useApiHealth();
   const apiTitle =
@@ -56,6 +60,14 @@ export function Toolbar({
         {layoutDirection === 'LR' ? 'Left→Right' : 'Top→Bottom'}
       </button>
       <div className={styles.separator} />
+      <button
+        className={`${styles.btn} ${showCitations ? '' : styles.btnOff}`}
+        onClick={onToggleCitations}
+        aria-pressed={showCitations}
+        title="Show or hide citation arrows"
+      >
+        Citations
+      </button>
       <button className={styles.btn} onClick={onFitView}>
         Fit View
       </button>

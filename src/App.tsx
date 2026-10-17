@@ -4,13 +4,16 @@ import { MindMap } from './components/MindMap/MindMap';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { DetailPanel } from './components/DetailPanel/DetailPanel';
 import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
-import { SearchPanel } from './components/SearchPanel/SearchPanel';
+import { SearchPanel, type BuildTarget } from './components/SearchPanel/SearchPanel';
+import { apiPost } from './api/client';
+import { buildGraphElements } from './store/graphImport';
 import { useMindMapStore } from './hooks/useMindMapStore';
 import { loadInitialProject, useProjects } from './hooks/useProjects';
 import { useSearch } from './hooks/useSearch';
 import { createProject } from './store/projects';
 import { sampleNodes } from './data/sampleData';
 import type { Paper } from './types';
+import type { GraphBuildResponse } from '../shared/types';
 import styles from './App.module.css';
 
 export default function App() {
@@ -37,6 +40,20 @@ export default function App() {
   const handleToggleSearch = useCallback(() => {
     dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'search' ? 'closed' : 'search' });
   }, [dispatch, state.sidebarMode]);
+
+  const handleBuildMap = useCallback(
+    async (papers: Paper[], target: BuildTarget, query: string) => {
+      const graph = await apiPost<GraphBuildResponse>('/api/graph/build', { papers });
+      const elements = buildGraphElements(graph, { query, mode: 'query' });
+      if (target === 'new') {
+        const name = query.length > 60 ? `${query.slice(0, 57)}…` : query;
+        projects.createNew(name, { ...elements, layoutDirection: 'LR' });
+      } else {
+        dispatch({ type: 'IMPORT_GRAPH', payload: elements });
+      }
+    },
+    [dispatch, projects],
+  );
 
   const handleCloseSidebar = useCallback(() => {
     dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'closed' });
@@ -92,7 +109,9 @@ export default function App() {
         allPapers={getAllPapers()}
         onSubmit={handleSubmitPaper}
         onClose={handleCloseSidebar}
-        searchPanel={<SearchPanel search={search.state} onSearch={search.run} mapIds={mapIds} />}
+        searchPanel={
+          <SearchPanel search={search.state} onSearch={search.run} mapIds={mapIds} onBuildMap={handleBuildMap} />
+        }
       />
       <div className={styles.canvas}>
         <ProjectMenu

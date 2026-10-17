@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { formatQuery, parseQuery } from '../../../shared/query';
-import type { SearchRequest, SearchResponse, SourceName } from '../../../shared/types';
+import type { Paper, SearchRequest, SearchResponse, SourceName } from '../../../shared/types';
 import { useApiHealth } from '../../hooks/useApiHealth';
 import type { SearchState } from '../../hooks/useSearch';
 import { QueryInput } from './QueryInput';
@@ -8,10 +8,13 @@ import { SearchResults, SourceReports } from './SearchResults';
 import { EMPTY_CHIPS, PUBLISHER_CHIPS, combineQuery, type FilterChips } from './searchFilters';
 import styles from './SearchPanel.module.css';
 
+export type BuildTarget = 'new' | 'current';
+
 interface SearchPanelProps {
   search: SearchState;
   onSearch: (request: SearchRequest) => void;
   mapIds: Set<string>;
+  onBuildMap: (papers: Paper[], target: BuildTarget, query: string) => Promise<void>;
 }
 
 function Elapsed({ since }: { since: number }) {
@@ -23,12 +26,15 @@ function Elapsed({ since }: { since: number }) {
   return <>{((now - since) / 1000).toFixed(1)}s</>;
 }
 
-export function SearchPanel({ search, onSearch, mapIds }: SearchPanelProps) {
+export function SearchPanel({ search, onSearch, mapIds, onBuildMap }: SearchPanelProps) {
   const health = useApiHealth();
   const [text, setText] = useState('');
   const [chips, setChips] = useState<FilterChips>(EMPTY_CHIPS);
   const [excluded, setExcluded] = useState<Set<SourceName>>(new Set());
   const [limitPerSource, setLimitPerSource] = useState(25);
+  const [target, setTarget] = useState<BuildTarget>('new');
+  const [building, setBuilding] = useState(false);
+  const [buildError, setBuildError] = useState<string | null>(null);
   const [selection, setSelection] = useState<{ for: SearchResponse | null; ids: Set<string> }>({
     for: null,
     ids: new Set(),
@@ -64,6 +70,21 @@ export function SearchPanel({ search, onSearch, mapIds }: SearchPanelProps) {
   };
   const selectAll = (all: boolean) =>
     setSelection({ for: response, ids: new Set(all ? response?.results.map((p) => p.id) : []) });
+
+  const build = async () => {
+    if (!response) return;
+    const papers = response.results.filter((p) => selected.has(p.id));
+    if (papers.length === 0) return;
+    setBuilding(true);
+    setBuildError(null);
+    try {
+      await onBuildMap(papers, target, search.status === 'done' ? search.request.query : combined);
+    } catch (err) {
+      setBuildError((err as Error).message);
+    } finally {
+      setBuilding(false);
+    }
+  };
 
   const togglePublisher = (key: string) =>
     setChips((c) => ({
@@ -195,6 +216,32 @@ export function SearchPanel({ search, onSearch, mapIds }: SearchPanelProps) {
               </div>
             ))}
             <SourceReports reports={response.perSource} />
+            <div className={styles.buildBar}>
+              <div className={styles.buildTargets} role="radiogroup" aria-label="Where to build">
+                <label className={`${styles.chip} ${target === 'new' ? styles.chipOn : ''}`}>
+                  <input type="radio" name="build-target" checked={target === 'new'} onChange={() => setTarget('new')} />
+                  New project
+                </label>
+                <label className={`${styles.chip} ${target === 'current' ? styles.chipOn : ''}`}>
+                  <input
+                    type="radio"
+                    name="build-target"
+                    checked={target === 'current'}
+                    onChange={() => setTarget('current')}
+                  />
+                  Add to this map
+                </label>
+              </div>
+              <button
+                type="button"
+                className={styles.searchBtn}
+                onClick={build}
+                disabled={building || selected.size === 0}
+              >
+                {building ? 'Building map…' : `Build mind map (${selected.size})`}
+              </button>
+              {buildError && <div className={styles.queryError}>{buildError}</div>}
+            </div>
             <SearchResults
               results={response.results}
               selected={selected}

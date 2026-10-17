@@ -76,3 +76,8 @@
 .dot_off {
   background: var(--color-text-muted);
 }
+
+.btnOff {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}

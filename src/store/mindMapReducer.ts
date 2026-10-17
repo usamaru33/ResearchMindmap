@@ -1,5 +1,5 @@
 import { MarkerType } from '@xyflow/react';
-import type { MindMapState, MindMapAction, MapSnapshot, PaperNode, PaperEdge, Paper } from '../types';
+import { isPaperNode, type MindMapState, type MindMapAction, type MapNode, type MapSnapshot, type PaperNode, type PaperEdge, type Paper } from '../types';
 import { needsLayout } from './projects';
 import { getEdgeStyle } from '../utils/helpers';
 
@@ -28,7 +28,8 @@ export function createStyledEdge(
     type: 'smoothstep',
     animated: style.animated,
     style: { stroke: style.stroke, strokeWidth: style.strokeWidth },
-    label: relationship,
+    // Citations are the bulk of the edges; arrows say enough, labels would clutter.
+    label: relationship === 'cites' ? undefined : relationship,
     markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16, color: style.stroke },
     data: { relationship },
   };
@@ -41,10 +42,11 @@ export function isCitationEdge(edge: PaperEdge): boolean {
 /** Build citation edges from all papers' references fields.
  *  Edge direction: referenced paper (source) → citing paper (target)
  *  so the graph branches out from seminal papers to derived works. */
-export function buildCitationEdges(nodes: PaperNode[]): PaperEdge[] {
-  const nodeIds = new Set(nodes.map((n) => n.id));
+export function buildCitationEdges(nodes: MapNode[]): PaperEdge[] {
+  const nodeIds = new Set(nodes.filter(isPaperNode).map((n) => n.id));
   const edges: PaperEdge[] = [];
   for (const node of nodes) {
+    if (!isPaperNode(node)) continue;
     const paper = node.data.paper;
     for (const refId of paper.references) {
       if (nodeIds.has(refId)) {
@@ -56,7 +58,7 @@ export function buildCitationEdges(nodes: PaperNode[]): PaperEdge[] {
 }
 
 /** Keep manual edges whose endpoints still exist, and regenerate citation edges. */
-export function rebuildEdges(nodes: PaperNode[], currentEdges: PaperEdge[]): PaperEdge[] {
+export function rebuildEdges(nodes: MapNode[], currentEdges: PaperEdge[]): PaperEdge[] {
   const nodeIds = new Set(nodes.map((n) => n.id));
   const manual = currentEdges.filter(
     (e) => !isCitationEdge(e) && nodeIds.has(e.source) && nodeIds.has(e.target),
@@ -64,8 +66,51 @@ export function rebuildEdges(nodes: PaperNode[], currentEdges: PaperEdge[]): Pap
   return [...buildCitationEdges(nodes), ...manual];
 }
 
-function updatePaper(node: PaperNode, patch: (paper: Paper) => Paper): PaperNode {
+function updatePaper(node: MapNode, patch: (paper: Paper) => Paper): MapNode {
+  if (!isPaperNode(node)) return node;
   return { ...node, data: { ...node.data, paper: patch(node.data.paper) } };
+}
+
+// Fields the user owns; a re-import must not overwrite them.
+const USER_FIELDS = ['challenges', 'futureWork', 'thumbnailUrl', 'status', 'tags', 'notes', 'rating', 'screening', 'addedAt'] as const;
+
+/** Refresh an existing paper with newly fetched metadata, keeping user edits and links. */
+export function mergeImportedPaper(existing: Paper, incoming: Paper): Paper {
+  const merged: Paper = { ...existing, ...incoming };
+  for (const key of USER_FIELDS) {
+    const value = existing[key];
+    if (value !== undefined && value !== '') (merged as unknown as Record<string, unknown>)[key] = value;
+  }
+  merged.references = [...new Set([...existing.references, ...incoming.references])];
+  return merged;
+}
+
+function importGraph(state: MindMapState, incoming: MapNode[], incomingEdges: PaperEdge[]): MindMapState {
+  const byId = new Map(state.nodes.map((n) => [n.id, n]));
+  const nodes = [...state.nodes];
+  const index = new Map(nodes.map((n, i) => [n.id, i]));
+  for (const node of incoming) {
+    const existing = byId.get(node.id);
+    if (!existing) {
+      index.set(node.id, nodes.length);
+      nodes.push(node);
+    } else if (isPaperNode(existing) && isPaperNode(node)) {
+      nodes[index.get(node.id)!] = {
+        ...existing,
+        data: { ...existing.data, ...node.data, paper: mergeImportedPaper(existing.data.paper, node.data.paper) },
+      };
+    } else {
+      nodes[index.get(node.id)!] = { ...existing, data: node.data } as MapNode;
+    }
+  }
+  const edgeIds = new Set(state.edges.map((e) => e.id));
+  const edges = [...state.edges, ...incomingEdges.filter((e) => !edgeIds.has(e.id))];
+  return {
+    ...state,
+    nodes,
+    edges: rebuildEdges(nodes, edges),
+    viewRequest: { kind: 'layout', seq: state.viewRequest.seq + 1 },
+  };
 }
 
 function deletePapers(state: MindMapState, ids: string[]): MindMapState {
@@ -74,7 +119,7 @@ function deletePapers(state: MindMapState, ids: string[]): MindMapState {
   const nodes = state.nodes
     .filter((n) => !removed.has(n.id))
     .map((n) =>
-      n.data.paper.references.some((r) => removed.has(r))
+      isPaperNode(n) && n.data.paper.references.some((r) => removed.has(r))
         ? updatePaper(n, (p) => ({ ...p, references: p.references.filter((r) => !removed.has(r)) }))
         : n,
     );
@@ -155,7 +200,7 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
       return {
         ...state,
         nodes: state.nodes.map((n) =>
-          n.id === action.payload ? { ...n, data: { ...n.data, isExpanded: !n.data.isExpanded } } : n,
+          n.id === action.payload && isPaperNode(n) ? { ...n, data: { ...n.data, isExpanded: !n.data.isExpanded } } : n,
         ),
       };
 
@@ -186,8 +231,16 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
 
     case 'LOAD_MAP': {
       const next = initMindMapState(action.payload);
-      return { ...next, viewRequest: { ...next.viewRequest, seq: state.viewRequest.seq + 1 } };
+      return {
+        ...next,
+        // Search belongs to the app, not the map: keep it open across project switches.
+        sidebarMode: state.sidebarMode === 'search' ? 'search' : 'closed',
+        viewRequest: { ...next.viewRequest, seq: state.viewRequest.seq + 1 },
+      };
     }
+
+    case 'IMPORT_GRAPH':
+      return importGraph(state, action.payload.nodes, action.payload.edges);
 
     case 'REQUEST_VIEW':
       return { ...state, viewRequest: { kind: action.payload, seq: state.viewRequest.seq + 1 } };

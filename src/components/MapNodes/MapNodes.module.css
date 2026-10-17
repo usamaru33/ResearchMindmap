@@ -1,0 +1,89 @@
+.root {
+  width: 300px;
+  padding: var(--space-md) var(--space-lg);
+  color: #fff;
+  background: linear-gradient(135deg, #1a1a2e, #3730a3);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  font-family: var(--font-sans);
+  cursor: grab;
+}
+
+.rootKicker {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.rootQuery {
+  margin: 2px 0 4px;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.rootMeta {
+  font-size: var(--font-size-xs);
+  opacity: 0.75;
+}
+
+.cluster {
+  width: 230px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 10px 14px;
+  background: var(--color-surface);
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  box-shadow: var(--shadow-node);
+  font-family: var(--font-sans);
+  cursor: grab;
+}
+
+.clusterDot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.clusterLabel {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clusterCount {
+  flex-shrink: 0;
+  min-width: 22px;
+  padding: 1px 6px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-align: center;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+.selected {
+  box-shadow: var(--shadow-node-selected);
+}
+
+/* Structural handles exist for routing only; they are not connection targets. */
+.hiddenHandle {
+  opacity: 0;
+  pointer-events: none;
+}

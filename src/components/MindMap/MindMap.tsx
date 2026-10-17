@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -13,18 +13,21 @@ import {
   type EdgeChange,
   type Connection,
 } from '@xyflow/react';
-import type { PaperNode, PaperEdge, MindMapAction, LayoutDirection, ViewRequest } from '../../types';
+import type { MapNode, PaperEdge, MindMapAction, LayoutDirection, ViewRequest } from '../../types';
 import { PaperNode as PaperNodeComponent } from '../PaperNode/PaperNode';
+import { ClusterNode } from '../MapNodes/ClusterNode';
+import { QueryRootNode } from '../MapNodes/QueryRootNode';
 import { Toolbar } from '../Toolbar/Toolbar';
 import { useAutoLayout } from '../../hooks/useAutoLayout';
 import { getYearColor, generateId, RELATIONSHIP_OPTIONS } from '../../utils/helpers';
 import { LayoutDirectionContext } from './layoutDirectionContext';
+import { isCitationEdge } from '../../store/mindMapReducer';
 import styles from './MindMap.module.css';
 
-const nodeTypes = { paper: PaperNodeComponent };
+const nodeTypes = { paper: PaperNodeComponent, query: QueryRootNode, cluster: ClusterNode };
 
 interface MindMapProps {
-  nodes: PaperNode[];
+  nodes: MapNode[];
   edges: PaperEdge[];
   layoutDirection: LayoutDirection;
   viewRequest: ViewRequest;
@@ -48,6 +51,11 @@ export function MindMap({
   const { applyLayout } = useAutoLayout();
   const [pendingConnection, setPendingConnection] = useState<Connection | null>(null);
   const [selectedRelationship, setSelectedRelationship] = useState(RELATIONSHIP_OPTIONS[0]);
+  const [showCitations, setShowCitations] = useState(true);
+  const visibleEdges = useMemo(
+    () => (showCitations ? edges : edges.map((e) => (isCitationEdge(e) ? { ...e, hidden: true } : e))),
+    [edges, showCitations],
+  );
 
   // Run the layout / fit the view whenever the store asks for it (initial
   // load, project switch, imported results). Node measurements are only
@@ -67,7 +75,7 @@ export function MindMap({
   // Removals go through the reducer so that references, derived edges and
   // the selection stay consistent; all other changes are applied directly.
   const onNodesChange = useCallback(
-    (changes: NodeChange<PaperNode>[]) => {
+    (changes: NodeChange<MapNode>[]) => {
       const removedIds = changes.filter((c) => c.type === 'remove').map((c) => c.id);
       const rest = changes.filter((c) => c.type !== 'remove');
       if (rest.length > 0) {
@@ -118,7 +126,7 @@ export function MindMap({
   }, []);
 
   const onNodeClick = useCallback(
-    (_: React.MouseEvent, node: PaperNode) => {
+    (_: React.MouseEvent, node: MapNode) => {
       dispatch({ type: 'SELECT_NODE', payload: node.id });
     },
     [dispatch],
@@ -144,8 +152,10 @@ export function MindMap({
     dispatch({ type: 'APPLY_LAYOUT', payload: result });
   }, [layoutDirection, nodes, edges, applyLayout, dispatch]);
 
-  const minimapNodeColor = useCallback((node: PaperNode) => {
-    return getYearColor(node.data?.paper?.year ?? 2020);
+  const minimapNodeColor = useCallback((node: MapNode) => {
+    if (node.type === 'query') return '#1a1a2e';
+    if (node.type === 'cluster') return node.data.color;
+    return getYearColor(node.data.paper.year);
   }, []);
 
   return (
@@ -153,7 +163,7 @@ export function MindMap({
       <div className={styles.wrapper}>
         <ReactFlow
           nodes={nodes}
-          edges={edges}
+          edges={visibleEdges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
@@ -185,6 +195,8 @@ export function MindMap({
               searchOpen={searchOpen}
               onFitView={handleFitView}
               onToggleDirection={handleToggleDirection}
+              showCitations={showCitations}
+              onToggleCitations={() => setShowCitations((v) => !v)}
             />
           </Panel>
         </ReactFlow>
