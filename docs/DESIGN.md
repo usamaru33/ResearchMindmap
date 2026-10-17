@@ -361,6 +361,8 @@ RQL → parse → AST
 | POST | `/api/llm/summarize` | `{ paper, lang }` | SSE |
 | POST | `/api/llm/related-work` | `{ papers, topic, style, lang }` | SSE |
 | POST | `/api/llm/gaps` | `{ papers }` | `{ gaps: [{title, evidence[], paperIds[]}] }` |
+| POST | `/api/explore/search` | `{ kind: 'author' \| 'venue', query }` | `{ entities: ExploreEntity[] }` |
+| POST | `/api/explore/works` | `{ kind, id, limit?, sort?: 'cited' \| 'recent', yearMin?, yearMax? }` | `{ papers, total, byYear }` |
 
 ### 8.1 設定（`.env`）
 
@@ -379,7 +381,15 @@ CACHE_TTL_HOURS=72
 
 `.env` は git 管理外。`.env.example` を提供する。
 
-### 8.2 画面の設定（ブラウザ）
+### 8.2 著者・会議から探す
+
+- OpenAlex の `/authors` と `/sources` を名前で検索し、所属・論文数・被引用数・h 指数・主な分野を候補として出す。同名の別人や表記ゆれは候補を選ぶことで区別する
+- 論文一覧は `authorships.author.id` または `primary_location.source.id` で絞り、被引用数順か新しい順に最大 200 件。年ごとの論文数は `group_by=publication_year` で全件分を取る（失敗しても一覧は返す）
+- 研究の流れ: 取得した一覧を年で 4 期間ほどに分け、各期間に多い topic を並べる（`src/utils/researchFlow.ts`）
+- 共著ネットワーク: 著者を「姓 + 名の頭文字」で同一視し（`Vaswani, A.` = `Ashish Vaswani`）、論文数上位 30 人と共著関係を描く。著者が 25 人を超える論文と "et al." は数えない。配置は決定的な力学モデル（`src/utils/forceLayout.ts`）。一覧かマップ全体を対象に選べ、ノードをクリックするとその人を探す
+- 結果は通常の検索結果と同じくマップにでき、ルートは `author:"名前"` / `venue:"名前"` になる
+
+### 8.3 画面の設定（ブラウザ）
 
 ⚙ ボタンの設定画面で、各ソースと LLM の状態（`/api/health`）を確認し、次の既定値を変える。`localStorage` の `rmm:v1:settings` に保存し、壊れた値や範囲外の値は既定値に戻す。APIキーはここでは扱わない。
 
