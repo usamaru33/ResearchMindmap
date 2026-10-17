@@ -94,3 +94,39 @@ export interface QueryParseResponse {
   errors: QueryError[];
   warnings: QueryError[];
 }
+
+export interface SourceReport {
+  name: SourceName;
+  label: string;
+  status: 'ok' | 'error' | 'skipped';
+  /** Results returned by the source. */
+  count: number;
+  /** Results that survived merging and post-filtering. */
+  kept?: number;
+  /** Total hits the source reported. */
+  total?: number;
+  warnings: string[];
+  approximate?: boolean;
+  error?: string;
+  tookMs: number;
+}
+
+export interface SearchRequest {
+  query: string;
+  sources?: SourceName[];
+  limitPerSource?: number;
+  limit?: number;
+  enrich?: boolean;
+}
+
+export interface SearchResponse {
+  results: Paper[];
+  perSource: SourceReport[];
+  query: ParsedQuery;
+  canonical: string;
+  warnings: string[];
+  /** Unique works before post-filtering. */
+  candidates: number;
+  enriched: number;
+  tookMs: number;
+}

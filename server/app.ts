@@ -1,13 +1,15 @@
 import { Hono } from 'hono';
 import type { HealthResponse } from '../shared/types';
 import type { AppConfig } from './config';
+import { createServices, type Services } from './services';
 import { ApiHttpError } from './http/errors';
 import { queryRoutes } from './routes/query';
+import { searchRoutes } from './routes/search';
 import { sourceStatuses } from './sources/registry';
 
 export const VERSION = '0.1.0';
 
-export function createApp(config: AppConfig) {
+export function createApp(config: AppConfig, services: Services = createServices(config)) {
   const app = new Hono();
 
   app.get('/api/health', (c) => {
@@ -23,6 +25,7 @@ export function createApp(config: AppConfig) {
   });
 
   app.route('/api/query', queryRoutes);
+  app.route('/api/search', searchRoutes(services));
 
   app.notFound((c) =>
     c.json({ error: { code: 'not_found', message: `No route for ${c.req.path}` } }, 404),
