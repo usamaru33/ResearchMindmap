@@ -17,6 +17,7 @@ import { apiPost } from './api/client';
 import { buildGraphElements } from './store/graphImport';
 import { tagCounts } from './utils/reading';
 import { exportPapers, parseBibliography } from './utils/bibliography';
+import { exportMapImage } from './utils/exportImage';
 import { useMindMapStore } from './hooks/useMindMapStore';
 import { loadInitialProject, useProjects } from './hooks/useProjects';
 import { useSearch, useVagueSearch } from './hooks/useSearch';
@@ -38,7 +39,7 @@ export default function App() {
   const mapIds = useMemo(() => new Set(state.nodes.map((n) => n.id)), [state.nodes]);
   const allPapers = getAllPapers();
   const knownTags = useMemo(() => tagCounts(allPapers.map((p) => p.tags)).map(([t]) => t), [allPapers]);
-  const { screenToFlowPosition, getNode, setCenter, fitView } = useReactFlow();
+  const { screenToFlowPosition, getNode, getNodes, setCenter, fitView } = useReactFlow();
   const [helpOpen, setHelpOpen] = useState(false);
 
   const selectedPaper = getSelectedPaper();
@@ -278,6 +279,7 @@ export default function App() {
             />
           }
           onExportBibliography={(format) => exportPapers(allPapers, format, projects.activeProject.name)}
+          onExportImage={(format) => exportMapImage(getNodes(), format, projects.activeProject.name)}
           onImportBibliography={async (file) => {
             const papers = parseBibliography(await file.text());
             if (papers.length) {
