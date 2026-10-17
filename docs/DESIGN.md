@@ -207,35 +207,43 @@ interface Project {
 
 ### 5.2 クエリ言語 RQL（Research Query Language）
 
-ACM DL / IEEE Xplore / Scopus / PubMed の書き方の共通部分を受け付ける。
+ACM DL / IEEE Xplore / Scopus / Web of Science / PubMed の書き方を受け付け、一つの AST に変換する（実装: `shared/query/`）。
 
 ```
 query    := orExpr
 orExpr   := andExpr ( OR andExpr )*
 andExpr  := notExpr ( [AND] notExpr )*        // 演算子なしの並びは AND
 notExpr  := NOT notExpr | primary
-primary  := '(' orExpr ')' | field ':' primary | term
+primary  := ( '(' orExpr ')' | field operand | term ) [ '[' tag ']' ]
+field    := NAME ':' | NAME '=' | '"Quoted Name"' ':' | NAME '('   // 例: title: / TI= / "Document Title": / TITLE-ABS-KEY(
 term     := WORD | WORD* | "PHRASE"
-field    := title | abstract | author | venue | keyword | all
-          | year | type | publisher | oa | lang
 ```
 
 | 書き方 | 意味 | 受け付ける別名 |
 |---|---|---|
-| `"graph neural network"` | フレーズ | |
-| `AND` `OR` `NOT` | 論理演算（大文字。`&&` `||` `-語` も可） | |
-| `title:transformer` | タイトル | `ti:` `TI=` `"Document Title":` `Title:` `[ti]` |
-| `abstract:` | 抄録 | `ab:` `abs:` `AB=` `"Abstract":` |
-| `author:"Hinton"` | 著者 | `au:` `AU=` `"Authors":` `[au]` |
-| `venue:CHI` | 会議・論文誌名 | `so:` `SO=` `"Publication Title":` |
-| `keyword:` | キーワード | `kw:` `KEY=` `"Author Keywords":` |
-| `year:2019..2024` / `year:>=2020` | 年の範囲 | `PY=` |
-| `publisher:acm` / `publisher:ieee` | 出版社（DOI プレフィックス） | |
+| `"graph neural network"` | フレーズ（“ ” も可） | |
+| `AND` `OR` `NOT` | 論理演算（**大文字のみ**。`&&` `\|\|` `-語` `!語` も可）。優先順位は NOT > AND > OR | `ANDNOT` |
+| `title:transformer` | タイトル | `ti:` `TI=` `"Document Title":` `Title:(…)` `[ti]` |
+| `abstract:` | 抄録 | `ab:` `abs:` `AB=` `Abstract:(…)` |
+| `tiab:` | タイトル + 抄録 + キーワード | `TITLE-ABS-KEY(…)` `[tiab]` `"Title/Abstract":` |
+| `author:"Hinton"` | 著者 | `au:` `AU=` `auth` `"Authors":` `[au]` |
+| `venue:CHI` | 会議・論文誌名 | `so:` `SO=` `srctitle` `"Publication Title":` `[ta]` |
+| `keyword:` | キーワード | `kw:` `KEY=` `"Author Keywords":` `"Index Terms":` `[mh]` |
+| `all:` | 全項目（既定） | `AllField:` `"All Metadata":` `TS=` `[all]` |
+| `year:2019..2024` | 年（`2020` / `2019-2024` / `>=2020` / `<2010` / `2015..` も可） | `PY=` `PUBYEAR > 2019` `[dp]` |
+| `publisher:acm` | 出版社（DOI プレフィックス。acm, ieee, springer, elsevier, …） | `publisher:(acm OR ieee)` |
 | `oa:true` | オープンアクセスのみ | |
-| `type:article` | 種別 | |
+| `type:article` / `lang:en` | 種別 / 言語 | `[pt]` / `[la]` |
 | `vir*` | 前方一致ワイルドカード | |
 
-パース結果は AST（`And/Or/Not/Term/Phrase/Field/Filter`）。構文エラーは位置付きで返し、UI で該当箇所を示す。
+補足:
+
+- フィールドは**直後の 1 項**にだけ掛かる（`title:deep learning` = `title:deep AND learning`）。複数語に掛けるときは括弧かフレーズを使う
+- 引用符で囲まない `a` `the` `of` `and` などのストップワードは捨てる（各データベースも無視するため）
+- フィルタ（year / publisher / oa / type / lang）は、AND でつないだ**最上位**にだけ置ける。同じフィルタを複数書くと、publisher 等は OR、year は範囲の共通部分になる
+- 構文エラーは文字位置（`start`/`end`）つきで返す。不明なタグ `[xx]` は警告にして無視する
+- `formatQuery()` で正規化したクエリ文字列に戻せる（キャッシュキーや UI 表示に使う）
+- `matchesQuery()` で論文メタデータに対して AST を評価できる（近似検索しかできないソースの結果を絞り込むのに使う。簡易ステミング・アクセント無視）
 
 ### 5.3 ソース別コンパイル
 
@@ -324,7 +332,7 @@ RQL → parse → AST
 | メソッド | パス | 入力 | 出力 |
 |---|---|---|---|
 | GET | `/api/health` | — | `{ ok, sources: [{name, enabled, reason?}], llm: {enabled, model} }` |
-| POST | `/api/query/parse` | `{ query }` | `{ ast, errors[] }` |
+| POST | `/api/query/parse` | `{ query }` | `{ ok, query: { text, filters }, canonical, errors[], warnings[] }` |
 | POST | `/api/search` | `{ query, sources?, limitPerSource?, yearFrom?, yearTo? }` | `{ results: Paper[], perSource: SourceReport[], ast, tookMs }` |
 | POST | `/api/vague-search` | `{ description, limit?, useLlm? }` | `{ results, expandedQueries[], englishSummary?, reasons: {id: string}, mode }` |
 | POST | `/api/graph/build` | `{ papers: Paper[], query?, clusterBy? }` | `{ papers, citationLinks[], clusters[] }` |

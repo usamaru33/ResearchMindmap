@@ -25,7 +25,7 @@
 
 | # | 状態 | ブランチ | 内容 | 機能ID | 完了条件 |
 |---|---|---|---|---|---|
-| 2.1 | ☐ | `feat/rql-parser` | RQL のパーサー（別名・エラー位置つき）、ローカル評価器、`/api/query/parse` | A4 | DESIGN.md 5.2 の全構文のテストが通る。ACM・IEEE・PubMed 形式の例を正しくパースできる |
+| 2.1 | ☑ | `feat/rql-parser` | RQL のパーサー（別名・エラー位置つき）、ローカル評価器、`/api/query/parse` | A4 | DESIGN.md 5.2 の全構文のテストが通る。ACM・IEEE・PubMed 形式の例を正しくパースできる |
 | 2.2 | ☐ | `feat/search-core` | HTTP クライアント（リトライ・バックオフ）、レート制限、キャッシュ（メモリ・ディスク）、ID 正規化、重複統合、RRF | A10 | 各モジュールの単体テストが通る |
 | 2.3 | ☐ | `feat/sources-openalex-crossref` | OpenAlex・Crossref アダプタ（コンパイラ・正規化・fixture テスト） | A1 | `publisher:acm` / `publisher:ieee` が DOI プレフィックスの絞り込みになる |
 | 2.4 | ☐ | `feat/sources-arxiv-s2-pubmed` | arXiv・Semantic Scholar・PubMed アダプタ | A1 | fixture テストが通り、実 API で各ソース 1 回の検索が成功する（S2 の 429 は許容し、報告する） |
