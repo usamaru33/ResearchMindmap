@@ -348,3 +348,138 @@
   background: var(--color-danger-light);
   border-radius: var(--radius-sm);
 }
+
+.linkRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--space-xl);
+}
+
+.linkChip {
+  padding: 3px 10px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+  background: var(--color-accent-light);
+  border-radius: 999px;
+}
+
+.linkChip:hover {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.statusRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.statusBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 0;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.statusBtnActive {
+  background: var(--color-bg);
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+  margin-top: var(--space-sm);
+}
+
+.star {
+  padding: 0 2px;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--color-border-hover);
+  background: none;
+  border: none;
+}
+
+.starOn {
+  color: #f59e0b;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px 2px 8px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: #0e7490;
+  background: #ecfeff;
+  border-radius: 999px;
+}
+
+.tagRemove {
+  padding: 0 4px;
+  font-size: var(--font-size-sm);
+  line-height: 1;
+  color: inherit;
+  background: none;
+  border: none;
+  opacity: 0.6;
+}
+
+.tagRemove:hover {
+  opacity: 1;
+}
+
+.tagInput {
+  min-width: 80px;
+  flex: 1;
+  padding: 2px 6px;
+  font-size: var(--font-size-xs);
+  border: 1px dashed var(--color-border);
+  border-radius: 999px;
+  outline: none;
+}
+
+.tagInput:focus {
+  border-color: var(--color-accent);
+  border-style: solid;
+}
+
+.notes {
+  width: 100%;
+  min-height: 90px;
+  padding: var(--space-sm);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+  outline: none;
+}
+
+.notes:focus {
+  border-color: var(--color-accent);
+}

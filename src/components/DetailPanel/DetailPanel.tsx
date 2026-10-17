@@ -1,6 +1,7 @@
 import type { ExpandKind } from '../../../shared/types';
 import type { Paper } from '../../types';
 import { ExpandSection } from './ExpandSection';
+import { ReadingSection } from './ReadingSection';
 import { getYearColor } from '../../utils/helpers';
 import styles from './DetailPanel.module.css';
 
@@ -14,6 +15,8 @@ interface DetailPanelProps {
   onSelectPaper: (id: string) => void;
   mapIds: Set<string>;
   onAddLinked: (anchorId: string, papers: Paper[], kind: ExpandKind) => void;
+  knownTags: string[];
+  onUpdateMeta: (id: string, patch: Partial<Paper>) => void;
 }
 
 export function DetailPanel({
@@ -26,6 +29,8 @@ export function DetailPanel({
   onSelectPaper,
   mapIds,
   onAddLinked,
+  knownTags,
+  onUpdateMeta,
 }: DetailPanelProps) {
   const isOpen = paper !== null;
 
@@ -60,6 +65,13 @@ export function DetailPanel({
                 {paper.venue}
               </span>
             </div>
+
+            <ReadingSection
+              key={`reading-${paper.id}`}
+              paper={paper}
+              knownTags={knownTags}
+              onChange={(patch) => onUpdateMeta(paper.id, patch)}
+            />
 
             <div className={styles.section}>
               <div className={styles.sectionLabel}>Authors</div>
@@ -97,7 +109,7 @@ export function DetailPanel({
             )}
 
             <ExpandSection
-              key={paper.id}
+              key={`expand-${paper.id}`}
               paper={paper}
               mapIds={mapIds}
               onAdd={(papers, kind) => onAddLinked(paper.id, papers, kind)}

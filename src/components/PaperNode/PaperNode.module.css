@@ -72,3 +72,48 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.rating {
+  font-size: var(--font-size-xs);
+  color: #f59e0b;
+  letter-spacing: -1px;
+}
+
+.tag {
+  padding: 0 6px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 16px;
+  color: #0e7490;
+  background: #ecfeff;
+  border-radius: 999px;
+}
+
+.more {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}

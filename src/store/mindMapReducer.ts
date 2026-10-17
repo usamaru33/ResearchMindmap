@@ -356,6 +356,15 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
       };
     }
 
+    case 'UPDATE_PAPER_META': {
+      // Reading status, tags, notes, rating: no effect on edges.
+      const { id, patch } = action.payload;
+      const safe = { ...patch };
+      delete safe.id;
+      delete safe.references;
+      return { ...state, nodes: state.nodes.map((n) => (n.id === id ? updatePaper(n, (p) => ({ ...p, ...safe })) : n)) };
+    }
+
     case 'ADD_PAPERS':
       return addPapers(state, action.payload.papers, action.payload.center);
 
