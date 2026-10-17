@@ -30,7 +30,7 @@
 | 2.3 | ☑ | `feat/sources-openalex-crossref` | OpenAlex・Crossref アダプタ（コンパイラ・正規化・fixture テスト） | A1 | `publisher:acm` / `publisher:ieee` が DOI プレフィックスの絞り込みになる |
 | 2.4 | ☑ | `feat/sources-arxiv-s2-pubmed` | arXiv・Semantic Scholar・PubMed アダプタ | A1 | fixture テストが通り、実 API で各ソース 1 回の検索が成功する（S2 の 429 は許容し、報告する） |
 | 2.5 | ☑ | `feat/sources-ieee-dblp` | IEEE（キー必須）・DBLP（ベストエフォート）アダプタ | A1 | キーが無いと IEEE は `enabled: false` と理由を返す。DBLP の失敗が全体を止めない |
-| 2.6 | ☐ | `feat/search-api` | `/api/search`: 並列検索 → ローカル再評価 → 重複統合 → OpenAlex での補完 → 順位付け | A1, A10 | smoke-test の横断検索で 2 つ以上のソースから結果が返り、重複が統合される |
+| 2.6 | ☑ | `feat/search-api` | `/api/search`: 並列検索 → ローカル再評価 → 重複統合 → OpenAlex での補完 → 順位付け | A1, A10 | smoke-test の横断検索で 2 つ以上のソースから結果が返り、重複が統合される |
 | 2.7 | ☐ | `feat/search-ui` | 検索パネル（クエリ入力・構文チェック・ソース選択・年・出版社・OA のチップ）、結果一覧、ソースごとの件数・警告の表示 | A1, A4, A5 | UI から検索して結果一覧が出る。構文エラーの位置が表示される |
 | 2.8 | ☐ | `feat/search-to-mindmap` | `/api/graph/build`（引用関係・クラスタ）、query・cluster ノード、選んだ結果からマップ生成（追加 / 新規プロジェクト） | A2, C2 | 検索結果から、根 → クラスタ → 論文の構造と引用エッジを持つマップができ、自動配置される |
 
