@@ -3,12 +3,20 @@ import type { HealthResponse } from '../shared/types';
 import type { AppConfig } from './config';
 import { createServices, type Services } from './services';
 import { ApiHttpError } from './http/errors';
+import { getLlm } from './llm/client';
 import { graphRoutes } from './routes/graph';
 import { queryRoutes } from './routes/query';
 import { searchRoutes } from './routes/search';
 import { sourceStatuses } from './sources/registry';
 
 export const VERSION = '0.1.0';
+
+function llmStatus(config: AppConfig): HealthResponse['llm'] {
+  const llm = getLlm(config);
+  return llm
+    ? { enabled: true, model: llm.model }
+    : { enabled: false, model: null, reason: 'ANTHROPIC_API_KEY が未設定（LLM なしの代替処理で動作）' };
+}
 
 export function createApp(config: AppConfig, services: Services = createServices(config)) {
   const app = new Hono();
@@ -18,9 +26,7 @@ export function createApp(config: AppConfig, services: Services = createServices
       ok: true,
       version: VERSION,
       sources: sourceStatuses(config),
-      llm: config.anthropicApiKey
-        ? { enabled: true, model: config.anthropicModel }
-        : { enabled: false, model: null, reason: 'ANTHROPIC_API_KEY が未設定' },
+      llm: llmStatus(config),
     };
     return c.json(body);
   });
