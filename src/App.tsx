@@ -5,6 +5,7 @@ import { Sidebar } from './components/Sidebar/Sidebar';
 import { DetailPanel } from './components/DetailPanel/DetailPanel';
 import { Library } from './components/Library/Library';
 import { WritingPanel } from './components/Writing/WritingPanel';
+import { ComparisonTable } from './components/Comparison/ComparisonTable';
 import { clusterGroups } from './store/groups';
 import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
 import { SearchPanel, type BuildMode, type BuildTarget } from './components/SearchPanel/SearchPanel';
@@ -76,6 +77,10 @@ export default function App() {
     if (state.sidebarMode === 'write') dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'closed' });
     else openWriting([]);
   }, [dispatch, state.sidebarMode, openWriting]);
+
+  const handleToggleCompare = useCallback(() => {
+    dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'compare' ? 'closed' : 'compare' });
+  }, [dispatch, state.sidebarMode]);
 
   const handleToggleLibrary = useCallback(() => {
     dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'library' ? 'closed' : 'library' });
@@ -169,6 +174,17 @@ export default function App() {
             onDraft={openWriting}
           />
         }
+        comparePanel={
+          <ComparisonTable
+            papers={allPapers}
+            aspects={state.aspects}
+            projectName={projects.activeProject.name}
+            onSetAspects={(aspects) => dispatch({ type: 'SET_ASPECTS', payload: aspects })}
+            onRenameAspect={(from, to) => dispatch({ type: 'RENAME_ASPECT', payload: { from, to } })}
+            onSetValues={(aspect, values) => dispatch({ type: 'SET_ASPECT_VALUES', payload: { aspect, values } })}
+            onFocusPaper={handleFocusPaper}
+          />
+        }
         writingPanel={
           <WritingPanel
             key={draftIds.join(',')}
@@ -225,6 +241,8 @@ export default function App() {
           libraryOpen={state.sidebarMode === 'library'}
           onToggleWrite={handleToggleWrite}
           writeOpen={state.sidebarMode === 'write'}
+          onToggleCompare={handleToggleCompare}
+          compareOpen={state.sidebarMode === 'compare'}
         />
       </div>
       <DetailPanel

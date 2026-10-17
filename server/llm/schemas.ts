@@ -37,6 +37,15 @@ export const ResearchGaps = z.object({
   ),
 });
 
+export const AspectValues = z.object({
+  values: z.array(
+    z.object({
+      id: z.string(),
+      value: z.string().describe('A short phrase (under 25 words) for this aspect, or an empty string if the abstract does not say.'),
+    }),
+  ),
+});
+
 export const ClusterNames = z.object({
   names: z.array(z.object({ id: z.string(), name: z.string().describe('A 2-6 word name for what the papers share.') })),
 });

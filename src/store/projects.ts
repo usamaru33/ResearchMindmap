@@ -22,6 +22,7 @@ export interface Project {
   nodes: MapNode[];
   edges: PaperEdge[];
   layoutDirection: LayoutDirection;
+  aspects?: string[];
 }
 
 /** Minimal Storage interface so tests can pass an in-memory implementation. */
@@ -159,6 +160,7 @@ export function parseProjectFile(text: string, now = new Date().toISOString()): 
     nodes: sanitizeNodes(p.nodes),
     edges: sanitizeEdges(p.edges),
     layoutDirection: p.layoutDirection === 'TB' ? 'TB' : 'LR',
+    aspects: Array.isArray(p.aspects) ? p.aspects.filter((a): a is string => typeof a === 'string') : [],
   });
 }
 

@@ -15,6 +15,8 @@ interface ToolbarProps {
   libraryOpen: boolean;
   onToggleWrite: () => void;
   writeOpen: boolean;
+  onToggleCompare: () => void;
+  compareOpen: boolean;
   showCitations: boolean;
   onToggleCitations: () => void;
   viewMenu: ReactNode;
@@ -32,6 +34,8 @@ export function Toolbar({
   libraryOpen,
   onToggleWrite,
   writeOpen,
+  onToggleCompare,
+  compareOpen,
   showCitations,
   onToggleCitations,
   viewMenu,
@@ -74,6 +78,14 @@ export function Toolbar({
         title="Draft a related work section from the map"
       >
         Write
+      </button>
+      <button
+        className={`${styles.btn} ${compareOpen ? styles.btnActive : ''}`}
+        onClick={onToggleCompare}
+        aria-pressed={compareOpen}
+        title="Literature comparison table"
+      >
+        Compare
       </button>
       <button className={styles.btn} onClick={onAddPaper}>
         + Add Paper

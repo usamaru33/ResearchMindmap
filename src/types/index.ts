@@ -46,7 +46,7 @@ export type PaperEdge = Edge<PaperEdgeData>;
 
 export type LayoutDirection = 'TB' | 'LR';
 
-export type SidebarMode = 'closed' | 'search' | 'library' | 'write' | 'add' | 'edit';
+export type SidebarMode = 'closed' | 'search' | 'library' | 'write' | 'compare' | 'add' | 'edit';
 
 export interface MindMapState {
   nodes: MapNode[];
@@ -56,6 +56,8 @@ export interface MindMapState {
   layoutDirection: LayoutDirection;
   /** Bumped when the canvas should re-run auto layout or fit the view. */
   viewRequest: ViewRequest;
+  /** Comparison-table columns, in order. */
+  aspects: string[];
 }
 
 export interface ViewRequest {
@@ -67,6 +69,7 @@ export interface MapSnapshot {
   nodes: MapNode[];
   edges: PaperEdge[];
   layoutDirection: LayoutDirection;
+  aspects?: string[];
 }
 
 export type MindMapAction =
@@ -86,6 +89,9 @@ export type MindMapAction =
   | { type: 'APPLY_LAYOUT'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
   | { type: 'LOAD_MAP'; payload: MapSnapshot }
   | { type: 'IMPORT_GRAPH'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
+  | { type: 'SET_ASPECTS'; payload: string[] }
+  | { type: 'RENAME_ASPECT'; payload: { from: string; to: string } }
+  | { type: 'SET_ASPECT_VALUES'; payload: { aspect: string; values: Record<string, string> } }
   | { type: 'RENAME_CLUSTERS'; payload: Record<string, string> }
   | { type: 'UPDATE_PAPER_META'; payload: { id: string; patch: Partial<Paper> } }
   | { type: 'ADD_PAPERS'; payload: { papers: Paper[]; center: { x: number; y: number } } }

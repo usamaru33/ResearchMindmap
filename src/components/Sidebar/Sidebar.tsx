@@ -14,6 +14,7 @@ interface SidebarProps {
   searchPanel: ReactNode;
   libraryPanel: ReactNode;
   writingPanel: ReactNode;
+  comparePanel: ReactNode;
   mapIds: Set<string>;
   onAddPapers: (papers: Paper[]) => void;
 }
@@ -23,18 +24,19 @@ const TITLES: Record<SidebarMode, string> = {
   search: 'Search papers',
   library: 'Library',
   write: 'Draft related work',
+  compare: 'Comparison table',
   add: 'Add Paper',
   edit: 'Edit Paper',
 };
 
-export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, searchPanel, libraryPanel, writingPanel, mapIds, onAddPapers }: SidebarProps) {
+export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, searchPanel, libraryPanel, writingPanel, comparePanel, mapIds, onAddPapers }: SidebarProps) {
   const [addTab, setAddTab] = useState<'identifiers' | 'manual'>('identifiers');
   const isOpen = mode !== 'closed';
   const isForm = mode === 'add' || mode === 'edit';
 
   return (
     <div
-      className={`${styles.sidebar} ${mode === 'search' || mode === 'library' || mode === 'write' ? styles.sidebarWide : ''} ${!isOpen ? styles.sidebarClosed : ''}`}
+      className={`${styles.sidebar} ${mode === 'compare' ? styles.sidebarXWide : mode === 'search' || mode === 'library' || mode === 'write' ? styles.sidebarWide : ''} ${!isOpen ? styles.sidebarClosed : ''}`}
       aria-hidden={!isOpen}
     >
       <div className={styles.header}>
@@ -47,6 +49,7 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
         <div hidden={mode !== 'search'}>{searchPanel}</div>
         {mode === 'library' && libraryPanel}
         {mode === 'write' && writingPanel}
+        {mode === 'compare' && comparePanel}
         {mode === 'add' && (
           <div className={styles.addTabs} role="tablist">
             <button

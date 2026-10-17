@@ -13,6 +13,10 @@
   width: var(--search-panel-width);
 }
 
+.sidebarXWide {
+  width: min(760px, 60vw);
+}
+
 .sidebarClosed {
   width: 0;
   min-width: 0;
