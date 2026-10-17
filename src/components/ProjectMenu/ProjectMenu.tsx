@@ -17,6 +17,7 @@ interface ProjectMenuProps {
   onExportBibliography: (format: ExportFormat) => void;
   /** Resolves with the number of papers added. */
   onImportBibliography: (file: File) => Promise<number>;
+  onExportImage: (format: 'png' | 'svg') => Promise<void>;
   /** Controls shown next to the project button (undo/redo, help). */
   extra?: ReactNode;
 }
@@ -39,6 +40,7 @@ export function ProjectMenu({
   onImport,
   onExportBibliography,
   onImportBibliography,
+  onExportImage,
   extra,
 }: ProjectMenuProps) {
   const [open, setOpen] = useState(false);
@@ -179,6 +181,25 @@ export function ProjectMenu({
             </button>
           </div>
           {bibNote && <div className={styles.note}>{bibNote}</div>}
+          <div className={styles.sectionLabel}>Image</div>
+          <div className={styles.actions}>
+            {(['png', 'svg'] as const).map((f) => (
+              <button
+                key={f}
+                className={styles.action}
+                onClick={async () => {
+                  setBibNote(null);
+                  try {
+                    await onExportImage(f);
+                  } catch (err) {
+                    setBibNote((err as Error).message);
+                  }
+                }}
+              >
+                Export .{f}
+              </button>
+            ))}
+          </div>
           <input ref={bibRef} type="file" accept=".bib,.ris,.txt,.bibtex" hidden onChange={handleBibFile} />
           {importError && (
             <div className={styles.warning} role="alert">
