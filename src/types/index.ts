@@ -3,12 +3,40 @@ import type { Paper } from '../../shared/types';
 
 export type { Paper } from '../../shared/types';
 
+/** Which side of its parent a node sits on in the mind map layout. */
+export type MapSide = 'left' | 'right';
+
 export interface PaperNodeData extends Record<string, unknown> {
   paper: Paper;
   isExpanded: boolean;
+  side?: MapSide;
+  /** Cluster color when the paper belongs to a generated cluster. */
+  accent?: string;
 }
 
 export type PaperNode = Node<PaperNodeData, 'paper'>;
+
+/** Root of a generated map: the search that produced it. */
+export interface QueryRootData extends Record<string, unknown> {
+  query: string;
+  mode: 'query' | 'vague';
+  paperCount: number;
+  createdAt: string;
+}
+
+export type QueryRootNode = Node<QueryRootData, 'query'>;
+
+export interface ClusterNodeData extends Record<string, unknown> {
+  label: string;
+  level: string;
+  size: number;
+  color: string;
+  side?: MapSide;
+}
+
+export type ClusterNode = Node<ClusterNodeData, 'cluster'>;
+
+export type MapNode = PaperNode | QueryRootNode | ClusterNode;
 
 export interface PaperEdgeData extends Record<string, unknown> {
   relationship: string;
@@ -21,7 +49,7 @@ export type LayoutDirection = 'TB' | 'LR';
 export type SidebarMode = 'closed' | 'search' | 'add' | 'edit';
 
 export interface MindMapState {
-  nodes: PaperNode[];
+  nodes: MapNode[];
   edges: PaperEdge[];
   selectedNodeId: string | null;
   sidebarMode: SidebarMode;
@@ -36,13 +64,13 @@ export interface ViewRequest {
 }
 
 export interface MapSnapshot {
-  nodes: PaperNode[];
+  nodes: MapNode[];
   edges: PaperEdge[];
   layoutDirection: LayoutDirection;
 }
 
 export type MindMapAction =
-  | { type: 'SET_NODES'; payload: PaperNode[] }
+  | { type: 'SET_NODES'; payload: MapNode[] }
   | { type: 'SET_EDGES'; payload: PaperEdge[] }
   | { type: 'ADD_PAPER'; payload: { paper: Paper; position: { x: number; y: number } } }
   | { type: 'UPDATE_PAPER'; payload: Paper }
@@ -55,6 +83,11 @@ export type MindMapAction =
   | { type: 'SELECT_NODE'; payload: string | null }
   | { type: 'SET_SIDEBAR_MODE'; payload: SidebarMode }
   | { type: 'SET_LAYOUT_DIRECTION'; payload: 'TB' | 'LR' }
-  | { type: 'APPLY_LAYOUT'; payload: { nodes: PaperNode[]; edges: PaperEdge[] } }
+  | { type: 'APPLY_LAYOUT'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
   | { type: 'LOAD_MAP'; payload: MapSnapshot }
+  | { type: 'IMPORT_GRAPH'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
   | { type: 'REQUEST_VIEW'; payload: ViewRequest['kind'] };
+
+export function isPaperNode(node: MapNode): node is PaperNode {
+  return node.type === 'paper';
+}

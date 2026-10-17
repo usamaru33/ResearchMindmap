@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef } from 'react';
-import { Handle, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
+import { Handle, Position, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
 import type { PaperNodeData } from '../../types';
 import { getYearColor, truncateAuthors } from '../../utils/helpers';
 import { useHandlePositions } from '../MindMap/layoutDirectionContext';
@@ -9,7 +9,14 @@ function PaperNodeComponent({ id, data, selected }: NodeProps) {
   const nodeData = data as unknown as PaperNodeData;
   const { paper } = nodeData;
   const yearColor = getYearColor(paper.year);
-  const handles = useHandlePositions();
+  const directional = useHandlePositions();
+  // In the mind-map layout, papers on the left side face their cluster on the right.
+  const handles =
+    nodeData.side === 'left'
+      ? { target: Position.Right, source: Position.Left }
+      : nodeData.side === 'right'
+        ? { target: Position.Left, source: Position.Right }
+        : directional;
   const updateNodeInternals = useUpdateNodeInternals();
 
   // React Flow caches handle bounds; re-measure when the layout direction moves
@@ -24,7 +31,10 @@ function PaperNodeComponent({ id, data, selected }: NodeProps) {
   return (
     <>
       <Handle type="target" position={handles.target} />
-      <div className={`${styles.card} ${selected ? styles.cardSelected : ''}`}>
+      <div
+        className={`${styles.card} ${selected ? styles.cardSelected : ''}`}
+        style={nodeData.accent ? { borderLeft: `4px solid ${nodeData.accent}` } : undefined}
+      >
         <div className={styles.header}>
           <span className={styles.yearBadge} style={{ backgroundColor: yearColor }}>
             {paper.year}

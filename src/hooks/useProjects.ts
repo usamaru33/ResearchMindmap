@@ -119,9 +119,14 @@ export function useProjects(
   );
 
   const createNew = useCallback(
-    (name = 'Untitled map') => {
+    (name = 'Untitled map', initial?: MapSnapshot) => {
       saveNow();
-      const project = createProject(name);
+      const project = createProject(
+        uniqueName(name, projectStore.list().map((p) => p.name)),
+        initial?.nodes,
+        initial?.edges,
+        initial?.layoutDirection,
+      );
       projectStore.save(project);
       activate(project);
     },

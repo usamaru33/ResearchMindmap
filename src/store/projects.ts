@@ -1,4 +1,4 @@
-import type { LayoutDirection, PaperEdge, PaperNode } from '../types';
+import type { LayoutDirection, MapNode, PaperEdge } from '../types';
 
 export const PROJECT_SCHEMA_VERSION = 1;
 const PREFIX = 'rmm:v1:';
@@ -19,7 +19,7 @@ export interface Project {
   name: string;
   createdAt: string;
   updatedAt: string;
-  nodes: PaperNode[];
+  nodes: MapNode[];
   edges: PaperEdge[];
   layoutDirection: LayoutDirection;
 }
@@ -28,13 +28,16 @@ export interface Project {
 export type KeyValueStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 /** Strip React Flow runtime fields (measurements, selection) before saving. */
-export function sanitizeNodes(nodes: PaperNode[]): PaperNode[] {
-  return nodes.map(({ id, type, position, data }) => ({
-    id,
-    type,
-    position: { x: position.x, y: position.y },
-    data,
-  }));
+export function sanitizeNodes(nodes: MapNode[]): MapNode[] {
+  return nodes.map(
+    ({ id, type, position, data }) =>
+      ({
+        id,
+        type,
+        position: { x: position.x, y: position.y },
+        data,
+      }) as MapNode,
+  );
 }
 
 export function sanitizeEdges(edges: PaperEdge[]): PaperEdge[] {
@@ -47,7 +50,7 @@ export function sanitizeEdges(edges: PaperEdge[]): PaperEdge[] {
 
 export function createProject(
   name: string,
-  nodes: PaperNode[] = [],
+  nodes: MapNode[] = [],
   edges: PaperEdge[] = [],
   layoutDirection: LayoutDirection = 'LR',
   now = new Date().toISOString(),
@@ -179,6 +182,6 @@ export function projectFileName(name: string): string {
 }
 
 /** Nodes that were never placed (all at the origin) need an automatic layout. */
-export function needsLayout(nodes: PaperNode[]): boolean {
+export function needsLayout(nodes: MapNode[]): boolean {
   return nodes.length > 0 && nodes.every((n) => n.position.x === 0 && n.position.y === 0);
 }

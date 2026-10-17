@@ -3,6 +3,7 @@ import type { HealthResponse } from '../shared/types';
 import type { AppConfig } from './config';
 import { createServices, type Services } from './services';
 import { ApiHttpError } from './http/errors';
+import { graphRoutes } from './routes/graph';
 import { queryRoutes } from './routes/query';
 import { searchRoutes } from './routes/search';
 import { sourceStatuses } from './sources/registry';
@@ -26,6 +27,7 @@ export function createApp(config: AppConfig, services: Services = createServices
 
   app.route('/api/query', queryRoutes);
   app.route('/api/search', searchRoutes(services));
+  app.route('/api/graph', graphRoutes(services));
 
   app.notFound((c) =>
     c.json({ error: { code: 'not_found', message: `No route for ${c.req.path}` } }, 404),

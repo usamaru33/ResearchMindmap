@@ -1,38 +1,32 @@
-import { useReducer, useCallback } from 'react';
-import type { MapSnapshot, Paper } from '../types';
+import { useReducer, useCallback, useMemo } from 'react';
+import { isPaperNode, type MapSnapshot, type Paper } from '../types';
 import { initMindMapState, mindMapReducer } from '../store/mindMapReducer';
 
 export function useMindMapStore(initialMap: MapSnapshot) {
   const [state, dispatch] = useReducer(mindMapReducer, initialMap, initMindMapState);
 
+  const papers = useMemo(() => state.nodes.filter(isPaperNode).map((n) => n.data.paper), [state.nodes]);
+  const byId = useMemo(() => new Map(papers.map((p) => [p.id, p])), [papers]);
+
   const getSelectedPaper = useCallback(() => {
     if (!state.selectedNodeId) return null;
-    const node = state.nodes.find((n) => n.id === state.selectedNodeId);
-    return node?.data.paper ?? null;
-  }, [state.selectedNodeId, state.nodes]);
+    return byId.get(state.selectedNodeId) ?? null;
+  }, [state.selectedNodeId, byId]);
 
-  const getAllPapers = useCallback(() => {
-    return state.nodes.map((n) => n.data.paper);
-  }, [state.nodes]);
+  const getAllPapers = useCallback(() => papers, [papers]);
 
   const getCitedBy = useCallback(
-    (paperId: string) => {
-      return state.nodes
-        .filter((n) => n.data.paper.references.includes(paperId))
-        .map((n) => n.data.paper);
-    },
-    [state.nodes],
+    (paperId: string) => papers.filter((p) => p.references.includes(paperId)),
+    [papers],
   );
 
   const getReferences = useCallback(
     (paperId: string) => {
-      const paper = state.nodes.find((n) => n.id === paperId)?.data.paper;
+      const paper = byId.get(paperId);
       if (!paper) return [];
-      return paper.references
-        .map((refId) => state.nodes.find((n) => n.id === refId)?.data.paper)
-        .filter((p): p is Paper => p !== undefined);
+      return paper.references.map((refId) => byId.get(refId)).filter((p): p is Paper => p !== undefined);
     },
-    [state.nodes],
+    [byId],
   );
 
   return { state, dispatch, getSelectedPaper, getAllPapers, getCitedBy, getReferences };

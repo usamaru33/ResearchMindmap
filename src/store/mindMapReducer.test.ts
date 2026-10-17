@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { MindMapState, Paper } from '../types';
+import { isPaperNode, type MindMapState, type Paper } from '../types';
 import { buildCitationEdges, createPaperNode, initMindMapState, mindMapReducer } from './mindMapReducer';
 
 function paper(id: string, references: string[] = []): Paper {
@@ -29,7 +29,8 @@ function stateOf(papers: Paper[]): MindMapState {
   };
 }
 
-const refsOf = (s: MindMapState, id: string) => s.nodes.find((n) => n.id === id)?.data.paper.references;
+const refsOf = (s: MindMapState, id: string) =>
+  s.nodes.filter(isPaperNode).find((n) => n.id === id)?.data.paper.references;
 
 describe('mindMapReducer', () => {
   it('builds citation edges from references (cited → citing)', () => {
@@ -119,6 +120,15 @@ describe('mindMapReducer', () => {
     expect(s.selectedNodeId).toBeNull();
     expect(s.layoutDirection).toBe('TB');
     expect(s.viewRequest).toEqual({ kind: 'layout', seq: 1 });
+  });
+
+  it('LOAD_MAP keeps the search panel open but closes the paper form', () => {
+    let s = mindMapReducer(stateOf([paper('alpha')]), { type: 'SET_SIDEBAR_MODE', payload: 'search' });
+    s = mindMapReducer(s, { type: 'LOAD_MAP', payload: { nodes: [], edges: [], layoutDirection: 'LR' } });
+    expect(s.sidebarMode).toBe('search');
+    s = mindMapReducer(s, { type: 'SET_SIDEBAR_MODE', payload: 'edit' });
+    s = mindMapReducer(s, { type: 'LOAD_MAP', payload: { nodes: [], edges: [], layoutDirection: 'LR' } });
+    expect(s.sidebarMode).toBe('closed');
   });
 
   it('initMindMapState only fits the view when nodes already have positions', () => {
