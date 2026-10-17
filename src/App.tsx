@@ -1,12 +1,8 @@
-import { useCallback, useMemo, useState } from 'react';
+import { lazy, useCallback, useMemo, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { MindMap } from './components/MindMap/MindMap';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { DetailPanel } from './components/DetailPanel/DetailPanel';
-import { Library } from './components/Library/Library';
-import { WritingPanel } from './components/Writing/WritingPanel';
-import { ComparisonTable } from './components/Comparison/ComparisonTable';
-import { ScreeningPanel } from './components/Screening/ScreeningPanel';
 import { clusterGroups } from './store/groups';
 import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
 import { UndoButtons } from './components/ProjectMenu/UndoButtons';
@@ -26,6 +22,14 @@ import { sampleNodes } from './data/sampleData';
 import type { Paper } from './types';
 import type { GraphBuildResponse } from '../shared/types';
 import styles from './App.module.css';
+
+// Panels opened on demand load in their own chunks.
+const Library = lazy(() => import('./components/Library/Library').then((m) => ({ default: m.Library })));
+const WritingPanel = lazy(() => import('./components/Writing/WritingPanel').then((m) => ({ default: m.WritingPanel })));
+const ComparisonTable = lazy(() =>
+  import('./components/Comparison/ComparisonTable').then((m) => ({ default: m.ComparisonTable })),
+);
+const ScreeningPanel = lazy(() => import('./components/Screening/ScreeningPanel').then((m) => ({ default: m.ScreeningPanel })));
 
 export default function App() {
   const [initialProject] = useState(() =>
