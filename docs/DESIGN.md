@@ -318,9 +318,16 @@ RQL → parse → AST
 
 ### 6.3 出力
 
-結果一覧と同時に「展開されたクエリ」を表示し、ワンクリックで通常の RQL 検索へ移って絞り込めるようにする（なんとなく → 厳密検索への橋渡し）。マップ生成は 5.5 と同じ。
+結果一覧と同時に「展開されたクエリ」を表示し、ワンクリックで通常の RQL 検索へ移って絞り込めるようにする（なんとなく → 厳密検索への橋渡し）。マップ生成は 5.5 と同じで、根ノードは「なんとなく検索」と表示する。
 
----
+### 6.4 実装メモ（3.2）
+
+- 実装: `server/core/vague.ts`（外部呼び出しはすべて差し替え可能にしてテスト）
+- 統合の重み: 意味検索 2、各検索式 1、S2 1（意味検索が最も主題に沿うため）
+- arXiv は 1 回 3 秒の間隔が必要なので、最も具体的な 1 本目の検索式でだけ使う
+- LLM の関連度判定で 0（無関係）と判定された論文は結果から除く。LLM の出力が候補の半分以上を評価していなければ、信用せず BM25 に切り替える
+- LLM が作った検索式は RQL パーサーで検査し、構文の誤りがあるものは使わない
+- **LLM なしの実測**（OpenAlex 意味検索 + キーワード検索式 + BM25）: 英語の説明「Does changing the size of my virtual body in VR change how large I perceive objects around me?」では、上位が "Effects on Size Perception by Changing Dynamic Invisible Body Size"、"Virtual Hand Realism Affects Object Size Perception in Body-Based Scaling" など主題どおりになった（1.7〜3.9 秒）。一方、日本語の説明は埋め込みが英語モデルのため精度が大きく落ちる（"Virtual Reality" という題の論文ばかりになる）。UI と API の両方で、英語で書くか APIキーを設定するよう案内する
 
 ## 7. LLM 利用設計
 
@@ -344,7 +351,7 @@ RQL → parse → AST
 | GET | `/api/health` | — | `{ ok, sources: [{name, enabled, reason?}], llm: {enabled, model} }` |
 | POST | `/api/query/parse` | `{ query }` | `{ ok, query: { text, filters }, canonical, errors[], warnings[] }` |
 | POST | `/api/search` | `{ query, sources?, limitPerSource?(≤50, 既定 25), limit?(≤200, 既定 60), enrich?(既定 true) }` | `{ results, perSource: SourceReport[], query, canonical, warnings, candidates, enriched, tookMs }` |
-| POST | `/api/vague-search` | `{ description, limit?, useLlm? }` | `{ results, expandedQueries[], englishSummary?, reasons: {id: string}, mode }` |
+| POST | `/api/vague-search` | `{ description(5–4000 字), limit?(≤100, 既定 40), useLlm?(既定 true), lang?('ja'\|'en'), yearMin?, yearMax? }` | `{ results, mode: 'llm'\|'fallback', englishSummary?, expandedQueries[], concepts[], reasons: {id: string}, stages[], warnings[], candidates, tookMs }` |
 | POST | `/api/graph/build` | `{ papers: Paper[] (≤300), clusterLevel?: 'auto' \| 'topic' \| 'subfield' \| 'field' \| 'domain' \| 'keyword' }` | `{ papers, citationLinks[], clusters[], enriched, warnings }` |
 | GET | `/api/papers/:id/references` | — | `{ papers }` |
 | GET | `/api/papers/:id/citations` | `?limit` | `{ papers }` |
