@@ -254,7 +254,13 @@ term     := WORD | WORD* | "PHRASE"
 | ブール | ◎ `search=` | ○ bulk `+ \| -` | × → ローカル | ◎ `AND/OR/ANDNOT` | ◎ | ◎ |
 | フィールド | ○ `search.title` 等 | × | △ `query.author` | ◎ `ti/au/abs` | ◎ `[ti]` | ◎ |
 | 年 | ◎ filter | ◎ `year=` | ◎ filter | △ submittedDate | ◎ `[dp]` | ◎ |
-| 出版社 | ◎ DOI prefix | × | ◎ `prefix:` | × | × | 常に IEEE |
+| 出版社 | △ IEEE のみ host organization | × | ◎ `prefix:` | × | × | 常に IEEE |
+
+実装で分かったこと（2.3）:
+
+- OpenAlex の ACM 会議録（CHI 等）は出版社（host organization）が空のことが多い。そこで `publisher:acm` は OpenAlex 側で絞り込まず多めに取得し、DOI プレフィックスで手元で絞り込む。網羅性は Crossref の `prefix:10.1145` で補う
+- OpenAlex は掲載先名でも絞り込めないため、`venue:` も手元で絞り込む。著者は `raw_author_name.search` フィルタを使う
+- 近似検索になるソース（`approximate: true`）は指定件数の 2 倍を取得してから絞り込む
 
 ### 5.4 検索パイプライン
 
