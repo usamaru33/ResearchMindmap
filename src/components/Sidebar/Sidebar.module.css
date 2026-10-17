@@ -9,6 +9,10 @@
   transition: width var(--transition-normal), opacity var(--transition-normal);
 }
 
+.sidebarWide {
+  width: var(--search-panel-width);
+}
+
 .sidebarClosed {
   width: 0;
   min-width: 0;

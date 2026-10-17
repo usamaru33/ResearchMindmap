@@ -149,3 +149,13 @@ describe('HttpClient', () => {
     expect(redactUrl('https://x.org/a?q=1&api_key=s&apikey=t&key=u')).toBe('https://x.org/a?q=1');
   });
 });
+
+describe('describeFailure', () => {
+  it('summarizes common failures without dumping bodies', async () => {
+    const { describeFailure } = await import('../infra/http');
+    expect(describeFailure('s2', 429, '{"message": "Too Many Requests..."}')).toMatch(/回数制限/);
+    expect(describeFailure('ieee', 403, '')).toMatch(/APIキー/);
+    expect(describeFailure('x', 400, '{"message":"bad   filter"}')).toBe('x: HTTP 400 bad filter');
+    expect(describeFailure('x', 502, '<html><body>gateway</body></html>')).toBe('x: HTTP 502');
+  });
+});
