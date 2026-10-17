@@ -34,3 +34,8 @@ select {
   font-family: inherit;
   font-size: inherit;
 }
+
+/* Let the hidden attribute win over component display rules. */
+[hidden] {
+  display: none !important;
+}
