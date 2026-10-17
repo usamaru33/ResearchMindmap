@@ -1,0 +1,2120 @@
+{
+ "meta": {
+  "count": 4051,
+  "db_response_time_ms": 82,
+  "page": 1,
+  "per_page": 3,
+  "groups_count": null,
+  "x_query": {
+   "oql": "get works where full text has (stemmed \"body ownership\" AND stemmed \"virtual reality\")",
+   "x_new_oql": "get works with (stemmed \"body ownership\" AND stemmed \"virtual reality\") in the full text",
+   "oqo": {
+    "get_rows": "works",
+    "filter_rows": [
+     {
+      "column_id": "fulltext.search",
+      "value": "\"body ownership\"",
+      "operator": "has"
+     },
+     {
+      "column_id": "fulltext.search",
+      "value": "\"virtual reality\"",
+      "operator": "has"
+     }
+    ]
+   },
+   "url": "/works?filter=fulltext.search:%22body ownership%22,fulltext.search:%22virtual reality%22&per_page=3"
+  },
+  "cost_usd": 0.001
+ },
+ "results": [
+  {
+   "id": "https://openalex.org/W2096822517",
+   "doi": "https://doi.org/10.1162/pres_a_00124",
+   "title": "The Sense of Embodiment in Virtual Reality",
+   "display_name": "The Sense of Embodiment in Virtual Reality",
+   "publication_year": 2012,
+   "authorships": [
+    {
+     "author_position": "first",
+     "author": {
+      "id": "https://openalex.org/A5007216905",
+      "display_name": "Konstantina Kilteni",
+      "orcid": "https://orcid.org/0000-0002-6887-6434",
+      "observed_orcids": [
+       "https://orcid.org/0000-0002-6887-6434"
+      ]
+     },
+     "institutions": [
+      {
+       "id": "https://openalex.org/I71999127",
+       "display_name": "Universitat de Barcelona",
+       "ror": "https://ror.org/021018s57",
+       "country_code": "ES",
+       "type": "education",
+       "lineage": [
+        "https://openalex.org/I71999127"
+       ]
+      }
+     ],
+     "countries": [
+      "ES"
+     ],
+     "is_corresponding": true,
+     "raw_author_name": "Konstantina Kilteni",
+     "raw_affiliation_strings": [
+      "Event Lab, Facultat de Psicologia, Universitat de Barcelona, 08035 Barcelona, Spain"
+     ],
+     "raw_orcid": null,
+     "affiliations": [
+      {
+       "raw_affiliation_string": "Event Lab, Facultat de Psicologia, Universitat de Barcelona, 08035 Barcelona, Spain",
+       "institution_ids": [
+        "https://openalex.org/I71999127"
+       ]
+      }
+     ]
+    },
+    {
+     "author_position": "middle",
+     "author": {
+      "id": "https://openalex.org/A5031866478",
+      "display_name": "Raphaela Groten",
+      "orcid": null,
+      "observed_orcids": []
+     },
+     "institutions": [
+      {
+       "id": "https://openalex.org/I71999127",
+       "display_name": "Universitat de Barcelona",
+       "ror": "https://ror.org/021018s57",
+       "country_code": "ES",
+       "type": "education",
+       "lineage": [
+        "https://openalex.org/I71999127"
+       ]
+      }
+     ],
+     "countries": [
+      "ES"
+     ],
+     "is_corresponding": false,
+     "raw_author_name": "Raphaela Groten",
+     "raw_affiliation_strings": [
+      "Event Lab, Facultat de Psicologia, Universitat de Barcelona, 08035 Barcelona, Spain"
+     ],
+     "raw_orcid": null,
+     "affiliations": [
+      {
+       "raw_affiliation_string": "Event Lab, Facultat de Psicologia, Universitat de Barcelona, 08035 Barcelona, Spain",
+       "institution_ids": [
+        "https://openalex.org/I71999127"
+       ]
+      }
+     ]
+    },
+    {
+     "author_position": "last",
+     "author": {
+      "id": "https://openalex.org/A5073802250",
+      "display_name": "Mel Slater",
+      "orcid": "https://orcid.org/0000-0002-6223-0050",
+      "observed_orcids": [
+       "https://orcid.org/0000-0002-6223-0050"
+      ]
+     },
+     "institutions": [
+      {
+       "id": "https://openalex.org/I11932220",
+       "display_name": "Institució Catalana de Recerca i Estudis Avançats",
+       "ror": "https://ror.org/0371hy230",
+       "country_code": "ES",
+       "type": "nonprofit",
+       "lineage": [
+        "https://openalex.org/I11932220"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I45129253",
+       "display_name": "University College London",
+       "ror": "https://ror.org/02jx3x895",
+       "country_code": "GB",
+       "type": "education",
+       "lineage": [
+        "https://openalex.org/I124357947",
+        "https://openalex.org/I45129253"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I71999127",
+       "display_name": "Universitat de Barcelona",
+       "ror": "https://ror.org/021018s57",
+       "country_code": "ES",
+       "type": "education",
+       "lineage": [
+        "https://openalex.org/I71999127"
+       ]
+      }
+     ],
+     "countries": [
+      "ES",
+      "GB"
+     ],
+     "is_corresponding": false,
+     "raw_author_name": "Mel Slater",
+     "raw_affiliation_strings": [
+      "Department of Computer Science, University College London, London, United Kingdom",
+      "Event Lab, Facultat de Psicologia, Universitat de Barcelona, Barcelona, Spain",
+      "ICREA, Universitat de Barcelona, Barcelona, Spain"
+     ],
+     "raw_orcid": null,
+     "affiliations": [
+      {
+       "raw_affiliation_string": "Department of Computer Science, University College London, London, United Kingdom",
+       "institution_ids": [
+        "https://openalex.org/I45129253"
+       ]
+      },
+      {
+       "raw_affiliation_string": "Event Lab, Facultat de Psicologia, Universitat de Barcelona, Barcelona, Spain",
+       "institution_ids": [
+        "https://openalex.org/I71999127"
+       ]
+      },
+      {
+       "raw_affiliation_string": "ICREA, Universitat de Barcelona, Barcelona, Spain",
+       "institution_ids": [
+        "https://openalex.org/I11932220",
+        "https://openalex.org/I71999127"
+       ]
+      }
+     ]
+    }
+   ],
+   "primary_location": {
+    "id": "doi:10.1162/pres_a_00124",
+    "doi": "https://doi.org/10.1162/pres_a_00124",
+    "is_oa": true,
+    "landing_page_url": "https://doi.org/10.1162/pres_a_00124",
+    "pdf_url": "https://direct.mit.edu/pvar/article-pdf/21/4/373/1625283/pres_a_00124.pdf",
+    "source": {
+     "id": "https://openalex.org/S975621743",
+     "display_name": "PRESENCE Virtual and Augmented Reality",
+     "issn_l": "1054-7460",
+     "issn": [
+      "1054-7460",
+      "1531-3263"
+     ],
+     "is_oa": false,
+     "is_in_doaj": false,
+     "is_core": true,
+     "listed_in": [
+      "anvur-scientific",
+      "cwts-core",
+      "dongbi-c",
+      "jufo-1",
+      "norway-1",
+      "poland-40",
+      "russia-white-list-2",
+      "vabb-shw"
+     ],
+     "host_organization": "https://openalex.org/P4310315718",
+     "host_organization_name": "The MIT Press",
+     "host_organization_lineage": [
+      "https://openalex.org/P4310315718",
+      "https://openalex.org/P4310316440"
+     ],
+     "host_organization_lineage_names": [
+      "The MIT Press",
+      "Massachusetts Institute of Technology"
+     ],
+     "type": "journal"
+    },
+    "license": null,
+    "license_id": null,
+    "version": "publishedVersion",
+    "is_accepted": true,
+    "is_published": true,
+    "raw_source_name": "Presence: Teleoperators and Virtual Environments",
+    "raw_type": "journal-article"
+   },
+   "best_oa_location": {
+    "id": "doi:10.1162/pres_a_00124",
+    "doi": "https://doi.org/10.1162/pres_a_00124",
+    "is_oa": true,
+    "landing_page_url": "https://doi.org/10.1162/pres_a_00124",
+    "pdf_url": "https://direct.mit.edu/pvar/article-pdf/21/4/373/1625283/pres_a_00124.pdf",
+    "source": {
+     "id": "https://openalex.org/S975621743",
+     "display_name": "PRESENCE Virtual and Augmented Reality",
+     "issn_l": "1054-7460",
+     "issn": [
+      "1054-7460",
+      "1531-3263"
+     ],
+     "is_oa": false,
+     "is_in_doaj": false,
+     "is_core": true,
+     "listed_in": [
+      "anvur-scientific",
+      "cwts-core",
+      "dongbi-c",
+      "jufo-1",
+      "norway-1",
+      "poland-40",
+      "russia-white-list-2",
+      "vabb-shw"
+     ],
+     "host_organization": "https://openalex.org/P4310315718",
+     "host_organization_name": "The MIT Press",
+     "host_organization_lineage": [
+      "https://openalex.org/P4310315718",
+      "https://openalex.org/P4310316440"
+     ],
+     "host_organization_lineage_names": [
+      "The MIT Press",
+      "Massachusetts Institute of Technology"
+     ],
+     "type": "journal"
+    },
+    "license": null,
+    "license_id": null,
+    "version": "publishedVersion",
+    "is_accepted": true,
+    "is_published": true,
+    "raw_source_name": "Presence: Teleoperators and Virtual Environments",
+    "raw_type": "journal-article"
+   },
+   "open_access": {
+    "is_oa": true,
+    "oa_status": "bronze",
+    "oa_url": "https://direct.mit.edu/pvar/article-pdf/21/4/373/1625283/pres_a_00124.pdf",
+    "any_repository_has_fulltext": false
+   },
+   "abstract_inverted_index": {
+    "What": [
+     0
+    ],
+    "does": [
+     1
+    ],
+    "it": [
+     2,
+     52,
+     166
+    ],
+    "feel": [
+     3
+    ],
+    "like": [
+     4
+    ],
+    "to": [
+     5,
+     7,
+     10,
+     50,
+     55,
+     77,
+     88,
+     95,
+     154
+    ],
+    "own,": [
+     6
+    ],
+    "control,": [
+     8
+    ],
+    "and": [
+     9,
+     33,
+     74,
+     123,
+     134,
+     143,
+     164
+    ],
+    "be": [
+     11
+    ],
+    "inside": [
+     12,
+     64
+    ],
+    "a": [
+     13,
+     45,
+     61,
+     104
+    ],
+    "body?": [
+     14
+    ],
+    "The": [
+     15,
+     80
+    ],
+    "multidimensional": [
+     16
+    ],
+    "nature": [
+     17
+    ],
+    "of": [
+     18,
+     26,
+     39,
+     47,
+     91,
+     112,
+     117,
+     121,
+     126,
+     162
+    ],
+    "this": [
+     19,
+     48,
+     100,
+     130
+    ],
+    "experience": [
+     20,
+     56
+    ],
+    "together": [
+     21
+    ],
+    "with": [
+     22
+    ],
+    "the": [
+     23,
+     57,
+     71,
+     89,
+     96,
+     115,
+     119,
+     124,
+     139,
+     160
+    ],
+    "continuous": [
+     24
+    ],
+    "presence": [
+     25
+    ],
+    "one's": [
+     27
+    ],
+    "biological": [
+     28,
+     72
+    ],
+    "body,": [
+     29,
+     73
+    ],
+    "render": [
+     30
+    ],
+    "both": [
+     31
+    ],
+    "theoretical": [
+     32
+    ],
+    "experimental": [
+     34,
+     135,
+     150
+    ],
+    "approaches": [
+     35
+    ],
+    "problematic.": [
+     36
+    ],
+    "Nevertheless,": [
+     37
+    ],
+    "exploitation": [
+     38
+    ],
+    "immersive": [
+     40,
+     66
+    ],
+    "virtual": [
+     41,
+     62,
+     67,
+     168
+    ],
+    "reality": [
+     42
+    ],
+    "has": [
+     43
+    ],
+    "allowed": [
+     44
+    ],
+    "reframing": [
+     46
+    ],
+    "question": [
+     49
+    ],
+    "whether": [
+     51
+    ],
+    "is": [
+     53
+    ],
+    "possible": [
+     54
+    ],
+    "same": [
+     58
+    ],
+    "sensations": [
+     59
+    ],
+    "towards": [
+     60
+    ],
+    "body": [
+     63,
+     127
+    ],
+    "an": [
+     65
+    ],
+    "environment": [
+     68
+    ],
+    "as": [
+     69
+    ],
+    "toward": [
+     70,
+     158
+    ],
+    "if": [
+     75
+    ],
+    "so,": [
+     76
+    ],
+    "what": [
+     78
+    ],
+    "extent.": [
+     79
+    ],
+    "current": [
+     81
+    ],
+    "paper": [
+     82
+    ],
+    "addresses": [
+     83
+    ],
+    "these": [
+     84
+    ],
+    "issues": [
+     85
+    ],
+    "by": [
+     86
+    ],
+    "referring": [
+     87
+    ],
+    "Sense": [
+     90
+    ],
+    "Embodiment": [
+     92
+    ],
+    "(SoE).": [
+     93
+    ],
+    "Due": [
+     94
+    ],
+    "conceptual": [
+     97
+    ],
+    "confusion": [
+     98
+    ],
+    "around": [
+     99
+    ],
+    "sense,": [
+     101
+    ],
+    "we": [
+     102
+    ],
+    "provide": [
+     103
+    ],
+    "working": [
+     105
+    ],
+    "definition": [
+     106
+    ],
+    "which": [
+     107
+    ],
+    "states": [
+     108
+    ],
+    "that": [
+     109
+    ],
+    "SoE": [
+     110,
+     163
+    ],
+    "consists": [
+     111
+    ],
+    "three": [
+     113
+    ],
+    "subcomponents:": [
+     114
+    ],
+    "sense": [
+     116,
+     120,
+     125
+    ],
+    "self-location,": [
+     118
+    ],
+    "agency,": [
+     122
+    ],
+    "ownership.": [
+     128
+    ],
+    "Under": [
+     129
+    ],
+    "proposed": [
+     131,
+     153
+    ],
+    "structure,": [
+     132
+    ],
+    "measures": [
+     133
+    ],
+    "manipulations": [
+     136
+    ],
+    "reported": [
+     137
+    ],
+    "in": [
+     138,
+     167
+    ],
+    "literature": [
+     140
+    ],
+    "are": [
+     141,
+     146,
+     152
+    ],
+    "reviewed": [
+     142
+    ],
+    "related": [
+     144
+    ],
+    "challenges": [
+     145
+    ],
+    "outlined.": [
+     147
+    ],
+    "Finally,": [
+     148
+    ],
+    "future": [
+     149
+    ],
+    "studies": [
+     151
+    ],
+    "overcome": [
+     155
+    ],
+    "those": [
+     156
+    ],
+    "challenges,": [
+     157
+    ],
+    "deepening": [
+     159
+    ],
+    "concept": [
+     161
+    ],
+    "enhancing": [
+     165
+    ],
+    "applications.": [
+     169
+    ]
+   },
+   "cited_by_count": 1720,
+   "referenced_works": [
+    "https://openalex.org/W112151183",
+    "https://openalex.org/W1482860377",
+    "https://openalex.org/W1596535966",
+    "https://openalex.org/W1950864686",
+    "https://openalex.org/W1965319506"
+   ],
+   "primary_topic": {
+    "id": "https://openalex.org/T10648",
+    "display_name": "Virtual Reality Applications and Impacts",
+    "score": 0.9994999766349792,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1709",
+     "display_name": "Human-Computer Interaction"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/17",
+     "display_name": "Computer Science"
+    },
+    "domain": {
+     "id": "https://openalex.org/domains/3",
+     "display_name": "Physical Sciences"
+    }
+   },
+   "topics": [
+    {
+     "id": "https://openalex.org/T10648",
+     "display_name": "Virtual Reality Applications and Impacts",
+     "score": 0.9994999766349792,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1709",
+      "display_name": "Human-Computer Interaction"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/17",
+      "display_name": "Computer Science"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/3",
+      "display_name": "Physical Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T10709",
+     "display_name": "Social Robot Interaction and HRI",
+     "score": 0.00009999999747378752,
+     "subfield": {
+      "id": "https://openalex.org/subfields/3207",
+      "display_name": "Social Psychology"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/32",
+      "display_name": "Psychology"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    }
+   ],
+   "keywords": [
+    {
+     "id": "https://openalex.org/keywords/sense-of-embodiment",
+     "display_name": "sense of embodiment",
+     "score": 0.9879999756813049
+    },
+    {
+     "id": "https://openalex.org/keywords/virtual-reality",
+     "display_name": "virtual reality",
+     "score": 0.7440000176429749
+    },
+    {
+     "id": "https://openalex.org/keywords/body-ownership",
+     "display_name": "body ownership",
+     "score": 0.7250000238418579
+    },
+    {
+     "id": "https://openalex.org/keywords/sense-of-agency",
+     "display_name": "sense of agency",
+     "score": 0.8539999723434448
+    },
+    {
+     "id": "https://openalex.org/keywords/virtual-body",
+     "display_name": "virtual body",
+     "score": 0.4320000112056732
+    },
+    {
+     "id": "https://openalex.org/keywords/biological-body",
+     "display_name": "biological body",
+     "score": 0.34700000286102295
+    }
+   ],
+   "type": "article",
+   "ids": {
+    "openalex": "https://openalex.org/W2096822517",
+    "doi": "https://doi.org/10.1162/pres_a_00124",
+    "mag": "2096822517"
+   },
+   "language": "en"
+  },
+  {
+   "id": "https://openalex.org/W2770290779",
+   "doi": "https://doi.org/10.1007/978-981-10-5490-7_2",
+   "title": "Implicit Learning Through Embodiment in Immersive Virtual Reality",
+   "display_name": "Implicit Learning Through Embodiment in Immersive Virtual Reality",
+   "publication_year": 2017,
+   "authorships": [
+    {
+     "author_position": "first",
+     "author": {
+      "id": "https://openalex.org/A5073802250",
+      "display_name": "Mel Slater",
+      "orcid": "https://orcid.org/0000-0002-6223-0050",
+      "observed_orcids": [
+       "https://orcid.org/0000-0002-6223-0050"
+      ]
+     },
+     "institutions": [
+      {
+       "id": "https://openalex.org/I11932220",
+       "display_name": "Institució Catalana de Recerca i Estudis Avançats",
+       "ror": "https://ror.org/0371hy230",
+       "country_code": "ES",
+       "type": "nonprofit",
+       "lineage": [
+        "https://openalex.org/I11932220"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I45129253",
+       "display_name": "University College London",
+       "ror": "https://ror.org/02jx3x895",
+       "country_code": "GB",
+       "type": "education",
+       "lineage": [
+        "https://openalex.org/I124357947",
+        "https://openalex.org/I45129253"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I71999127",
+       "display_name": "Universitat de Barcelona",
+       "ror": "https://ror.org/021018s57",
+       "country_code": "ES",
+       "type": "education",
+       "lineage": [
+        "https://openalex.org/I71999127"
+       ]
+      }
+     ],
+     "countries": [
+      "ES",
+      "GB"
+     ],
+     "is_corresponding": true,
+     "raw_author_name": "Mel Slater",
+     "raw_affiliation_strings": [
+      "Institució Catalana de Recerca I Estudis Avançats (ICREA), Barcelona, Spain",
+      "University College London, London, UK",
+      "University of Barcelona, Edifici Teatre, Passeig de La Vall d’Hebron 171, 08035, Barcelona, Spain"
+     ],
+     "raw_orcid": null,
+     "affiliations": [
+      {
+       "raw_affiliation_string": "Institució Catalana de Recerca I Estudis Avançats (ICREA), Barcelona, Spain",
+       "institution_ids": [
+        "https://openalex.org/I11932220"
+       ]
+      },
+      {
+       "raw_affiliation_string": "University College London, London, UK",
+       "institution_ids": [
+        "https://openalex.org/I45129253"
+       ]
+      },
+      {
+       "raw_affiliation_string": "University of Barcelona, Edifici Teatre, Passeig de La Vall d’Hebron 171, 08035, Barcelona, Spain",
+       "institution_ids": [
+        "https://openalex.org/I71999127"
+       ]
+      }
+     ]
+    }
+   ],
+   "primary_location": {
+    "id": "doi:10.1007/978-981-10-5490-7_2",
+    "doi": "https://doi.org/10.1007/978-981-10-5490-7_2",
+    "is_oa": false,
+    "landing_page_url": "https://doi.org/10.1007/978-981-10-5490-7_2",
+    "pdf_url": null,
+    "source": {
+     "id": "https://openalex.org/S4210191173",
+     "display_name": "Smart computing and intelligence",
+     "issn_l": "2522-0888",
+     "issn": [
+      "2522-0888",
+      "2522-0896"
+     ],
+     "is_oa": false,
+     "is_in_doaj": false,
+     "is_core": true,
+     "listed_in": [
+      "cwts-core"
+     ],
+     "host_organization": "https://openalex.org/P4310319965",
+     "host_organization_name": "Springer Nature",
+     "host_organization_lineage": [
+      "https://openalex.org/P4310319965"
+     ],
+     "host_organization_lineage_names": [
+      "Springer Nature"
+     ],
+     "type": "book series"
+    },
+    "license": null,
+    "license_id": null,
+    "version": "publishedVersion",
+    "is_accepted": true,
+    "is_published": true,
+    "raw_source_name": "Smart Computing and Intelligence",
+    "raw_type": "book-chapter"
+   },
+   "best_oa_location": null,
+   "open_access": {
+    "is_oa": false,
+    "oa_status": "closed",
+    "oa_url": null,
+    "any_repository_has_fulltext": false
+   },
+   "abstract_inverted_index": null,
+   "cited_by_count": 146,
+   "referenced_works": [
+    "https://openalex.org/W96209597",
+    "https://openalex.org/W1507687470",
+    "https://openalex.org/W1528045197",
+    "https://openalex.org/W1748197048",
+    "https://openalex.org/W1933934289"
+   ],
+   "primary_topic": {
+    "id": "https://openalex.org/T10648",
+    "display_name": "Virtual Reality Applications and Impacts",
+    "score": 1,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1709",
+     "display_name": "Human-Computer Interaction"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/17",
+     "display_name": "Computer Science"
+    },
+    "domain": {
+     "id": "https://openalex.org/domains/3",
+     "display_name": "Physical Sciences"
+    }
+   },
+   "topics": [
+    {
+     "id": "https://openalex.org/T10648",
+     "display_name": "Virtual Reality Applications and Impacts",
+     "score": 1,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1709",
+      "display_name": "Human-Computer Interaction"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/17",
+      "display_name": "Computer Science"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/3",
+      "display_name": "Physical Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T10709",
+     "display_name": "Social Robot Interaction and HRI",
+     "score": 0,
+     "subfield": {
+      "id": "https://openalex.org/subfields/3207",
+      "display_name": "Social Psychology"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/32",
+      "display_name": "Psychology"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    }
+   ],
+   "keywords": [
+    {
+     "id": "https://openalex.org/keywords/virtual-reality",
+     "display_name": "virtual reality",
+     "score": 0.6579999923706055
+    },
+    {
+     "id": "https://openalex.org/keywords/embodiment",
+     "display_name": "embodiment",
+     "score": 0.6549999713897705
+    },
+    {
+     "id": "https://openalex.org/keywords/implicit-learning",
+     "display_name": "implicit learning",
+     "score": 0.8669999837875366
+    },
+    {
+     "id": "https://openalex.org/keywords/body-ownership",
+     "display_name": "body ownership",
+     "score": 0.8479999899864197
+    },
+    {
+     "id": "https://openalex.org/keywords/virtual-body",
+     "display_name": "virtual body",
+     "score": 0.47099998593330383
+    },
+    {
+     "id": "https://openalex.org/keywords/sense-of-presence",
+     "display_name": "presence",
+     "score": 0.527999997138977
+    },
+    {
+     "id": "https://openalex.org/keywords/first-person-perspective",
+     "display_name": "first-person perspective",
+     "score": 0.6389999985694885
+    },
+    {
+     "id": "https://openalex.org/keywords/attitudes",
+     "display_name": "attitudes",
+     "score": 0.574999988079071
+    },
+    {
+     "id": "https://openalex.org/keywords/perception",
+     "display_name": "perception",
+     "score": 0.8899999856948853
+    },
+    {
+     "id": "https://openalex.org/keywords/cognition",
+     "display_name": "cognition",
+     "score": 0.9649999737739563
+    },
+    {
+     "id": "https://openalex.org/keywords/behavior-change",
+     "display_name": "behavior change",
+     "score": 0.8299999833106995
+    },
+    {
+     "id": "https://openalex.org/keywords/virtual-reality-in-education",
+     "display_name": "virtual reality in education",
+     "score": 0.6420000195503235
+    }
+   ],
+   "type": "book-chapter",
+   "ids": {
+    "openalex": "https://openalex.org/W2770290779",
+    "doi": "https://doi.org/10.1007/978-981-10-5490-7_2",
+    "mag": "2770290779"
+   },
+   "language": "en"
+  },
+  {
+   "id": "https://openalex.org/W2763999049",
+   "doi": "https://doi.org/10.1212/wnl.0000000000004585",
+   "title": "Virtual reality improves embodiment and neuropathic pain caused by spinal cord injury",
+   "display_name": "Virtual reality improves embodiment and neuropathic pain caused by spinal cord injury",
+   "publication_year": 2017,
+   "authorships": [
+    {
+     "author_position": "first",
+     "author": {
+      "id": "https://openalex.org/A5086210117",
+      "display_name": "Polona Pozeg",
+      "orcid": "https://orcid.org/0000-0003-0403-1982",
+      "observed_orcids": [
+       "https://orcid.org/0000-0003-0403-1982"
+      ]
+     },
+     "institutions": [
+      {
+       "id": "https://openalex.org/I1294671590",
+       "display_name": "Centre National de la Recherche Scientifique",
+       "ror": "https://ror.org/02feahw73",
+       "country_code": "FR",
+       "type": "government",
+       "lineage": [
+        "https://openalex.org/I1294671590"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I4210136308",
+       "display_name": "Translational Innovation in Medicine and Complexity",
+       "ror": "https://ror.org/03985kf35",
+       "country_code": "FR",
+       "type": "facility",
+       "lineage": [
+        "https://openalex.org/I106785703",
+        "https://openalex.org/I1294671590",
+        "https://openalex.org/I4210095849",
+        "https://openalex.org/I4210104684",
+        "https://openalex.org/I4210136308",
+        "https://openalex.org/I4210159245",
+        "https://openalex.org/I899635006"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I4210165539",
+       "display_name": "Clinique Romande de Réadaptation",
+       "ror": "https://ror.org/05kz5x194",
+       "country_code": "CH",
+       "type": "healthcare",
+       "lineage": [
+        "https://openalex.org/I4210165539"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I5124864",
+       "display_name": "École Polytechnique Fédérale de Lausanne",
+       "ror": "https://ror.org/02s376052",
+       "country_code": "CH",
+       "type": "education",
+       "lineage": [
+        "https://openalex.org/I2799323385",
+        "https://openalex.org/I5124864"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I899635006",
+       "display_name": "Université Grenoble Alpes",
+       "ror": "https://ror.org/02rx3b187",
+       "country_code": "FR",
+       "type": "education",
+       "lineage": [
+        "https://openalex.org/I899635006"
+       ]
+      }
+     ],
+     "countries": [
+      "CH",
+      "FR"
+     ],
+     "is_corresponding": false,
+     "raw_author_name": "Polona Pozeg",
+     "raw_affiliation_strings": [
+      "From the Laboratory of Cognitive Neuroscience, Brain Mind Institute (P.P., R.R., M.S., O.B.), and Center for Neuroprosthetics (P.P., E.P., R.R., M.S., O.B.), School of Life Sciences, École Polytechnique Fédérale de Lausanne, Campus Biotech, Geneva, Switzerland; University Grenoble Alpes &amp; CNRS (E.P.), TIMC-IMAG, Grenoble, France; Spinal Cord Unit (A.-W.A.-K., X.J.), Clinique Romande de Réadaptation SUVACare, Sion; and Division of Neurorehabilitation, Department of Clinical Neuroscience (A.K.),",
+      "University Grenoble Alpes & CNRS (E.P.), TIMC-IMAG, Grenoble, France"
+     ],
+     "raw_orcid": null,
+     "affiliations": [
+      {
+       "raw_affiliation_string": "From the Laboratory of Cognitive Neuroscience, Brain Mind Institute (P.P., R.R., M.S., O.B.), and Center for Neuroprosthetics (P.P., E.P., R.R., M.S., O.B.), School of Life Sciences, École Polytechnique Fédérale de Lausanne, Campus Biotech, Geneva, Switzerland; University Grenoble Alpes &amp; CNRS (E.P.), TIMC-IMAG, Grenoble, France; Spinal Cord Unit (A.-W.A.-K., X.J.), Clinique Romande de Réadaptation SUVACare, Sion; and Division of Neurorehabilitation, Department of Clinical Neuroscience (A.K.),",
+       "institution_ids": [
+        "https://openalex.org/I4210136308",
+        "https://openalex.org/I4210165539",
+        "https://openalex.org/I5124864",
+        "https://openalex.org/I899635006"
+       ]
+      },
+      {
+       "raw_affiliation_string": "University Grenoble Alpes & CNRS (E.P.), TIMC-IMAG, Grenoble, France",
+       "institution_ids": [
+        "https://openalex.org/I1294671590",
+        "https://openalex.org/I4210136308",
+        "https://openalex.org/I899635006"
+       ]
+      }
+     ]
+    },
+    {
+     "author_position": "middle",
+     "author": {
+      "id": "https://openalex.org/A5008618593",
+      "display_name": "Estelle Palluel",
+      "orcid": "https://orcid.org/0000-0002-0468-1398",
+      "observed_orcids": [
+       "https://orcid.org/0000-0002-0468-1398"
+      ]
+     },
+     "institutions": [
+      {
+       "id": "https://openalex.org/I1294671590",
+       "display_name": "Centre National de la Recherche Scientifique",
+       "ror": "https://ror.org/02feahw73",
+       "country_code": "FR",
+       "type": "government",
+       "lineage": [
+        "https://openalex.org/I1294671590"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I4210136308",
+       "display_name": "Translational Innovation in Medicine and Complexity",
+       "ror": "https://ror.org/03985kf35",
+       "country_code": "FR",
+       "type": "facility",
+       "lineage": [
+        "https://openalex.org/I106785703",
+        "https://openalex.org/I1294671590",
+        "https://openalex.org/I4210095849",
+        "https://openalex.org/I4210104684",
+        "https://openalex.org/I4210136308",
+        "https://openalex.org/I4210159245",
+        "https://openalex.org/I899635006"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I4210165539",
+       "display_name": "Clinique Romande de Réadaptation",
+       "ror": "https://ror.org/05kz5x194",
+       "country_code": "CH",
+       "type": "healthcare",
+       "lineage": [
+        "https://openalex.org/I4210165539"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I5124864",
+       "display_name": "École Polytechnique Fédérale de Lausanne",
+       "ror": "https://ror.org/02s376052",
+       "country_code": "CH",
+       "type": "education",
+       "lineage": [
+        "https://openalex.org/I2799323385",
+        "https://openalex.org/I5124864"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I899635006",
+       "display_name": "Université Grenoble Alpes",
+       "ror": "https://ror.org/02rx3b187",
+       "country_code": "FR",
+       "type": "education",
+       "lineage": [
+        "https://openalex.org/I899635006"
+       ]
+      }
+     ],
+     "countries": [
+      "CH",
+      "FR"
+     ],
+     "is_corresponding": false,
+     "raw_author_name": "Estelle Palluel",
+     "raw_affiliation_strings": [
+      "From the Laboratory of Cognitive Neuroscience, Brain Mind Institute (P.P., R.R., M.S., O.B.), and Center for Neuroprosthetics (P.P., E.P., R.R., M.S., O.B.), School of Life Sciences, École Polytechnique Fédérale de Lausanne, Campus Biotech, Geneva, Switzerland; University Grenoble Alpes &amp; CNRS (E.P.), TIMC-IMAG, Grenoble, France; Spinal Cord Unit (A.-W.A.-K., X.J.), Clinique Romande de Réadaptation SUVACare, Sion; and Division of Neurorehabilitation, Department of Clinical Neuroscience (A.K.),",
+      "University Grenoble Alpes & CNRS (E.P.), TIMC-IMAG, Grenoble, France"
+     ],
+     "raw_orcid": null,
+     "affiliations": [
+      {
+       "raw_affiliation_string": "From the Laboratory of Cognitive Neuroscience, Brain Mind Institute (P.P., R.R., M.S., O.B.), and Center for Neuroprosthetics (P.P., E.P., R.R., M.S., O.B.), School of Life Sciences, École Polytechnique Fédérale de Lausanne, Campus Biotech, Geneva, Switzerland; University Grenoble Alpes &amp; CNRS (E.P.), TIMC-IMAG, Grenoble, France; Spinal Cord Unit (A.-W.A.-K., X.J.), Clinique Romande de Réadaptation SUVACare, Sion; and Division of Neurorehabilitation, Department of Clinical Neuroscience (A.K.),",
+       "institution_ids": [
+        "https://openalex.org/I4210136308",
+        "https://openalex.org/I4210165539",
+        "https://openalex.org/I5124864",
+        "https://openalex.org/I899635006"
+       ]
+      },
+      {
+       "raw_affiliation_string": "University Grenoble Alpes & CNRS (E.P.), TIMC-IMAG, Grenoble, France",
+       "institution_ids": [
+        "https://openalex.org/I1294671590",
+        "https://openalex.org/I4210136308",
+        "https://openalex.org/I899635006"
+       ]
+      }
+     ]
+    },
+    {
+     "author_position": "middle",
+     "author": {
+      "id": "https://openalex.org/A5048165598",
+      "display_name": "Roberta Ronchi",
+      "orcid": "https://orcid.org/0000-0003-2460-7512",
+      "observed_orcids": [
+       "https://orcid.org/0000-0003-2460-7512"
+      ]
+     },
+     "institutions": [
+      {
+       "id": "https://openalex.org/I1294671590",
+       "display_name": "Centre National de la Recherche Scientifique",
+       "ror": "https://ror.org/02feahw73",
+       "country_code": "FR",
+       "type": "government",
+       "lineage": [
+        "https://openalex.org/I1294671590"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I4210136308",
+       "display_name": "Translational Innovation in Medicine and Complexity",
+       "ror": "https://ror.org/03985kf35",
+       "country_code": "FR",
+       "type": "facility",
+       "lineage": [
+        "https://openalex.org/I106785703",
+        "https://openalex.org/I1294671590",
+        "https://openalex.org/I4210095849",
+        "https://openalex.org/I4210104684",
+        "https://openalex.org/I4210136308",
+        "https://openalex.org/I4210159245",
+        "https://openalex.org/I899635006"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I4210165539",
+       "display_name": "Clinique Romande de Réadaptation",
+       "ror": "https://ror.org/05kz5x194",
+       "country_code": "CH",
+       "type": "healthcare",
+       "lineage": [
+        "https://openalex.org/I4210165539"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I5124864",
+       "display_name": "École Polytechnique Fédérale de Lausanne",
+       "ror": "https://ror.org/02s376052",
+       "country_code": "CH",
+       "type": "education",
+       "lineage": [
+        "https://openalex.org/I2799323385",
+        "https://openalex.org/I5124864"
+       ]
+      },
+      {
+       "id": "https://openalex.org/I899635006",
+       "display_name": "Université Grenoble Alpes",
+       "ror": "https://ror.org/02rx3b187",
+       "country_code": "FR",
+       "type": "education",
+       "lineage": [
+        "https://openalex.org/I899635006"
+       ]
+      }
+     ],
+     "countries": [
+      "CH",
+      "FR"
+     ],
+     "is_corresponding": false,
+     "raw_author_name": "Roberta Ronchi",
+     "raw_affiliation_strings": [
+      "From the Laboratory of Cognitive Neuroscience, Brain Mind Institute (P.P., R.R., M.S., O.B.), and Center for Neuroprosthetics (P.P., E.P., R.R., M.S., O.B.), School of Life Sciences, École Polytechnique Fédérale de Lausanne, Campus Biotech, Geneva, Switzerland; University Grenoble Alpes &amp; CNRS (E.P.), TIMC-IMAG, Grenoble, France; Spinal Cord Unit (A.-W.A.-K., X.J.), Clinique Romande de Réadaptation SUVACare, Sion; and Division of Neurorehabilitation, Department of Clinical Neuroscience (A.K.),",
+      "University Grenoble Alpes & CNRS (E.P.), TIMC-IMAG, Grenoble, France"
+     ],
+     "raw_orcid": null,
+     "affiliations": [
+      {
+       "raw_affiliation_string": "From the Laboratory of Cognitive Neuroscience, Brain Mind Institute (P.P., R.R., M.S., O.B.), and Center for Neuroprosthetics (P.P., E.P., R.R., M.S., O.B.), School of Life Sciences, École Polytechnique Fédérale de Lausanne, Campus Biotech, Geneva, Switzerland; University Grenoble Alpes &amp; CNRS (E.P.), TIMC-IMAG, Grenoble, France; Spinal Cord Unit (A.-W.A.-K., X.J.), Clinique Romande de Réadaptation SUVACare, Sion; and Division of Neurorehabilitation, Department of Clinical Neuroscience (A.K.),",
+       "institution_ids": [
+        "https://openalex.org/I4210136308",
+        "https://openalex.org/I4210165539",
+        "https://openalex.org/I5124864",
+        "https://openalex.org/I899635006"
+       ]
+      },
+      {
+       "raw_affiliation_string": "University Grenoble Alpes & CNRS (E.P.), TIMC-IMAG, Grenoble, France",
+       "institution_ids": [
+        "https://openalex.org/I1294671590",
+        "https://openalex.org/I4210136308",
+        "https://openalex.org/I899635006"
+       ]
+      }
+     ]
+    }
+   ],
+   "primary_location": {
+    "id": "doi:10.1212/wnl.0000000000004585",
+    "doi": "https://doi.org/10.1212/wnl.0000000000004585",
+    "is_oa": true,
+    "landing_page_url": "https://doi.org/10.1212/wnl.0000000000004585",
+    "pdf_url": "https://n.neurology.org/content/neurology/89/18/1894.full.pdf",
+    "source": {
+     "id": "https://openalex.org/S79704628",
+     "display_name": "Neurology",
+     "issn_l": "0028-3878",
+     "issn": [
+      "0028-3878",
+      "1526-632X"
+     ],
+     "is_oa": false,
+     "is_in_doaj": false,
+     "is_core": true,
+     "listed_in": [
+      "anvur-scientific",
+      "cwts-core",
+      "dongbi-a",
+      "doyens",
+      "jufo-3",
+      "ki-jl-2",
+      "medline",
+      "norway-2",
+      "poland-140",
+      "russia-white-list-1",
+      "vabb-shw"
+     ],
+     "host_organization": "https://openalex.org/P4310315671",
+     "host_organization_name": "Lippincott Williams & Wilkins",
+     "host_organization_lineage": [
+      "https://openalex.org/P4310315671",
+      "https://openalex.org/P4310318547"
+     ],
+     "host_organization_lineage_names": [
+      "Lippincott Williams & Wilkins",
+      "Wolters Kluwer"
+     ],
+     "type": "journal"
+    },
+    "license": "cc-by-nc-nd",
+    "license_id": "https://openalex.org/licenses/cc-by-nc-nd",
+    "version": "publishedVersion",
+    "is_accepted": true,
+    "is_published": true,
+    "raw_source_name": "Neurology",
+    "raw_type": "journal-article"
+   },
+   "best_oa_location": {
+    "id": "doi:10.1212/wnl.0000000000004585",
+    "doi": "https://doi.org/10.1212/wnl.0000000000004585",
+    "is_oa": true,
+    "landing_page_url": "https://doi.org/10.1212/wnl.0000000000004585",
+    "pdf_url": "https://n.neurology.org/content/neurology/89/18/1894.full.pdf",
+    "source": {
+     "id": "https://openalex.org/S79704628",
+     "display_name": "Neurology",
+     "issn_l": "0028-3878",
+     "issn": [
+      "0028-3878",
+      "1526-632X"
+     ],
+     "is_oa": false,
+     "is_in_doaj": false,
+     "is_core": true,
+     "listed_in": [
+      "anvur-scientific",
+      "cwts-core",
+      "dongbi-a",
+      "doyens",
+      "jufo-3",
+      "ki-jl-2",
+      "medline",
+      "norway-2",
+      "poland-140",
+      "russia-white-list-1",
+      "vabb-shw"
+     ],
+     "host_organization": "https://openalex.org/P4310315671",
+     "host_organization_name": "Lippincott Williams & Wilkins",
+     "host_organization_lineage": [
+      "https://openalex.org/P4310315671",
+      "https://openalex.org/P4310318547"
+     ],
+     "host_organization_lineage_names": [
+      "Lippincott Williams & Wilkins",
+      "Wolters Kluwer"
+     ],
+     "type": "journal"
+    },
+    "license": "cc-by-nc-nd",
+    "license_id": "https://openalex.org/licenses/cc-by-nc-nd",
+    "version": "publishedVersion",
+    "is_accepted": true,
+    "is_published": true,
+    "raw_source_name": "Neurology",
+    "raw_type": "journal-article"
+   },
+   "open_access": {
+    "is_oa": true,
+    "oa_status": "hybrid",
+    "oa_url": "https://n.neurology.org/content/neurology/89/18/1894.full.pdf",
+    "any_repository_has_fulltext": true
+   },
+   "abstract_inverted_index": {
+    "2": [
+     42
+    ],
+    "20": [
+     35
+    ],
+    "OBJECTIVE:": [
+     0
+    ],
+    "To": [
+     1
+    ],
+    "investigate": [
+     2
+    ],
+    "changes": [
+     3
+    ],
+    "in": [
+     4,
+     11,
+     41,
+     122,
+     191,
+     197
+    ],
+    "body": [
+     5,
+     21,
+     119,
+     125,
+     145,
+     193,
+     240
+    ],
+    "ownership": [
+     6,
+     99,
+     115,
+     120,
+     169,
+     177,
+     194
+    ],
+    "and": [
+     7,
+     23,
+     34,
+     75,
+     101,
+     139,
+     174,
+     201,
+     220,
+     242
+    ],
+    "chronic": [
+     8
+    ],
+    "neuropathic": [
+     9,
+     104
+    ],
+    "pain": [
+     10,
+     105,
+     109
+    ],
+    "patients": [
+     12,
+     29,
+     157
+    ],
+    "with": [
+     13,
+     30,
+     32,
+     116,
+     158,
+     179,
+     206,
+     245,
+     248
+    ],
+    "spinal": [
+     14
+    ],
+    "cord": [
+     15
+    ],
+    "injury": [
+     16
+    ],
+    "(SCI)": [
+     17
+    ],
+    "using": [
+     18,
+     233
+    ],
+    "multisensory": [
+     19,
+     164,
+     234
+    ],
+    "own": [
+     20
+    ],
+    "illusions": [
+     22
+    ],
+    "virtual": [
+     24,
+     50,
+     78,
+     144
+    ],
+    "reality": [
+     25
+    ],
+    "(VR).": [
+     26
+    ],
+    "METHODS:": [
+     27
+    ],
+    "Twenty": [
+     28
+    ],
+    "SCI": [
+     31,
+     159,
+     251
+    ],
+    "paraplegia": [
+     33
+    ],
+    "healthy": [
+     36
+    ],
+    "control": [
+     37
+    ],
+    "participants": [
+     38
+    ],
+    "(HC)": [
+     39
+    ],
+    "participated": [
+     40
+    ],
+    "factorial,": [
+     43
+    ],
+    "randomized,": [
+     44
+    ],
+    "repeated-measures": [
+     45
+    ],
+    "design": [
+     46
+    ],
+    "studies.": [
+     47
+    ],
+    "In": [
+     48,
+     183
+    ],
+    "the": [
+     49,
+     62,
+     68,
+     73,
+     77,
+     89,
+     92,
+     95,
+     123,
+     136,
+     140,
+     198,
+     213,
+     221
+    ],
+    "leg": [
+     51,
+     98,
+     114,
+     168,
+     176,
+     238
+    ],
+    "illusion": [
+     52,
+     126
+    ],
+    "(VLI),": [
+     53
+    ],
+    "we": [
+     54,
+     185
+    ],
+    "applied": [
+     55
+    ],
+    "asynchronous": [
+     56,
+     130
+    ],
+    "or": [
+     57,
+     71,
+     131
+    ],
+    "synchronous": [
+     58,
+     132,
+     217
+    ],
+    "visuotactile": [
+     59,
+     133,
+     218
+    ],
+    "stimulation": [
+     60,
+     134,
+     219,
+     235
+    ],
+    "to": [
+     61,
+     76,
+     135,
+     163,
+     172
+    ],
+    "participant's": [
+     63,
+     137
+    ],
+    "back": [
+     64,
+     138,
+     141,
+     223
+    ],
+    "(either": [
+     65
+    ],
+    "immediately": [
+     66
+    ],
+    "above": [
+     67
+    ],
+    "lesion": [
+     69
+    ],
+    "level": [
+     70
+    ],
+    "at": [
+     72
+    ],
+    "shoulder)": [
+     74
+    ],
+    "legs": [
+     79
+    ],
+    "as": [
+     80,
+     146,
+     195
+    ],
+    "seen": [
+     81,
+     147
+    ],
+    "on": [
+     82,
+     94,
+     102,
+     148
+    ],
+    "a": [
+     83,
+     143,
+     149
+    ],
+    "VR": [
+     84,
+     231
+    ],
+    "head-mounted": [
+     85,
+     150
+    ],
+    "display.": [
+     86,
+     151
+    ],
+    "We": [
+     87,
+     111
+    ],
+    "tested": [
+     88,
+     196
+    ],
+    "effect": [
+     90
+    ],
+    "of": [
+     91,
+     97,
+     142
+    ],
+    "VLI": [
+     93,
+     200,
+     214
+    ],
+    "sense": [
+     96
+    ],
+    "(questionnaires)": [
+     100
+    ],
+    "perceived": [
+     103
+    ],
+    "(visual": [
+     106
+    ],
+    "analogue": [
+     107
+    ],
+    "scale": [
+     108
+    ],
+    "ratings).": [
+     110
+    ],
+    "compared": [
+     112,
+     171
+    ],
+    "illusory": [
+     113,
+     117,
+     167
+    ],
+    "global": [
+     118,
+     192
+    ],
+    "(induced": [
+     121
+    ],
+    "full": [
+     124
+    ],
+    "[FBI]),": [
+     127
+    ],
+    "by": [
+     128
+    ],
+    "applying": [
+     129
+    ],
+    "RESULTS:": [
+     152
+    ],
+    "Our": [
+     153
+    ],
+    "data": [
+     154
+    ],
+    "show": [
+     155,
+     229
+    ],
+    "that": [
+     156,
+     175,
+     209,
+     230
+    ],
+    "are": [
+     160
+    ],
+    "less": [
+     161
+    ],
+    "sensitive": [
+     162
+    ],
+    "stimulations": [
+     165
+    ],
+    "inducing": [
+     166
+    ],
+    "(as": [
+     170
+    ],
+    "HC)": [
+     173
+    ],
+    "decreased": [
+     178
+    ],
+    "time": [
+     180
+    ],
+    "since": [
+     181
+    ],
+    "SCI.": [
+     182
+    ],
+    "contrast,": [
+     184
+    ],
+    "found": [
+     186
+    ],
+    "no": [
+     187
+    ],
+    "differences": [
+     188
+    ],
+    "between": [
+     189
+    ],
+    "groups": [
+     190
+    ],
+    "FBI.": [
+     199
+    ],
+    "FBI": [
+     202
+    ],
+    "were": [
+     203
+    ],
+    "both": [
+     204
+    ],
+    "associated": [
+     205,
+     244
+    ],
+    "mild": [
+     207,
+     246
+    ],
+    "analgesia": [
+     208,
+     247
+    ],
+    "was": [
+     210
+    ],
+    "only": [
+     211
+    ],
+    "during": [
+     212
+    ],
+    "specific": [
+     215
+    ],
+    "for": [
+     216,
+     250
+    ],
+    "lower": [
+     222
+    ],
+    "position.": [
+     224
+    ],
+    "CONCLUSIONS:": [
+     225
+    ],
+    "The": [
+     226
+    ],
+    "present": [
+     227
+    ],
+    "findings": [
+     228
+    ],
+    "exposure": [
+     232
+    ],
+    "differently": [
+     236
+    ],
+    "affected": [
+     237
+    ],
+    "vs": [
+     239
+    ],
+    "ownership,": [
+     241
+    ],
+    "is": [
+     243
+    ],
+    "potential": [
+     249
+    ],
+    "neurorehabilitation": [
+     252
+    ],
+    "protocols.": [
+     253
+    ]
+   },
+   "cited_by_count": 149,
+   "referenced_works": [
+    "https://openalex.org/W1754553209",
+    "https://openalex.org/W1821978739",
+    "https://openalex.org/W1901708330",
+    "https://openalex.org/W1920095885",
+    "https://openalex.org/W1933934289"
+   ],
+   "primary_topic": {
+    "id": "https://openalex.org/T10648",
+    "display_name": "Virtual Reality Applications and Impacts",
+    "score": 0.9506999850273132,
+    "subfield": {
+     "id": "https://openalex.org/subfields/1709",
+     "display_name": "Human-Computer Interaction"
+    },
+    "field": {
+     "id": "https://openalex.org/fields/17",
+     "display_name": "Computer Science"
+    },
+    "domain": {
+     "id": "https://openalex.org/domains/3",
+     "display_name": "Physical Sciences"
+    }
+   },
+   "topics": [
+    {
+     "id": "https://openalex.org/T10648",
+     "display_name": "Virtual Reality Applications and Impacts",
+     "score": 0.9506999850273132,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1709",
+      "display_name": "Human-Computer Interaction"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/17",
+      "display_name": "Computer Science"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/3",
+      "display_name": "Physical Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T10925",
+     "display_name": "Spinal Cord Injury Research",
+     "score": 0.017799999564886093,
+     "subfield": {
+      "id": "https://openalex.org/subfields/2734",
+      "display_name": "Pathology and Forensic Medicine"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/27",
+      "display_name": "Medicine"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/4",
+      "display_name": "Health Sciences"
+     }
+    }
+   ],
+   "keywords": [
+    {
+     "id": "https://openalex.org/keywords/spinal-cord-injury",
+     "display_name": "spinal cord injury",
+     "score": 0.8870000243186951
+    },
+    {
+     "id": "https://openalex.org/keywords/virtual-reality",
+     "display_name": "virtual reality",
+     "score": 0.8659999966621399
+    },
+    {
+     "id": "https://openalex.org/keywords/body-ownership",
+     "display_name": "body ownership",
+     "score": 0.7940000295639038
+    },
+    {
+     "id": "https://openalex.org/keywords/embodiment",
+     "display_name": "embodiment",
+     "score": 0.4429999887943268
+    },
+    {
+     "id": "https://openalex.org/keywords/neuropathic-pain",
+     "display_name": "neuropathic pain",
+     "score": 0.9399999976158142
+    },
+    {
+     "id": "https://openalex.org/keywords/full-body-illusion",
+     "display_name": "full-body illusion",
+     "score": 0.8970000147819519
+    },
+    {
+     "id": "https://openalex.org/keywords/multisensory-illusions",
+     "display_name": "multisensory illusions",
+     "score": 0.6949999928474426
+    },
+    {
+     "id": "https://openalex.org/keywords/pain-relief",
+     "display_name": "analgesia",
+     "score": 0.7860000133514404
+    },
+    {
+     "id": "https://openalex.org/keywords/paraplegia",
+     "display_name": "paraplegia",
+     "score": 0.9419999718666077
+    },
+    {
+     "id": "https://openalex.org/keywords/neurorehabilitation",
+     "display_name": "neurorehabilitation",
+     "score": 0.9589999914169312
+    }
+   ],
+   "type": "article",
+   "ids": {
+    "openalex": "https://openalex.org/W2763999049",
+    "doi": "https://doi.org/10.1212/wnl.0000000000004585",
+    "mag": "2763999049",
+    "pmid": "https://pubmed.ncbi.nlm.nih.gov/28986411"
+   },
+   "language": "en"
+  }
+ ],
+ "group_by": []
+}

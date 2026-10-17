@@ -1,0 +1,329 @@
+{
+ "status": "ok",
+ "message-type": "work-list",
+ "message-version": "1.0.0",
+ "message": {
+  "facets": {},
+  "total-results": 22367,
+  "items": [
+   {
+    "publisher": "ACM",
+    "DOI": "10.1145/2993369.2996346",
+    "type": "proceedings-article",
+    "is-referenced-by-count": 6,
+    "title": [
+     "The Effects of Indirectly Implied Real Body Cues to Virtual Body Ownership and Presence in a Virtual Reality Environment"
+    ],
+    "author": [
+     {
+      "given": "Sungchul",
+      "family": "Jung",
+      "sequence": "first",
+      "affiliation": [
+       {
+        "name": "University of Central Florida"
+       }
+      ],
+      "role": [
+       {
+        "vocabulary": "crossref",
+        "role": "author"
+       }
+      ]
+     },
+     {
+      "given": "Charles E.",
+      "family": "Hughes",
+      "sequence": "additional",
+      "affiliation": [
+       {
+        "name": "University of Central Florida"
+       }
+      ],
+      "role": [
+       {
+        "vocabulary": "crossref",
+        "role": "author"
+       }
+      ]
+     }
+    ],
+    "event": {
+     "sponsor": [
+      "SIGGRAPH ACM Special Interest Group on Computer Graphics and Interactive Techniques",
+      "SIGCHI ACM Special Interest Group on Computer-Human Interaction"
+     ],
+     "acronym": "VRST '16",
+     "name": "VRST '16: 22th ACM Symposium on Virtual Reality Software and Technology",
+     "location": "Munich Germany"
+    },
+    "container-title": [
+     "Proceedings of the 22nd ACM Conference on Virtual Reality Software and Technology"
+    ],
+    "link": [
+     {
+      "URL": "https://dl.acm.org/doi/10.1145/2993369.2996346",
+      "content-type": "unspecified",
+      "content-version": "vor",
+      "intended-application": "text-mining"
+     },
+     {
+      "URL": "https://dl.acm.org/doi/pdf/10.1145/2993369.2996346",
+      "content-type": "unspecified",
+      "content-version": "vor",
+      "intended-application": "similarity-checking"
+     }
+    ],
+    "issued": {
+     "date-parts": [
+      [
+       2016,
+       11,
+       2
+      ]
+     ]
+    },
+    "URL": "https://doi.org/10.1145/2993369.2996346"
+   },
+   {
+    "publisher": "ACM",
+    "DOI": "10.1145/2993369.2996319",
+    "type": "proceedings-article",
+    "is-referenced-by-count": 10,
+    "title": [
+     "Audio feedback and illusion of virtual body ownership in mixed reality"
+    ],
+    "author": [
+     {
+      "given": "Jean-Luc",
+      "family": "Lugrin",
+      "sequence": "first",
+      "affiliation": [
+       {
+        "name": "University of Würzburg"
+       }
+      ],
+      "role": [
+       {
+        "vocabulary": "crossref",
+        "role": "author"
+       }
+      ]
+     },
+     {
+      "given": "David",
+      "family": "Obremski",
+      "sequence": "additional",
+      "affiliation": [
+       {
+        "name": "University of Würzburg"
+       }
+      ],
+      "role": [
+       {
+        "vocabulary": "crossref",
+        "role": "author"
+       }
+      ]
+     },
+     {
+      "given": "Daniel",
+      "family": "Roth",
+      "sequence": "additional",
+      "affiliation": [
+       {
+        "name": "University of Würzburg"
+       }
+      ],
+      "role": [
+       {
+        "vocabulary": "crossref",
+        "role": "author"
+       }
+      ]
+     },
+     {
+      "given": "Marc Erich",
+      "family": "Latoschik",
+      "sequence": "additional",
+      "affiliation": [
+       {
+        "name": "University of Würzburg"
+       }
+      ],
+      "role": [
+       {
+        "vocabulary": "crossref",
+        "role": "author"
+       }
+      ]
+     }
+    ],
+    "event": {
+     "sponsor": [
+      "SIGGRAPH ACM Special Interest Group on Computer Graphics and Interactive Techniques",
+      "SIGCHI ACM Special Interest Group on Computer-Human Interaction"
+     ],
+     "acronym": "VRST '16",
+     "name": "VRST '16: 22th ACM Symposium on Virtual Reality Software and Technology",
+     "location": "Munich Germany"
+    },
+    "container-title": [
+     "Proceedings of the 22nd ACM Conference on Virtual Reality Software and Technology"
+    ],
+    "link": [
+     {
+      "URL": "https://dl.acm.org/doi/10.1145/2993369.2996319",
+      "content-type": "unspecified",
+      "content-version": "vor",
+      "intended-application": "text-mining"
+     },
+     {
+      "URL": "https://dl.acm.org/doi/pdf/10.1145/2993369.2996319",
+      "content-type": "unspecified",
+      "content-version": "vor",
+      "intended-application": "similarity-checking"
+     }
+    ],
+    "issued": {
+     "date-parts": [
+      [
+       2016,
+       11,
+       2
+      ]
+     ]
+    },
+    "URL": "https://doi.org/10.1145/2993369.2996319"
+   },
+   {
+    "publisher": "ACM",
+    "DOI": "10.1145/2927929.2927940",
+    "type": "proceedings-article",
+    "is-referenced-by-count": 25,
+    "title": [
+     "Extending the human body in virtual reality"
+    ],
+    "author": [
+     {
+      "given": "Mie C. S.",
+      "family": "Egeberg",
+      "sequence": "first",
+      "affiliation": [
+       {
+        "name": "Aalborg University, Rendsburggade, Aalborg, Denmark"
+       }
+      ],
+      "role": [
+       {
+        "vocabulary": "crossref",
+        "role": "author"
+       }
+      ]
+     },
+     {
+      "given": "Stine L. R.",
+      "family": "Lind",
+      "sequence": "additional",
+      "affiliation": [
+       {
+        "name": "Aalborg University, Rendsburggade, Aalborg, Denmark"
+       }
+      ],
+      "role": [
+       {
+        "vocabulary": "crossref",
+        "role": "author"
+       }
+      ]
+     },
+     {
+      "given": "Sule",
+      "family": "Serubugo",
+      "sequence": "additional",
+      "affiliation": [
+       {
+        "name": "Aalborg University, Rendsburggade, Aalborg, Denmark"
+       }
+      ],
+      "role": [
+       {
+        "vocabulary": "crossref",
+        "role": "author"
+       }
+      ]
+     },
+     {
+      "given": "Denisa",
+      "family": "Skantarova",
+      "sequence": "additional",
+      "affiliation": [
+       {
+        "name": "Aalborg University, Rendsburggade, Aalborg, Denmark"
+       }
+      ],
+      "role": [
+       {
+        "vocabulary": "crossref",
+        "role": "author"
+       }
+      ]
+     },
+     {
+      "given": "Martin",
+      "family": "Kraus",
+      "sequence": "additional",
+      "affiliation": [
+       {
+        "name": "Aalborg University, Rendsburggade, Aalborg, Denmark"
+       }
+      ],
+      "role": [
+       {
+        "vocabulary": "crossref",
+        "role": "author"
+       }
+      ]
+     }
+    ],
+    "event": {
+     "acronym": "VRIC '16",
+     "name": "VRIC '16: Virtual Reality International Conference - Laval Virtual 2016",
+     "location": "Laval France"
+    },
+    "container-title": [
+     "Proceedings of the 2016 Virtual Reality International Conference"
+    ],
+    "link": [
+     {
+      "URL": "https://dl.acm.org/doi/10.1145/2927929.2927940",
+      "content-type": "unspecified",
+      "content-version": "vor",
+      "intended-application": "text-mining"
+     },
+     {
+      "URL": "https://dl.acm.org/doi/pdf/10.1145/2927929.2927940",
+      "content-type": "unspecified",
+      "content-version": "vor",
+      "intended-application": "similarity-checking"
+     }
+    ],
+    "issued": {
+     "date-parts": [
+      [
+       2016,
+       3,
+       23
+      ]
+     ]
+    },
+    "URL": "https://doi.org/10.1145/2927929.2927940"
+   }
+  ],
+  "items-per-page": 3,
+  "query": {
+   "start-index": 0,
+   "search-terms": null
+  }
+ }
+}
