@@ -1,0 +1,73 @@
+# 工程表（ROADMAP）
+
+進め方は `.claude/skills/feature-workflow` に従う。**1 行 = 1 ブランチ = 1 PR**。上から順に進め、各行の完了条件をすべて満たしたらマージする。
+全 PR 共通のマージ条件: `npm run lint` / `npm test` / `npm run build` がすべて成功していること。
+
+状態: ☐ 未着手 / ◐ 進行中 / ☑ 完了
+
+## M0 準備
+
+| # | 状態 | ブランチ | 内容 | 機能ID | 完了条件 |
+|---|---|---|---|---|---|
+| 0.1 | ☑ | `docs/design-document` | 設計書・機能一覧 | — | DESIGN.md / FEATURES.md がマージ済み（PR #1） |
+| 0.2 | ☑ | `chore/project-skills` | プロジェクト skills・CLAUDE.md | — | 4 つの skills がマージ済み（PR #2） |
+| 0.3 | ☑ | `docs/roadmap` | 工程表・PR テンプレート | — | 本書がマージ済み |
+
+## M1 基盤
+
+| # | 状態 | ブランチ | 内容 | 機能ID | 完了条件 |
+|---|---|---|---|---|---|
+| 1.1 | ☐ | `chore/foundation` | Vitest、Hono サーバーの骨組み（`/api/health`）、`shared/`、Vite のプロキシ、`concurrently`、`.env.example`、`.gitignore`、既存の lint エラー修正、README の書き直し | — | `npm run dev` でフロントと API が起動し、フロントから `/api/health` が取れる。`npm test` が動く |
+| 1.2 | ☐ | `fix/map-integrity` | reducer を純粋関数として分離しテスト。キーボード削除の整合性、TB レイアウトのハンドル位置 | E5, E6 | 引用エッジを削除すると `references` からも消え、再生成で復活しない。ノード削除で参照と選択状態が掃除される（テストあり） |
+| 1.3 | ☐ | `feat/persistence` | プロジェクトの保存・切替・新規作成・削除、JSON エクスポート/インポート | B1, E1 | リロードしてもマップが残る。プロジェクトを切り替えられる。JSON で書き出して読み込むと元に戻る |
+
+## M2 横断クエリ検索（R1）
+
+| # | 状態 | ブランチ | 内容 | 機能ID | 完了条件 |
+|---|---|---|---|---|---|
+| 2.1 | ☐ | `feat/rql-parser` | RQL のパーサー（別名・エラー位置つき）、ローカル評価器、`/api/query/parse` | A4 | DESIGN.md 5.2 の全構文のテストが通る。ACM・IEEE・PubMed 形式の例を正しくパースできる |
+| 2.2 | ☐ | `feat/search-core` | HTTP クライアント（リトライ・バックオフ）、レート制限、キャッシュ（メモリ・ディスク）、ID 正規化、重複統合、RRF | A10 | 各モジュールの単体テストが通る |
+| 2.3 | ☐ | `feat/sources-openalex-crossref` | OpenAlex・Crossref アダプタ（コンパイラ・正規化・fixture テスト） | A1 | `publisher:acm` / `publisher:ieee` が DOI プレフィックスの絞り込みになる |
+| 2.4 | ☐ | `feat/sources-arxiv-s2-pubmed` | arXiv・Semantic Scholar・PubMed アダプタ | A1 | fixture テストが通り、実 API で各ソース 1 回の検索が成功する（S2 の 429 は許容し、報告する） |
+| 2.5 | ☐ | `feat/sources-ieee-dblp` | IEEE（キー必須）・DBLP（ベストエフォート）アダプタ | A1 | キーが無いと IEEE は `enabled: false` と理由を返す。DBLP の失敗が全体を止めない |
+| 2.6 | ☐ | `feat/search-api` | `/api/search`: 並列検索 → ローカル再評価 → 重複統合 → OpenAlex での補完 → 順位付け | A1, A10 | smoke-test の横断検索で 2 つ以上のソースから結果が返り、重複が統合される |
+| 2.7 | ☐ | `feat/search-ui` | 検索パネル（クエリ入力・構文チェック・ソース選択・年・出版社・OA のチップ）、結果一覧、ソースごとの件数・警告の表示 | A1, A4, A5 | UI から検索して結果一覧が出る。構文エラーの位置が表示される |
+| 2.8 | ☐ | `feat/search-to-mindmap` | `/api/graph/build`（引用関係・クラスタ）、query・cluster ノード、選んだ結果からマップ生成（追加 / 新規プロジェクト） | A2, C2 | 検索結果から、根 → クラスタ → 論文の構造と引用エッジを持つマップができ、自動配置される |
+
+## M3 なんとなく検索（R2）
+
+| # | 状態 | ブランチ | 内容 | 機能ID | 完了条件 |
+|---|---|---|---|---|---|
+| 3.1 | ☐ | `feat/llm-foundation` | `server/llm/`（クライアント、設定、テスト用の差し込み口）、`/api/health` に LLM の状態を表示、フロントに LLM の有効/無効表示 | — | キーなしで `llm.enabled: false`。偽クライアントでテストできる |
+| 3.2 | ☐ | `feat/vague-search` | `/api/vague-search`（意味検索 + クエリ展開 + 関連度検索 → RRF → 再ランキング）、UI のモード切替、展開されたクエリから通常検索へ移る導線 | A3 | キーなしのフォールバックで、smoke-test の例文の上位に関連論文が来る。LLM 版は偽クライアントでテストする |
+
+## M4 研究支援機能（R3）
+
+| # | 状態 | ブランチ | 内容 | 機能ID | 完了条件 |
+|---|---|---|---|---|---|
+| 4.1 | ☐ | `feat/citation-expansion` | ノードから参考文献・被引用・関連論文を取得してマップに追加 | A7, A8 | 詳細パネルのボタンで、後方・前方の論文を選んで追加できる |
+| 4.2 | ☐ | `feat/identifier-import` | DOI / arXiv ID / URL / タイトルの貼り付けで論文を追加（`/api/resolve`） | A6 | 複数行を貼ると、まとめて解決して追加される。失敗した行が表示される |
+| 4.3 | ☐ | `feat/reading-management` | 読書状態・タグ・メモ・評価、PDF・DOI のリンク | B2, B3, B5 | 詳細パネルで編集でき、保存される |
+| 4.4 | ☐ | `feat/library-view` | ライブラリの表（ソート・絞り込み・複数選択・一括操作） | B4 | 全論文を表で見られ、行を選ぶとマップ上で強調される |
+| 4.5 | ☐ | `feat/map-views` | 色分けの切替、ノードの大きさ = 被引用数、マップ内検索・フィルタ | C1, C2, C3 | Toolbar で切り替えられ、フィルタに合わない論文が薄く表示される |
+| 4.6 | ☐ | `feat/bibtex-citations` | BibTeX / RIS / CSV の出力、BibTeX / RIS の取り込み、APA / IEEE / ACM 形式のコピー | D1, D2, D4, D5 | 出力した BibTeX を取り込むと同じ論文に戻る（往復テスト） |
+| 4.7 | ☐ | `feat/llm-summary` | 抄録の要約・翻訳（ストリーミング） | B6 | キーありでストリーミング表示。キーなしでは理由を表示する |
+| 4.8 | ☐ | `feat/related-work-draft` | 選んだ論文から関連研究の下書きを生成（クラスタ順・引用キー付き） | D3 | キーなしでも構成案（テンプレート）が出る。キーありで本文がストリーミングされる |
+| 4.9 | ☐ | `feat/research-gaps` | 研究ギャップの抽出、クラスタ名の自動命名、研究課題の案 | C6, C7, D6 | キーなしでは課題・今後の展望の集約一覧、キーありで構造化した結果が出る |
+| 4.10 | ☐ | `feat/comparison-table` | 比較表（観点の列を追加・編集）、CSV 出力 | B8 | 論文 × 観点の表を編集・保存・CSV 出力できる |
+| 4.11 | ☐ | `feat/screening` | 採用 / 除外 / 保留と理由、PRISMA 用の件数集計 | B7 | 判定がマップの表示に反映され、件数が集計される |
+| 4.12 | ☐ | `feat/timeline-layout` | 年を軸にした配置、基礎論文・最新の発展の印付け | C4, C5 | Toolbar から時系列配置に切り替えられる |
+| 4.13 | ☐ | `feat/search-history` | 検索履歴・保存クエリ・再実行 | A9 | プロジェクトごとに履歴が残り、再実行できる |
+| 4.14 | ☐ | `feat/undo-redo-shortcuts` | 元に戻す / やり直す、キーボードショートカット | E3, E4 | Ctrl+Z / Ctrl+Shift+Z が効く。ショートカット一覧を表示できる |
+| 4.15 | ☐ | `feat/export-image` | マップの PNG / SVG 出力 | E2 | 表示中のマップを画像で保存できる |
+| 4.16 | ☐ | `feat/settings` | 設定画面（ソースの選択と件数、LLM の利用、API の状態） | E7 | 設定が保存され、検索に反映される |
+| 4.17 | ☐ | `feat/author-explore` | 著者・会議から探す、共著ネットワーク | A12, C8 | 著者名から論文をまとめて取り込める |
+| 4.18 | ☐ | `feat/i18n` | UI の日本語 / 英語切替 | E8 | 全画面で切り替えられる |
+
+A11（新着アラート）は定期実行の仕組みが必要なため、M4 のあとに改めて検討する。
+
+## 進め方の補足
+
+- 一つの PR が大きくなりすぎたら（目安: 差分 1,500 行超）、行を分けて本書を更新してから進める
+- 外部 API の仕様が設計と違った場合は、DESIGN.md を直してからアダプタを直す
+- 各マイルストーンの最後に smoke-test を行い、結果を PR に記録する
