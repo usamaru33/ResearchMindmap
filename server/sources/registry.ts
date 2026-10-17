@@ -2,6 +2,8 @@ import type { SourceName, SourceStatus } from '../../shared/types';
 import type { AppConfig } from '../config';
 import { arxivSource } from './arxiv';
 import { crossrefSource } from './crossref';
+import { dblpSource } from './dblp';
+import { ieeeSource } from './ieee';
 import { openAlexSource } from './openalex';
 import { pubmedSource } from './pubmed';
 import { semanticScholarSource } from './semanticscholar';
@@ -13,6 +15,8 @@ export const SOURCES: SourceAdapter[] = [
   crossrefSource,
   arxivSource,
   pubmedSource,
+  ieeeSource,
+  dblpSource,
 ];
 
 export function getSource(name: SourceName): SourceAdapter | undefined {

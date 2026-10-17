@@ -1,0 +1,41 @@
+{
+ "_comment": "Hand-written from the documented IEEE Xplore Metadata API v1 response shape (no API key available when this fixture was made).",
+ "total_records": 245,
+ "total_searched": 6000000,
+ "articles": [
+  {
+   "doi": "10.1109/VR.2019.8798222",
+   "title": "The Effect of Avatar Size on Perceived Object Size in <i>Virtual Reality</i>",
+   "publisher": "IEEE",
+   "content_type": "Conferences",
+   "abstract": "We investigate how the size of a self-avatar changes size judgments.",
+   "article_number": "8798222",
+   "pdf_url": "https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8798222",
+   "html_url": "https://ieeexplore.ieee.org/document/8798222/",
+   "abstract_url": "https://ieeexplore.ieee.org/document/8798222/",
+   "publication_title": "2019 IEEE Conference on Virtual Reality and 3D User Interfaces (VR)",
+   "publication_year": 2019,
+   "citing_paper_count": 42,
+   "access_type": "LOCKED",
+   "authors": { "authors": [
+     { "full_name": "Taro Yamada", "affiliation": "The University of Tokyo, Japan", "author_order": 1 },
+     { "full_name": "Jane Doe", "affiliation": "MIT, USA", "author_order": 2 }
+   ] },
+   "index_terms": {
+     "ieee_terms": { "terms": ["Avatars", "Virtual reality"] },
+     "author_terms": { "terms": ["body ownership", "size perception"] }
+   }
+  },
+  {
+   "title": "Haptic Retargeting Revisited",
+   "publisher": "IEEE",
+   "content_type": "Journals",
+   "article_number": "9000001",
+   "publication_title": "IEEE Transactions on Visualization and Computer Graphics",
+   "publication_year": "2021",
+   "access_type": "OPEN_ACCESS",
+   "pdf_url": "https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9000001",
+   "authors": { "authors": [{ "full_name": "A. Author" }] }
+  }
+ ]
+}
