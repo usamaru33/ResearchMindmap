@@ -356,6 +356,16 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
       };
     }
 
+    case 'RENAME_CLUSTERS': {
+      const names = action.payload;
+      return {
+        ...state,
+        nodes: state.nodes.map((n) =>
+          n.type === 'cluster' && names[n.id]?.trim() ? { ...n, data: { ...n.data, label: names[n.id].trim() } } : n,
+        ),
+      };
+    }
+
     case 'UPDATE_PAPER_META': {
       // Reading status, tags, notes, rating: no effect on edges.
       const { id, patch } = action.payload;

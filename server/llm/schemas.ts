@@ -22,3 +22,21 @@ export const RelevanceRatings = z.object({
   ),
 });
 export type RelevanceRatings = z.infer<typeof RelevanceRatings>;
+
+export const ResearchGaps = z.object({
+  gaps: z.array(
+    z.object({
+      title: z.string().describe('Short name of the open problem.'),
+      description: z.string().describe('Two or three sentences: what is missing and why it matters.'),
+      evidence: z
+        .array(z.object({ paperId: z.string(), quote: z.string().describe('A short phrase from that paper supporting the gap.') }))
+        .describe('Papers whose abstracts or notes support this gap.'),
+      paperIds: z.array(z.string()).describe('Ids of all papers related to the gap.'),
+      questions: z.array(z.string()).describe('One to three concrete research questions that would address the gap.'),
+    }),
+  ),
+});
+
+export const ClusterNames = z.object({
+  names: z.array(z.object({ id: z.string(), name: z.string().describe('A 2-6 word name for what the papers share.') })),
+});

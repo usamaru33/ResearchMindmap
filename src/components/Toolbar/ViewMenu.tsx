@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useApiHealth } from '../../hooks/useApiHealth';
 import type { ColorMode } from '../MindMap/mapViewContext';
 import styles from './Toolbar.module.css';
 
@@ -17,10 +18,27 @@ interface ViewMenuProps {
   filter: string;
   onFilter: (text: string) => void;
   matchCount: number | null;
+  clusterCount: number;
+  /** Resolves with a status message. */
+  onNameClusters: () => Promise<string>;
 }
 
-export function ViewMenu({ colorMode, onColorMode, sizeByCitations, onSizeByCitations, filter, onFilter, matchCount }: ViewMenuProps) {
+export function ViewMenu({
+  colorMode,
+  onColorMode,
+  sizeByCitations,
+  onSizeByCitations,
+  filter,
+  onFilter,
+  matchCount,
+  clusterCount,
+  onNameClusters,
+}: ViewMenuProps) {
   const [open, setOpen] = useState(false);
+  const [naming, setNaming] = useState(false);
+  const [namingNote, setNamingNote] = useState<string | null>(null);
+  const health = useApiHealth();
+  const llmEnabled = health.status === 'ok' && health.health.llm.enabled;
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -75,6 +93,24 @@ export function ViewMenu({ colorMode, onColorMode, sizeByCitations, onSizeByCita
             <input type="checkbox" checked={sizeByCitations} onChange={(e) => onSizeByCitations(e.target.checked)} />
             Size by citation count
           </label>
+          {clusterCount > 0 && (
+            <>
+              <button
+                type="button"
+                className={styles.viewMode}
+                disabled={!llmEnabled || naming}
+                title={llmEnabled ? 'クラスタ内の論文から名前を付け直します' : 'ANTHROPIC_API_KEY が必要です（ダブルクリックで手動変更できます）'}
+                onClick={async () => {
+                  setNaming(true);
+                  setNamingNote(await onNameClusters());
+                  setNaming(false);
+                }}
+              >
+                {naming ? 'Naming…' : 'Name clusters with AI'}
+              </button>
+              <div className={styles.viewHint}>{namingNote ?? 'クラスタ名はダブルクリックでも変更できます'}</div>
+            </>
+          )}
         </div>
       )}
     </div>
