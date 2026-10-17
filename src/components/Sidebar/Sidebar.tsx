@@ -13,6 +13,7 @@ interface SidebarProps {
   /** Kept mounted while hidden so the search form and results survive closing the panel. */
   searchPanel: ReactNode;
   libraryPanel: ReactNode;
+  writingPanel: ReactNode;
   mapIds: Set<string>;
   onAddPapers: (papers: Paper[]) => void;
 }
@@ -21,18 +22,19 @@ const TITLES: Record<SidebarMode, string> = {
   closed: '',
   search: 'Search papers',
   library: 'Library',
+  write: 'Draft related work',
   add: 'Add Paper',
   edit: 'Edit Paper',
 };
 
-export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, searchPanel, libraryPanel, mapIds, onAddPapers }: SidebarProps) {
+export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, searchPanel, libraryPanel, writingPanel, mapIds, onAddPapers }: SidebarProps) {
   const [addTab, setAddTab] = useState<'identifiers' | 'manual'>('identifiers');
   const isOpen = mode !== 'closed';
   const isForm = mode === 'add' || mode === 'edit';
 
   return (
     <div
-      className={`${styles.sidebar} ${mode === 'search' || mode === 'library' ? styles.sidebarWide : ''} ${!isOpen ? styles.sidebarClosed : ''}`}
+      className={`${styles.sidebar} ${mode === 'search' || mode === 'library' || mode === 'write' ? styles.sidebarWide : ''} ${!isOpen ? styles.sidebarClosed : ''}`}
       aria-hidden={!isOpen}
     >
       <div className={styles.header}>
@@ -44,6 +46,7 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
       <div className={styles.body}>
         <div hidden={mode !== 'search'}>{searchPanel}</div>
         {mode === 'library' && libraryPanel}
+        {mode === 'write' && writingPanel}
         {mode === 'add' && (
           <div className={styles.addTabs} role="tablist">
             <button

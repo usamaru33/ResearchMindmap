@@ -13,6 +13,8 @@ interface ToolbarProps {
   searchOpen: boolean;
   onToggleLibrary: () => void;
   libraryOpen: boolean;
+  onToggleWrite: () => void;
+  writeOpen: boolean;
   showCitations: boolean;
   onToggleCitations: () => void;
   viewMenu: ReactNode;
@@ -28,6 +30,8 @@ export function Toolbar({
   searchOpen,
   onToggleLibrary,
   libraryOpen,
+  onToggleWrite,
+  writeOpen,
   showCitations,
   onToggleCitations,
   viewMenu,
@@ -62,6 +66,14 @@ export function Toolbar({
         aria-pressed={libraryOpen}
       >
         Library
+      </button>
+      <button
+        className={`${styles.btn} ${writeOpen ? styles.btnActive : ''}`}
+        onClick={onToggleWrite}
+        aria-pressed={writeOpen}
+        title="Draft a related work section from the map"
+      >
+        Write
       </button>
       <button className={styles.btn} onClick={onAddPaper}>
         + Add Paper
