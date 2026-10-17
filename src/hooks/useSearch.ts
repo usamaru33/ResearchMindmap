@@ -9,7 +9,7 @@ export type RequestState<Req, Res> =
   | { status: 'error'; request: Req; message: string };
 
 /** POST to `path`, keeping only the latest request's outcome. */
-function useApiRequest<Req, Res>(path: string) {
+export function useApiRequest<Req, Res>(path: string) {
   const [state, setState] = useState<RequestState<Req, Res>>({ status: 'idle' });
   const seq = useRef(0);
 

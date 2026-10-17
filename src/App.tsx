@@ -260,6 +260,7 @@ export default function App() {
             onPinHistory={(id) => dispatch({ type: 'PIN_HISTORY', payload: id })}
             onRemoveHistory={(id) => dispatch({ type: 'REMOVE_HISTORY', payload: id })}
             mapIds={mapIds}
+            mapPapers={allPapers}
             onBuildMap={handleBuildMap}
           />
         }

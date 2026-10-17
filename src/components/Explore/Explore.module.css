@@ -1,0 +1,218 @@
+.muted {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.candidates {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.candidate {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.candidate:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-light);
+}
+
+.candidateName,
+.entityName {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.entityName {
+  font-size: var(--font-size-lg);
+}
+
+.candidateDetail,
+.candidateStats,
+.candidateTopics {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.candidateTopics {
+  color: var(--color-text-muted);
+}
+
+.entity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.entityHeader button {
+  white-space: nowrap;
+}
+
+.entityHeader {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.scope {
+  display: flex;
+  gap: 4px;
+}
+
+/* Year histogram */
+.histogram {
+  margin: 0;
+}
+
+.bars {
+  display: flex;
+  gap: 1px;
+  align-items: flex-end;
+  height: 64px;
+  padding-bottom: 1px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.bar {
+  flex: 1;
+  min-width: 2px;
+  padding: 0;
+  background: var(--color-accent);
+  border: none;
+  border-radius: 2px 2px 0 0;
+  opacity: 0.75;
+}
+
+.bar:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.bar:disabled {
+  cursor: default;
+}
+
+.histCaption {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* Research flow */
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow li {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: var(--space-sm);
+  padding-left: var(--space-sm);
+  font-size: var(--font-size-sm);
+  border-left: 3px solid var(--color-accent-light);
+}
+
+.flowYears {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+}
+
+.flowYears small {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.flowTopics {
+  color: var(--color-text-secondary);
+}
+
+.coauthor {
+  padding: 2px 8px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-primary);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+
+.coauthor:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.coauthor small {
+  color: var(--color-text-muted);
+}
+
+/* Co-author network */
+.network {
+  margin: 0;
+}
+
+.network svg {
+  width: 100%;
+  height: auto;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.edge,
+.edgeActive {
+  stroke: var(--color-border-hover);
+}
+
+.edgeActive {
+  stroke: var(--color-accent);
+}
+
+.person {
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.dim {
+  opacity: 0.25;
+}
+
+.node,
+.nodeFocus {
+  fill: var(--color-accent-light);
+  stroke: var(--color-accent);
+  stroke-width: 1.2;
+}
+
+.nodeFocus {
+  fill: var(--color-accent);
+}
+
+.nodeLabel {
+  font-size: 9px;
+  fill: var(--color-text-primary);
+  paint-order: stroke;
+  stroke: var(--color-bg);
+  stroke-width: 3px;
+  pointer-events: none;
+}
