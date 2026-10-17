@@ -159,3 +159,18 @@
   background: var(--color-danger-light);
   border-radius: var(--radius-sm);
 }
+
+.actions3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xs);
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.note {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}

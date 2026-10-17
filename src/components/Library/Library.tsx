@@ -3,6 +3,7 @@ import type { Paper, ReadingStatus } from '../../../shared/types';
 import { EMPTY_FILTERS, filterPapers, sortPapers, type LibraryFilters, type SortDir, type SortKey } from '../../store/library';
 import { getYearColor, truncateAuthors } from '../../utils/helpers';
 import { STATUS_OPTIONS, normalizeTag, statusInfo } from '../../utils/reading';
+import { exportPapers } from '../../utils/bibliography';
 import styles from './Library.module.css';
 
 interface LibraryProps {
@@ -123,6 +124,13 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
               <option key={t} value={t} />
             ))}
           </datalist>
+          <button
+            type="button"
+            className={styles.bulkBtn}
+            onClick={() => exportPapers(papers.filter((p) => visibleChecked.includes(p.id)), 'bib', 'selected')}
+          >
+            Export .bib
+          </button>
           <button type="button" className={`${styles.bulkBtn} ${styles.danger}`} onClick={remove}>
             Delete
           </button>

@@ -483,3 +483,26 @@
 .notes:focus {
   border-color: var(--color-accent);
 }
+
+.citeStyles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-bottom: var(--space-sm);
+}
+
+.citeText {
+  margin-bottom: var(--space-sm);
+  padding: var(--space-sm);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--font-size-xs);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--color-text-primary);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  max-height: 200px;
+  overflow: auto;
+}

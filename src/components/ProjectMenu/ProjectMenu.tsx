@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ProjectSummary } from '../../store/projects';
+import type { ExportFormat } from '../../utils/bibliography';
 import styles from './ProjectMenu.module.css';
 
 interface ProjectMenuProps {
@@ -13,6 +14,9 @@ interface ProjectMenuProps {
   onDelete: () => void;
   onExport: () => void;
   onImport: (file: File) => Promise<void>;
+  onExportBibliography: (format: ExportFormat) => void;
+  /** Resolves with the number of papers added. */
+  onImportBibliography: (file: File) => Promise<number>;
 }
 
 function formatDate(iso: string): string {
@@ -31,11 +35,27 @@ export function ProjectMenu({
   onDelete,
   onExport,
   onImport,
+  onExportBibliography,
+  onImportBibliography,
 }: ProjectMenuProps) {
   const [open, setOpen] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const bibRef = useRef<HTMLInputElement>(null);
+  const [bibNote, setBibNote] = useState<string | null>(null);
+
+  const handleBibFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      const n = await onImportBibliography(file);
+      setBibNote(n > 0 ? `${n} 件の論文を追加しました` : '論文を読み取れませんでした（BibTeX か RIS を選んでください）');
+    } catch (err) {
+      setBibNote((err as Error).message);
+    }
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -141,6 +161,19 @@ export function ProjectMenu({
               Delete
             </button>
           </div>
+          <div className={styles.sectionLabel}>References</div>
+          <div className={styles.actions3}>
+            {(['bib', 'ris', 'csv'] as const).map((f) => (
+              <button key={f} className={styles.action} onClick={() => onExportBibliography(f)}>
+                Export .{f}
+              </button>
+            ))}
+            <button className={`${styles.action} ${styles.wide}`} onClick={() => bibRef.current?.click()}>
+              Import .bib / .ris
+            </button>
+          </div>
+          {bibNote && <div className={styles.note}>{bibNote}</div>}
+          <input ref={bibRef} type="file" accept=".bib,.ris,.txt,.bibtex" hidden onChange={handleBibFile} />
           {importError && (
             <div className={styles.warning} role="alert">
               {importError}
