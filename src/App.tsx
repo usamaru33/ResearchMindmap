@@ -1,16 +1,23 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { MindMap } from './components/MindMap/MindMap';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { DetailPanel } from './components/DetailPanel/DetailPanel';
+import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
 import { useMindMapStore } from './hooks/useMindMapStore';
+import { loadInitialProject, useProjects } from './hooks/useProjects';
+import { createProject } from './store/projects';
 import { sampleNodes } from './data/sampleData';
 import type { Paper } from './types';
 import styles from './App.module.css';
 
 export default function App() {
+  const [initialProject] = useState(() =>
+    loadInitialProject(() => createProject('Sample: Transformers & friends', sampleNodes)),
+  );
   const { state, dispatch, getSelectedPaper, getAllPapers, getCitedBy, getReferences } =
-    useMindMapStore(sampleNodes);
+    useMindMapStore(initialProject);
+  const projects = useProjects(initialProject, state, dispatch);
   const { screenToFlowPosition } = useReactFlow();
 
   const selectedPaper = getSelectedPaper();
@@ -77,10 +84,23 @@ export default function App() {
         onClose={handleCloseSidebar}
       />
       <div className={styles.canvas}>
+        <ProjectMenu
+          activeId={projects.activeProject.id}
+          activeName={projects.activeProject.name}
+          projects={projects.projects}
+          saveError={projects.saveError}
+          onSwitch={projects.switchTo}
+          onCreate={() => projects.createNew()}
+          onRename={projects.rename}
+          onDelete={projects.removeActive}
+          onExport={projects.exportActive}
+          onImport={projects.importFile}
+        />
         <MindMap
           nodes={state.nodes}
           edges={state.edges}
           layoutDirection={state.layoutDirection}
+          viewRequest={state.viewRequest}
           dispatch={dispatch}
           onAddPaper={handleAddPaper}
         />

@@ -1,17 +1,9 @@
 import { useReducer, useCallback } from 'react';
-import type { PaperNode, Paper, SidebarMode } from '../types';
-import { buildCitationEdges, mindMapReducer } from '../store/mindMapReducer';
+import type { MapSnapshot, Paper } from '../types';
+import { initMindMapState, mindMapReducer } from '../store/mindMapReducer';
 
-export function useMindMapStore(initialNodes: PaperNode[]) {
-  const initialEdges = buildCitationEdges(initialNodes);
-
-  const [state, dispatch] = useReducer(mindMapReducer, {
-    nodes: initialNodes,
-    edges: initialEdges,
-    selectedNodeId: null,
-    sidebarMode: 'closed' as SidebarMode,
-    layoutDirection: 'LR' as const,
-  });
+export function useMindMapStore(initialMap: MapSnapshot) {
+  const [state, dispatch] = useReducer(mindMapReducer, initialMap, initMindMapState);
 
   const getSelectedPaper = useCallback(() => {
     if (!state.selectedNodeId) return null;

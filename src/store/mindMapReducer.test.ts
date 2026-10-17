@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MindMapState, Paper } from '../types';
-import { buildCitationEdges, createPaperNode, mindMapReducer } from './mindMapReducer';
+import { buildCitationEdges, createPaperNode, initMindMapState, mindMapReducer } from './mindMapReducer';
 
 function paper(id: string, references: string[] = []): Paper {
   return {
@@ -25,6 +25,7 @@ function stateOf(papers: Paper[]): MindMapState {
     selectedNodeId: null,
     sidebarMode: 'closed',
     layoutDirection: 'LR',
+    viewRequest: { kind: 'fit', seq: 0 },
   };
 }
 
@@ -106,5 +107,26 @@ describe('mindMapReducer', () => {
     let s = stateOf([paper('a'), paper('b')]);
     s = mindMapReducer(s, { type: 'UPDATE_PAPER', payload: paper('b', ['a']) });
     expect(s.edges.map((e) => e.id)).toEqual(['cite-a-b']);
+  });
+
+  it('LOAD_MAP replaces the map, clears selection and requests layout for unplaced nodes', () => {
+    let s = stateOf([paper('a')]);
+    s = mindMapReducer(s, { type: 'SELECT_NODE', payload: 'a' });
+    const nodes = [createPaperNode(paper('x'), { x: 0, y: 0 }), createPaperNode(paper('y', ['x']), { x: 0, y: 0 })];
+    s = mindMapReducer(s, { type: 'LOAD_MAP', payload: { nodes, edges: [], layoutDirection: 'TB' } });
+    expect(s.nodes.map((n) => n.id)).toEqual(['x', 'y']);
+    expect(s.edges.map((e) => e.id)).toEqual(['cite-x-y']);
+    expect(s.selectedNodeId).toBeNull();
+    expect(s.layoutDirection).toBe('TB');
+    expect(s.viewRequest).toEqual({ kind: 'layout', seq: 1 });
+  });
+
+  it('initMindMapState only fits the view when nodes already have positions', () => {
+    const s = initMindMapState({
+      nodes: [createPaperNode(paper('a'), { x: 10, y: 0 })],
+      edges: [],
+      layoutDirection: 'LR',
+    });
+    expect(s.viewRequest.kind).toBe('fit');
   });
 });
