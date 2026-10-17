@@ -3,6 +3,7 @@ import type { Paper, PaperNode } from '../types';
 const papers: Paper[] = [
   {
     id: 'attention',
+    ids: { arxiv: '1706.03762' },
     title: 'Attention Is All You Need',
     authors: ['Vaswani, A.', 'Shazeer, N.', 'Parmar, N.', 'Uszkoreit, J.', 'Jones, L.', 'Gomez, A. N.', 'Kaiser, Ł.', 'Polosukhin, I.'],
     belongs: 'Google Brain / Google Research',
@@ -15,6 +16,7 @@ const papers: Paper[] = [
   },
   {
     id: 'bert',
+    ids: { arxiv: '1810.04805' },
     title: 'BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding',
     authors: ['Devlin, J.', 'Chang, M.-W.', 'Lee, K.', 'Toutanova, K.'],
     belongs: 'Google AI Language',
@@ -27,6 +29,7 @@ const papers: Paper[] = [
   },
   {
     id: 'gpt3',
+    ids: { arxiv: '2005.14165' },
     title: 'Language Models are Few-Shot Learners',
     authors: ['Brown, T.', 'Mann, B.', 'Ryder, N.', 'Subbiah, M.', 'Kaplan, J.', 'et al.'],
     belongs: 'OpenAI',
@@ -39,6 +42,7 @@ const papers: Paper[] = [
   },
   {
     id: 'vit',
+    ids: { arxiv: '2010.11929' },
     title: 'An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale',
     authors: ['Dosovitskiy, A.', 'Beyer, L.', 'Kolesnikov, A.', 'Weissenborn, D.', 'Zhai, X.', 'et al.'],
     belongs: 'Google Research / Brain Team',
@@ -51,6 +55,7 @@ const papers: Paper[] = [
   },
   {
     id: 'resnet',
+    ids: { doi: '10.1109/cvpr.2016.90' },
     title: 'Deep Residual Learning for Image Recognition',
     authors: ['He, K.', 'Zhang, X.', 'Ren, S.', 'Sun, J.'],
     belongs: 'Microsoft Research',
@@ -63,6 +68,7 @@ const papers: Paper[] = [
   },
   {
     id: 'gan',
+    ids: { arxiv: '1406.2661' },
     title: 'Generative Adversarial Nets',
     authors: ['Goodfellow, I.', 'Pouget-Abadie, J.', 'Mirza, M.', 'Xu, B.', 'Warde-Farley, D.', 'Ozair, S.', 'Courville, A.', 'Bengio, Y.'],
     belongs: 'Université de Montréal',
@@ -75,6 +81,7 @@ const papers: Paper[] = [
   },
   {
     id: 'dalle2',
+    ids: { arxiv: '2204.06125' },
     title: 'Hierarchical Text-Conditional Image Generation with CLIP Latents',
     authors: ['Ramesh, A.', 'Dhariwal, P.', 'Nichol, A.', 'Chu, C.', 'Chen, M.'],
     belongs: 'OpenAI',
@@ -87,6 +94,7 @@ const papers: Paper[] = [
   },
   {
     id: 'llama',
+    ids: { arxiv: '2302.13971' },
     title: 'LLaMA: Open and Efficient Foundation Language Models',
     authors: ['Touvron, H.', 'Lavril, T.', 'Izacard, G.', 'Martinet, X.', 'Lachaux, M.-A.', 'et al.'],
     belongs: 'Meta AI',

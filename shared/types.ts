@@ -185,3 +185,13 @@ export interface GraphBuildResponse {
   enriched: number;
   warnings: string[];
 }
+
+export type ExpandKind = 'references' | 'citations' | 'related';
+
+export interface ExpandResponse {
+  kind: ExpandKind;
+  papers: Paper[];
+  /** How many links exist in total (the list may be truncated to the limit). */
+  total: number;
+  warnings: string[];
+}
