@@ -49,7 +49,7 @@ export function loadInitialProject(createDefault: () => Project): Project {
 }
 
 function toSnapshot(project: Project): MapSnapshot {
-  return { nodes: project.nodes, edges: project.edges, layoutDirection: project.layoutDirection };
+  return { nodes: project.nodes, edges: project.edges, layoutDirection: project.layoutDirection, aspects: project.aspects };
 }
 
 type ProjectMeta = Pick<Project, 'id' | 'name' | 'createdAt'>;
@@ -75,8 +75,9 @@ export function useProjects(
       nodes: sanitizeNodes(state.nodes),
       edges: sanitizeEdges(state.edges),
       layoutDirection: state.layoutDirection,
+      aspects: state.aspects,
     }),
-    [initial.schemaVersion, state.nodes, state.edges, state.layoutDirection],
+    [initial.schemaVersion, state.nodes, state.edges, state.layoutDirection, state.aspects],
   );
 
   const saveNow = useCallback(
@@ -96,7 +97,7 @@ export function useProjects(
   useEffect(() => {
     const timer = window.setTimeout(() => saveRef.current(), SAVE_DELAY_MS);
     return () => window.clearTimeout(timer);
-  }, [state.nodes, state.edges, state.layoutDirection]);
+  }, [state.nodes, state.edges, state.layoutDirection, state.aspects]);
 
   const activate = useCallback(
     (project: Project) => {

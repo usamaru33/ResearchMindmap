@@ -26,6 +26,7 @@ function stateOf(papers: Paper[]): MindMapState {
     sidebarMode: 'closed',
     layoutDirection: 'LR',
     viewRequest: { kind: 'fit', seq: 0 },
+    aspects: [],
   };
 }
 
@@ -253,5 +254,24 @@ describe('RENAME_CLUSTERS', () => {
     expect(s.nodes[0].data).toMatchObject({ label: 'New name' });
     s = mindMapReducer(s, { type: 'RENAME_CLUSTERS', payload: { c1: '   ' } });
     expect(s.nodes[0].data).toMatchObject({ label: 'New name' });
+  });
+});
+
+describe('comparison aspects', () => {
+  it('sets, renames and fills aspects, keeping values with renamed columns', () => {
+    let s = stateOf([paper('alpha'), paper('beta')]);
+    s = mindMapReducer(s, { type: 'SET_ASPECTS', payload: [' Method ', 'Dataset', 'Method', ''] });
+    expect(s.aspects).toEqual(['Method', 'Dataset']);
+    s = mindMapReducer(s, { type: 'SET_ASPECT_VALUES', payload: { aspect: 'Method', values: { alpha: 'CNN', beta: 'RNN' } } });
+    s = mindMapReducer(s, { type: 'RENAME_ASPECT', payload: { from: 'Method', to: '手法' } });
+    expect(s.aspects).toEqual(['手法', 'Dataset']);
+    const alpha = s.nodes.filter(isPaperNode)[0].data.paper;
+    expect(alpha.comparison).toEqual({ 手法: 'CNN' });
+    // Renaming onto an existing column is refused.
+    expect(mindMapReducer(s, { type: 'RENAME_ASPECT', payload: { from: '手法', to: 'Dataset' } })).toBe(s);
+  });
+
+  it('loads aspects from a snapshot', () => {
+    expect(initMindMapState({ nodes: [], edges: [], layoutDirection: 'LR', aspects: ['A'] }).aspects).toEqual(['A']);
   });
 });

@@ -73,7 +73,7 @@ function updatePaper(node: MapNode, patch: (paper: Paper) => Paper): MapNode {
 }
 
 // Fields the user owns; a re-import must not overwrite them.
-const USER_FIELDS = ['challenges', 'futureWork', 'thumbnailUrl', 'status', 'tags', 'notes', 'rating', 'screening', 'addedAt'] as const;
+const USER_FIELDS = ['challenges', 'futureWork', 'thumbnailUrl', 'status', 'tags', 'notes', 'rating', 'screening', 'comparison', 'addedAt'] as const;
 
 /** Refresh an existing paper with newly fetched metadata, keeping user edits and links. */
 export function mergeImportedPaper(existing: Paper, incoming: Paper): Paper {
@@ -284,6 +284,7 @@ export function initMindMapState(snapshot: MapSnapshot): MindMapState {
     sidebarMode: 'closed',
     layoutDirection: snapshot.layoutDirection,
     viewRequest: { kind: needsLayout(snapshot.nodes) ? 'layout' : 'fit', seq: 0 },
+    aspects: snapshot.aspects ?? [],
   };
 }
 
@@ -353,6 +354,41 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
         // Search belongs to the app, not the map: keep it open across project switches.
         sidebarMode: state.sidebarMode === 'search' ? 'search' : 'closed',
         viewRequest: { ...next.viewRequest, seq: state.viewRequest.seq + 1 },
+      };
+    }
+
+    case 'SET_ASPECTS': {
+      const aspects = [...new Set(action.payload.map((a) => a.trim()).filter(Boolean))];
+      return { ...state, aspects };
+    }
+
+    case 'RENAME_ASPECT': {
+      const from = action.payload.from;
+      const to = action.payload.to.trim();
+      if (!to || to === from || state.aspects.includes(to) || !state.aspects.includes(from)) return state;
+      return {
+        ...state,
+        aspects: state.aspects.map((a) => (a === from ? to : a)),
+        nodes: state.nodes.map((n) =>
+          isPaperNode(n) && n.data.paper.comparison && from in n.data.paper.comparison
+            ? updatePaper(n, (p) => {
+                const comparison = { ...p.comparison };
+                comparison[to] = comparison[from];
+                delete comparison[from];
+                return { ...p, comparison };
+              })
+            : n,
+        ),
+      };
+    }
+
+    case 'SET_ASPECT_VALUES': {
+      const { aspect, values } = action.payload;
+      return {
+        ...state,
+        nodes: state.nodes.map((n) =>
+          n.id in values ? updatePaper(n, (p) => ({ ...p, comparison: { ...p.comparison, [aspect]: values[n.id] } })) : n,
+        ),
       };
     }
 
