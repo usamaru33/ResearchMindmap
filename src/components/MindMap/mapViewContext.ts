@@ -3,7 +3,7 @@ import type { Paper, SourceName } from '../../../shared/types';
 import { getYearColor } from '../../utils/helpers';
 import { statusInfo } from '../../utils/reading';
 
-export type ColorMode = 'year' | 'cluster' | 'status' | 'source';
+export type ColorMode = 'year' | 'cluster' | 'status' | 'source' | 'screening';
 
 export interface MapView {
   colorMode: ColorMode;
@@ -20,6 +20,13 @@ export const MapViewContext = createContext<MapView>(DEFAULT_VIEW);
 export function useMapView(): MapView {
   return useContext(MapViewContext);
 }
+
+export const SCREENING_COLORS: Record<string, string> = {
+  include: '#10b981',
+  maybe: '#f59e0b',
+  exclude: '#ef4444',
+  pending: '#cbd5e1',
+};
 
 export const SOURCE_COLORS: Record<SourceName, string> = {
   openalex: '#6366f1',
@@ -42,6 +49,8 @@ export function accentColor(mode: ColorMode, paper: Paper, clusterAccent: string
       return statusInfo(paper.status ?? 'unread')?.color;
     case 'source':
       return paper.sources?.[0] ? SOURCE_COLORS[paper.sources[0]] : '#cbd5e1';
+    case 'screening':
+      return SCREENING_COLORS[paper.screening?.decision ?? 'pending'];
   }
 }
 

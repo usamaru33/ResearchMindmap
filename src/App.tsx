@@ -6,6 +6,7 @@ import { DetailPanel } from './components/DetailPanel/DetailPanel';
 import { Library } from './components/Library/Library';
 import { WritingPanel } from './components/Writing/WritingPanel';
 import { ComparisonTable } from './components/Comparison/ComparisonTable';
+import { ScreeningPanel } from './components/Screening/ScreeningPanel';
 import { clusterGroups } from './store/groups';
 import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
 import { SearchPanel, type BuildMode, type BuildTarget } from './components/SearchPanel/SearchPanel';
@@ -77,6 +78,10 @@ export default function App() {
     if (state.sidebarMode === 'write') dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'closed' });
     else openWriting([]);
   }, [dispatch, state.sidebarMode, openWriting]);
+
+  const handleToggleScreen = useCallback(() => {
+    dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'screen' ? 'closed' : 'screen' });
+  }, [dispatch, state.sidebarMode]);
 
   const handleToggleCompare = useCallback(() => {
     dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'compare' ? 'closed' : 'compare' });
@@ -185,6 +190,13 @@ export default function App() {
             onFocusPaper={handleFocusPaper}
           />
         }
+        screeningPanel={
+          <ScreeningPanel
+            papers={allPapers}
+            onDecide={(id, screening) => dispatch({ type: 'UPDATE_PAPER_META', payload: { id, patch: { screening } } })}
+            onFocusPaper={handleFocusPaper}
+          />
+        }
         writingPanel={
           <WritingPanel
             key={draftIds.join(',')}
@@ -243,6 +255,8 @@ export default function App() {
           writeOpen={state.sidebarMode === 'write'}
           onToggleCompare={handleToggleCompare}
           compareOpen={state.sidebarMode === 'compare'}
+          onToggleScreen={handleToggleScreen}
+          screenOpen={state.sidebarMode === 'screen'}
         />
       </div>
       <DetailPanel

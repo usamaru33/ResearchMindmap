@@ -48,6 +48,8 @@ interface MindMapProps {
   writeOpen: boolean;
   onToggleCompare: () => void;
   compareOpen: boolean;
+  onToggleScreen: () => void;
+  screenOpen: boolean;
 }
 
 export function MindMap({
@@ -65,6 +67,8 @@ export function MindMap({
   writeOpen,
   onToggleCompare,
   compareOpen,
+  onToggleScreen,
+  screenOpen,
 }: MindMapProps) {
   const { fitView } = useReactFlow();
   const { applyLayout } = useAutoLayout();
@@ -286,6 +290,8 @@ export function MindMap({
                 writeOpen={writeOpen}
               onToggleCompare={onToggleCompare}
               compareOpen={compareOpen}
+              onToggleScreen={onToggleScreen}
+              screenOpen={screenOpen}
                   onFitView={handleFitView}
                   onToggleDirection={handleToggleDirection}
                   showCitations={showCitations}
