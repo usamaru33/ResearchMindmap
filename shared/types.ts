@@ -186,6 +186,28 @@ export interface GraphBuildResponse {
   warnings: string[];
 }
 
+export interface GapItem {
+  title: string;
+  description: string;
+  /** Sentences from the papers that support the gap. */
+  evidence: Array<{ paperId: string; quote: string }>;
+  paperIds: string[];
+  /** Candidate research questions that would address the gap. */
+  questions: string[];
+}
+
+export interface GapsResponse {
+  mode: 'llm' | 'fallback';
+  gaps: GapItem[];
+  warnings: string[];
+}
+
+export interface ClusterNamesResponse {
+  mode: 'llm' | 'fallback';
+  /** New label by cluster id (only clusters the model renamed). */
+  names: Record<string, string>;
+}
+
 export type ExpandKind = 'references' | 'citations' | 'related';
 
 export interface ExpandResponse {
