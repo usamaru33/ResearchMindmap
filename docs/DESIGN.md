@@ -266,13 +266,15 @@ term     := WORD | WORD* | "PHRASE"
 
 ```
 RQL → parse → AST
-   → [各ソースで並列: compile → fetch(retry, rate limit, cache) → normalize]
-   → ローカル AST 再評価（必要なソースのみ）
-   → dedupe/merge
-   → enrich（OpenAlex で DOI 一括引き：引用関係・トピック・被引用数を補完）
-   → rank（ソース内順位の RRF 融合 + 被引用数の対数補正）
+   → [各ソースで並列: compile → fetch(retry, rate limit, cache) → normalize]   ※失敗したソースは記録して続行
+   → 重複統合 + 順位付け（RRF）
+   → OpenAlex で補完（DOI で一括取得：抄録・トピック・参考文献・被引用数）
+   → 再判定: AST 全体を評価できたソースが返した論文はフィルタだけ確認し、
+             近似ソースだけが返した論文は（補完済みの）メタデータで AST 全体を再評価
    → 上位 N 件を返す
 ```
+
+補完を再判定より前に行うのは、Crossref などは抄録を持たないことが多く、抄録にしか出てこない語で誤って落としてしまうため（実装: `server/core/search.ts`）。
 
 - **RRF**（Reciprocal Rank Fusion）: `score = Σ_s 1/(k + rank_s)`（k=60）。スコア形式がバラバラなソースを公平に統合できる
 - ソースごとのタイムアウトは 15 秒。失敗したソースは `perSource[].error` に記録し、他ソースの結果は返す
@@ -339,7 +341,7 @@ RQL → parse → AST
 |---|---|---|---|
 | GET | `/api/health` | — | `{ ok, sources: [{name, enabled, reason?}], llm: {enabled, model} }` |
 | POST | `/api/query/parse` | `{ query }` | `{ ok, query: { text, filters }, canonical, errors[], warnings[] }` |
-| POST | `/api/search` | `{ query, sources?, limitPerSource?, yearFrom?, yearTo? }` | `{ results: Paper[], perSource: SourceReport[], ast, tookMs }` |
+| POST | `/api/search` | `{ query, sources?, limitPerSource?(≤50, 既定 25), limit?(≤200, 既定 60), enrich?(既定 true) }` | `{ results, perSource: SourceReport[], query, canonical, warnings, candidates, enriched, tookMs }` |
 | POST | `/api/vague-search` | `{ description, limit?, useLlm? }` | `{ results, expandedQueries[], englishSummary?, reasons: {id: string}, mode }` |
 | POST | `/api/graph/build` | `{ papers: Paper[], query?, clusterBy? }` | `{ papers, citationLinks[], clusters[] }` |
 | GET | `/api/papers/:id/references` | — | `{ papers }` |
