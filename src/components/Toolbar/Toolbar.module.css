@@ -1,5 +1,9 @@
 .toolbar {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  /* Leave room for the project menu on the left. */
+  max-width: calc(100cqw - 380px);
   gap: var(--space-sm);
   padding: var(--space-sm);
   background: var(--color-surface);

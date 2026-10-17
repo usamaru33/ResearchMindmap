@@ -10,6 +10,8 @@ interface ToolbarProps {
   onToggleDirection: () => void;
   onToggleSearch: () => void;
   searchOpen: boolean;
+  onToggleLibrary: () => void;
+  libraryOpen: boolean;
   showCitations: boolean;
   onToggleCitations: () => void;
 }
@@ -22,6 +24,8 @@ export function Toolbar({
   onToggleDirection,
   onToggleSearch,
   searchOpen,
+  onToggleLibrary,
+  libraryOpen,
   showCitations,
   onToggleCitations,
 }: ToolbarProps) {
@@ -48,6 +52,13 @@ export function Toolbar({
         aria-pressed={searchOpen}
       >
         Search
+      </button>
+      <button
+        className={`${styles.btn} ${libraryOpen ? styles.btnActive : ''}`}
+        onClick={onToggleLibrary}
+        aria-pressed={libraryOpen}
+      >
+        Library
       </button>
       <button className={styles.btn} onClick={onAddPaper}>
         + Add Paper
