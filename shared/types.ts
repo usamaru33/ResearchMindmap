@@ -131,6 +131,39 @@ export interface SearchResponse {
   tookMs: number;
 }
 
+export interface VagueStage {
+  kind: 'semantic' | 'query' | 's2';
+  label: string;
+  query?: string;
+  count: number;
+  tookMs?: number;
+  error?: string;
+}
+
+export interface VagueSearchRequest {
+  description: string;
+  limit?: number;
+  useLlm?: boolean;
+  lang?: 'ja' | 'en';
+  yearMin?: number;
+  yearMax?: number;
+}
+
+export interface VagueSearchResponse {
+  results: Paper[];
+  /** `llm` when Claude expanded or reranked; `fallback` when only non-LLM methods ran. */
+  mode: 'llm' | 'fallback';
+  englishSummary?: string;
+  expandedQueries: string[];
+  concepts: string[];
+  /** Why each paper is relevant (LLM mode only), by paper id. */
+  reasons: Record<string, string>;
+  stages: VagueStage[];
+  warnings: string[];
+  candidates: number;
+  tookMs: number;
+}
+
 export interface Cluster {
   id: string;
   label: string;

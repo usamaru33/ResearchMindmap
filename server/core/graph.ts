@@ -90,6 +90,10 @@ export function topicClusters(papers: Paper[], opts: ClusterOptions = {}): Clust
   return finish(keep, pick.level, papers);
 }
 
+// Single words OpenAlex attaches as keywords that name no research theme.
+const GENERIC_FACETS = new Set(
+  'change effect effects size model models system systems analysis method methods design study data process performance development application applications approach theory environment computer science engineering psychology medicine'.split(' '),
+);
 const ARXIV_CATEGORY = /^[a-z-]+\.[A-Z]{2}$/;
 const normalizeFacet = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 
@@ -112,7 +116,7 @@ export function facetClusters(papers: Paper[], opts: ClusterOptions = {}): Clust
       // arXiv categories (cs.HC, q-bio.NC) are codes, not readable facets.
       if (ARXIV_CATEGORY.test(raw)) continue;
       const key = normalizeFacet(raw);
-      if (!key || key.length < 3) continue;
+      if (!key || key.length < 3 || GENERIC_FACETS.has(key)) continue;
       const v = variants.get(key) ?? new Map<string, number>();
       v.set(raw, (v.get(raw) ?? 0) + 1);
       variants.set(key, v);
