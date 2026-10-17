@@ -506,3 +506,56 @@
   max-height: 200px;
   overflow: auto;
 }
+
+.aiResult {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--space-sm);
+  padding: var(--space-sm);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.aiHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.aiBadge,
+.aiBadgeMuted {
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.aiBadge {
+  color: #fff;
+  background: var(--color-accent);
+}
+
+.aiBadgeMuted {
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.aiText {
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.aiText ul {
+  padding-left: 1.1em;
+}
+
+.aiText p,
+.aiText li {
+  margin-bottom: 4px;
+}
