@@ -1,21 +1,17 @@
 import { useCallback } from 'react';
-import { useReactFlow } from '@xyflow/react';
 import { getLayoutedElements } from '../utils/layout';
 import type { MapNode, PaperEdge, LayoutDirection } from '../types';
 
+/**
+ * Compute a layout. Fitting the view is left to the caller, which must wait
+ * until the new positions are rendered (fitting earlier zooms onto the old,
+ * often stacked, positions).
+ */
 export function useAutoLayout() {
-  const { fitView } = useReactFlow();
-
   const applyLayout = useCallback(
-    (nodes: MapNode[], edges: PaperEdge[], direction: LayoutDirection = 'LR') => {
-      const result = getLayoutedElements(nodes, edges, direction);
-      window.requestAnimationFrame(() => {
-        fitView({ padding: 0.2, duration: 300 });
-      });
-      return result;
-    },
-    [fitView],
+    (nodes: MapNode[], edges: PaperEdge[], direction: LayoutDirection = 'LR') =>
+      getLayoutedElements(nodes, edges, direction),
+    [],
   );
-
   return { applyLayout };
 }
