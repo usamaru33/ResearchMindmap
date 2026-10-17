@@ -7,6 +7,7 @@ import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
 import { SearchPanel, type BuildMode, type BuildTarget } from './components/SearchPanel/SearchPanel';
 import { apiPost } from './api/client';
 import { buildGraphElements } from './store/graphImport';
+import { tagCounts } from './utils/reading';
 import { useMindMapStore } from './hooks/useMindMapStore';
 import { loadInitialProject, useProjects } from './hooks/useProjects';
 import { useSearch, useVagueSearch } from './hooks/useSearch';
@@ -26,6 +27,8 @@ export default function App() {
   const search = useSearch();
   const vague = useVagueSearch();
   const mapIds = useMemo(() => new Set(state.nodes.map((n) => n.id)), [state.nodes]);
+  const allPapers = getAllPapers();
+  const knownTags = useMemo(() => tagCounts(allPapers.map((p) => p.tags)).map(([t]) => t), [allPapers]);
   const { screenToFlowPosition } = useReactFlow();
 
   const selectedPaper = getSelectedPaper();
@@ -107,7 +110,7 @@ export default function App() {
       <Sidebar
         mode={state.sidebarMode}
         selectedPaper={selectedPaper}
-        allPapers={getAllPapers()}
+        allPapers={allPapers}
         onSubmit={handleSubmitPaper}
         onClose={handleCloseSidebar}
         mapIds={mapIds}
@@ -160,6 +163,8 @@ export default function App() {
         onDelete={handleDeleteFromDetail}
         onSelectPaper={handleSelectPaper}
         mapIds={mapIds}
+        knownTags={knownTags}
+        onUpdateMeta={(id, patch) => dispatch({ type: 'UPDATE_PAPER_META', payload: { id, patch } })}
         onAddLinked={(anchorId, papers, kind) =>
           dispatch({ type: 'ADD_LINKED_PAPERS', payload: { anchorId, papers, kind } })
         }

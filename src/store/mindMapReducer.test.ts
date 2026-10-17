@@ -230,3 +230,17 @@ describe('ADD_PAPERS', () => {
     expect(n1.position.x).toBeLessThan(n2.position.x);
   });
 });
+
+describe('UPDATE_PAPER_META', () => {
+  it('patches user fields without touching id, references or edges', () => {
+    let s = stateOf([paper('alpha'), paper('beta', ['alpha'])]);
+    const edges = s.edges;
+    s = mindMapReducer(s, {
+      type: 'UPDATE_PAPER_META',
+      payload: { id: 'beta', patch: { status: 'read', tags: ['vr'], rating: 4, notes: 'good', id: 'x', references: [] } },
+    });
+    const beta = s.nodes.filter(isPaperNode).find((n) => n.id === 'beta')!.data.paper;
+    expect(beta).toMatchObject({ id: 'beta', status: 'read', tags: ['vr'], rating: 4, notes: 'good', references: ['alpha'] });
+    expect(s.edges).toBe(edges);
+  });
+});
