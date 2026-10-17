@@ -1,5 +1,6 @@
 import { MarkerType } from '@xyflow/react';
 import { isPaperNode, type MindMapState, type MindMapAction, type MapNode, type MapSnapshot, type PaperNode, type PaperEdge, type Paper } from '../types';
+import { matchExisting } from './identity';
 import { needsLayout } from './projects';
 import { getEdgeStyle } from '../utils/helpers';
 
@@ -85,7 +86,35 @@ export function mergeImportedPaper(existing: Paper, incoming: Paper): Paper {
   return merged;
 }
 
-function importGraph(state: MindMapState, incoming: MapNode[], incomingEdges: PaperEdge[]): MindMapState {
+/** Rewrite incoming papers (ids, references) and edges onto the ids of matching papers already in the map. */
+function remapIncoming(state: MindMapState, incoming: MapNode[], incomingEdges: PaperEdge[]) {
+  const existingPapers = state.nodes.filter(isPaperNode).map((n) => n.data.paper);
+  const incomingPapers = incoming.filter(isPaperNode).map((n) => n.data.paper);
+  const map = matchExisting(existingPapers, incomingPapers);
+  const to = (id: string) => map.get(id) ?? id;
+  const nodes = incoming.map((n) =>
+    isPaperNode(n)
+      ? {
+          ...n,
+          id: to(n.id),
+          data: {
+            ...n.data,
+            paper: { ...n.data.paper, id: to(n.id), references: [...new Set(n.data.paper.references.map(to))] },
+          },
+        }
+      : n,
+  );
+  const edges = incomingEdges.map((e) => {
+    const source = to(e.source);
+    const target = to(e.target);
+    if (source === e.source && target === e.target) return e;
+    return { ...e, source, target, id: e.id.replace(e.target, target).replace(e.source, source) };
+  });
+  return { nodes, edges };
+}
+
+function importGraph(state: MindMapState, rawIncoming: MapNode[], rawEdges: PaperEdge[]): MindMapState {
+  const { nodes: incoming, edges: incomingEdges } = remapIncoming(state, rawIncoming, rawEdges);
   const byId = new Map(state.nodes.map((n) => [n.id, n]));
   const nodes = [...state.nodes];
   const index = new Map(nodes.map((n, i) => [n.id, i]));
@@ -126,6 +155,9 @@ function addLinkedPapers(state: MindMapState, anchorId: string, papers: Paper[],
   const anchor = state.nodes.find((n) => n.id === anchorId);
   if (!anchor || !isPaperNode(anchor)) return state;
   const existing = new Map(state.nodes.filter(isPaperNode).map((n) => [n.id, n]));
+  // Same work already in the map under another id → reuse that node.
+  const idMap = matchExisting([...existing.values()].map((n) => n.data.paper), papers);
+  papers = papers.map((p) => ({ ...p, id: idMap.get(p.id) ?? p.id }));
   const fresh = papers.filter((p) => p.id !== anchorId && !existing.has(p.id));
   const linkedIds = papers.filter((p) => p.id !== anchorId).map((p) => p.id);
 
