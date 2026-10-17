@@ -17,7 +17,9 @@
   height: 8px;
   background: var(--color-border);
   border: 2px solid var(--color-surface);
-  transition: all var(--transition-fast);
+  /* Not `all`: animating top/left would make React Flow measure handles mid-move. */
+  transition: background var(--transition-fast), width var(--transition-fast),
+    height var(--transition-fast);
 }
 
 .react-flow__handle:hover {

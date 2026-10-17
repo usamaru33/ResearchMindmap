@@ -1,8 +1,9 @@
+import type { LayoutDirection } from '../../types';
 import { useApiHealth } from '../../hooks/useApiHealth';
 import styles from './Toolbar.module.css';
 
 interface ToolbarProps {
-  layoutDirection: 'TB' | 'LR';
+  layoutDirection: LayoutDirection;
   onAutoLayout: () => void;
   onAddPaper: () => void;
   onFitView: () => void;

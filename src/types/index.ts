@@ -16,6 +16,8 @@ export interface PaperEdgeData extends Record<string, unknown> {
 
 export type PaperEdge = Edge<PaperEdgeData>;
 
+export type LayoutDirection = 'TB' | 'LR';
+
 export type SidebarMode = 'closed' | 'add' | 'edit';
 
 export interface MindMapState {
@@ -23,7 +25,7 @@ export interface MindMapState {
   edges: PaperEdge[];
   selectedNodeId: string | null;
   sidebarMode: SidebarMode;
-  layoutDirection: 'TB' | 'LR';
+  layoutDirection: LayoutDirection;
 }
 
 export type MindMapAction =
@@ -32,9 +34,11 @@ export type MindMapAction =
   | { type: 'ADD_PAPER'; payload: { paper: Paper; position: { x: number; y: number } } }
   | { type: 'UPDATE_PAPER'; payload: Paper }
   | { type: 'DELETE_PAPER'; payload: string }
+  | { type: 'DELETE_PAPERS'; payload: string[] }
   | { type: 'TOGGLE_EXPAND'; payload: string }
   | { type: 'ADD_CONNECTION'; payload: { id: string; source: string; target: string; relationship: string } }
   | { type: 'REMOVE_CONNECTION'; payload: string }
+  | { type: 'REMOVE_CONNECTIONS'; payload: string[] }
   | { type: 'SELECT_NODE'; payload: string | null }
   | { type: 'SET_SIDEBAR_MODE'; payload: SidebarMode }
   | { type: 'SET_LAYOUT_DIRECTION'; payload: 'TB' | 'LR' }

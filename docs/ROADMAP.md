@@ -18,7 +18,7 @@
 | # | 状態 | ブランチ | 内容 | 機能ID | 完了条件 |
 |---|---|---|---|---|---|
 | 1.1 | ☑ | `chore/foundation` | Vitest、Hono サーバーの骨組み（`/api/health`）、`shared/`、Vite のプロキシ、`concurrently`、`.env.example`、`.gitignore`、既存の lint エラー修正、README の書き直し | — | `npm run dev` でフロントと API が起動し、フロントから `/api/health` が取れる。`npm test` が動く |
-| 1.2 | ☐ | `fix/map-integrity` | reducer を純粋関数として分離しテスト。キーボード削除の整合性、TB レイアウトのハンドル位置 | E5, E6 | 引用エッジを削除すると `references` からも消え、再生成で復活しない。ノード削除で参照と選択状態が掃除される（テストあり） |
+| 1.2 | ☑ | `fix/map-integrity` | reducer を純粋関数として分離しテスト。キーボード削除の整合性、TB レイアウトのハンドル位置 | E5, E6 | 引用エッジを削除すると `references` からも消え、再生成で復活しない。ノード削除で参照と選択状態が掃除される（テストあり） |
 | 1.3 | ☐ | `feat/persistence` | プロジェクトの保存・切替・新規作成・削除、JSON エクスポート/インポート | B1, E1 | リロードしてもマップが残る。プロジェクトを切り替えられる。JSON で書き出して読み込むと元に戻る |
 
 ## M2 横断クエリ検索（R1）

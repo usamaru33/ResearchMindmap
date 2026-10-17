@@ -1,5 +1,5 @@
 import Dagre from '@dagrejs/dagre';
-import type { PaperNode, PaperEdge } from '../types';
+import type { PaperNode, PaperEdge, LayoutDirection } from '../types';
 
 const DEFAULT_NODE_WIDTH = 280;
 const DEFAULT_NODE_HEIGHT = 110;
@@ -7,7 +7,7 @@ const DEFAULT_NODE_HEIGHT = 110;
 export function getLayoutedElements(
   nodes: PaperNode[],
   edges: PaperEdge[],
-  direction: 'TB' | 'LR' = 'LR',
+  direction: LayoutDirection = 'LR',
 ): { nodes: PaperNode[]; edges: PaperEdge[] } {
   const g = new Dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
