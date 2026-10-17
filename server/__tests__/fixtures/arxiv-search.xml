@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/jqHqPWMNWD3MmQGThPrafBcmM7E</id>
+  <title>arXiv Query: search_query=ti:"body ownership" AND abs:"virtual reality"&amp;id_list=&amp;start=0&amp;max_results=2</title>
+  <updated>2026-10-17T13:36:19Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=ti:%22body+ownership%22+AND+abs:%22virtual+reality%22&amp;start=0&amp;max_results=2&amp;id_list=" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>2</opensearch:itemsPerPage>
+  <opensearch:totalResults>4</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <entry>
+    <id>http://arxiv.org/abs/1907.05220v1</id>
+    <title>The Illusion of Animal Body Ownership and Its Potential for Virtual Reality Games</title>
+    <updated>2019-07-11T14:12:04Z</updated>
+    <link href="https://arxiv.org/abs/1907.05220v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/1907.05220v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>Virtual reality offers the unique possibility to experience a virtual representation as our own body. In contrast to previous research that predominantly studied this phenomenon for humanoid avatars, our work focuses on virtual animals. In this paper, we discuss different body tracking approaches to control creatures such as spiders or bats and the respective virtual body ownership effects. Our empirical results demonstrate that virtual body ownership is also applicable for nonhumanoids and can even outperform human-like avatars in certain cases. An additional survey confirms the general interest of people in creating such experiences and allows us to initiate a broad discussion regarding the applicability of animal embodiment for educational and entertainment purposes.</summary>
+    <category term="cs.HC" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2019-07-11T14:12:04Z</published>
+    <arxiv:primary_category term="cs.HC"/>
+    <author>
+      <name>Andrey Krekhov</name>
+    </author>
+    <author>
+      <name>Sebastian Cmentowski</name>
+    </author>
+    <author>
+      <name>Jens Krüger</name>
+    </author>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2509.01420v1</id>
+    <title>Body Ownership Affects the Processing of Sensorimotor Contingencies in Virtual Reality</title>
+    <updated>2025-09-01T12:22:49Z</updated>
+    <link href="https://arxiv.org/abs/2509.01420v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2509.01420v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>Presence in virtual reality (VR), the subjective sense of "being there" in a virtual environment, is notoriously difficult to measure. Electroencephalography (EEG) may offer a promising, unobtrusive means of assessing a user's momentary state of presence. Unlike traditional questionnaires, EEG does not interrupt the experience or rely on users' retrospective self-reports, thereby avoiding interference with the very state it aims to capture. Previous research has attempted to quantify presence in virtual environments using event-related potentials (ERPs). We contend, however, that previous efforts have fallen short of fully realizing this goal, failing to either A) independently manipulate presence, B) validate their measure of presence against traditional techniques, C) adequately separate the constructs of presence and attention, and/or D) implement a realistic and immersive environment and task. We address these shortcomings in a preregistered ERP experiment in which participants play an engaging target shooting game in VR. ERPs are time-locked to the release of a ball from a sling. We induce breaks in presence (BIPs) by freezing the ball's release on a minority of trials. Embodiment is manipulated by allowing manual manipulation of the sling with a realistic avatar in one condition (embodied condition) and passive manipulation with only controllers in another (non-embodied condition). We support our predictions that the N2, the P3b, and the N400, are selectively sensitive towards specific components of these manipulations. The pattern of findings carries significant implications for theories of presence, which have been seldom addressed in previous ERP investigations on this topic.</summary>
+    <category term="cs.HC" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.MM" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2025-09-01T12:22:49Z</published>
+    <arxiv:comment>Dr. Center and Dr. Pouke contributed equally to this work</arxiv:comment>
+    <arxiv:primary_category term="cs.HC"/>
+    <author>
+      <name>Evan G. Center</name>
+    </author>
+    <author>
+      <name>Matti Pouke</name>
+    </author>
+    <author>
+      <name>Alessandro Nardi</name>
+    </author>
+    <author>
+      <name>Lukas Gehrke</name>
+    </author>
+    <author>
+      <name>Klaus Gramann</name>
+    </author>
+    <author>
+      <name>Timo Ojala</name>
+    </author>
+    <author>
+      <name>Steven M. LaValle</name>
+    </author>
+  </entry>
+</feed>
