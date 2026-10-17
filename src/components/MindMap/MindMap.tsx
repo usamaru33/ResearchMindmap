@@ -6,6 +6,7 @@ import {
   Background,
   BackgroundVariant,
   Panel,
+  ViewportPortal,
   applyNodeChanges,
   applyEdgeChanges,
   useReactFlow,
@@ -24,6 +25,8 @@ import { LayoutDirectionContext } from './layoutDirectionContext';
 import { MapViewContext, type ColorMode, type MapView } from './mapViewContext';
 import { MapActionsContext, type MapActions } from './mapActionsContext';
 import { clusterGroups } from '../../store/groups';
+import { paperRoles } from '../../store/keyPapers';
+import { timelineLayout, type TimelineResult } from '../../utils/timelineLayout';
 import { apiPost } from '../../api/client';
 import type { ClusterNamesResponse } from '../../../shared/types';
 import { ViewMenu } from '../Toolbar/ViewMenu';
@@ -78,6 +81,7 @@ export function MindMap({
   const [colorMode, setColorMode] = useState<ColorMode>('year');
   const [sizeByCitations, setSizeByCitations] = useState(false);
   const [filter, setFilter] = useState('');
+  const [timeline, setTimeline] = useState<TimelineResult['columns'] | null>(null);
 
   const papers = useMemo(() => nodes.filter(isPaperNode).map((n) => n.data.paper), [nodes]);
   const highlight = useMemo(
@@ -90,6 +94,7 @@ export function MindMap({
       sizeByCitations,
       highlight,
       maxCitations: Math.max(0, ...papers.map((p) => p.citationCount ?? 0)),
+      roles: paperRoles(papers),
     }),
     [colorMode, sizeByCitations, highlight, papers],
   );
@@ -223,7 +228,26 @@ export function MindMap({
     dispatch({ type: 'SELECT_NODE', payload: null });
   }, [dispatch]);
 
+  const handleToggleTimeline = useCallback(() => {
+    if (timeline) {
+      setTimeline(null);
+      dispatch({ type: 'REQUEST_VIEW', payload: 'layout' });
+      return;
+    }
+    const result = timelineLayout(nodes);
+    setTimeline(result.columns);
+    fitAfterLayout.current = true;
+    dispatch({ type: 'APPLY_LAYOUT', payload: { nodes: result.nodes, edges } });
+  }, [timeline, nodes, edges, dispatch]);
+
+  // Top of the timeline, for placing the year axis above the cards.
+  const timelineTop = useMemo(
+    () => (timeline ? Math.min(0, ...nodes.filter(isPaperNode).map((n) => n.position.y)) - 60 : 0),
+    [timeline, nodes],
+  );
+
   const handleAutoLayout = useCallback(() => {
+    setTimeline(null);
     const result = applyLayout(nodes, edges, layoutDirection);
     fitAfterLayout.current = true;
     dispatch({ type: 'APPLY_LAYOUT', payload: result });
@@ -269,6 +293,19 @@ export function MindMap({
               proOptions={{ hideAttribution: true }}
             >
               <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />
+          {timeline && (
+            <ViewportPortal>
+              {timeline.map((c) => (
+                <div
+                  key={c.year}
+                  className={styles.yearLabel}
+                  style={{ transform: `translate(${c.x}px, ${timelineTop}px)` }}
+                >
+                  {c.year || 'n.d.'}
+                </div>
+              ))}
+            </ViewportPortal>
+          )}
               <Controls position="bottom-right" showInteractive={false} />
               <MiniMap
                 position="bottom-left"
@@ -296,6 +333,8 @@ export function MindMap({
                   onToggleDirection={handleToggleDirection}
                   showCitations={showCitations}
                   onToggleCitations={() => setShowCitations((v) => !v)}
+              timelineOn={timeline !== null}
+              onToggleTimeline={handleToggleTimeline}
                   viewMenu={
                     <ViewMenu
                       colorMode={colorMode}

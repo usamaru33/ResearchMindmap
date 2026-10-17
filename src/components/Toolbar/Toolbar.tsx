@@ -22,6 +22,8 @@ interface ToolbarProps {
   showCitations: boolean;
   onToggleCitations: () => void;
   viewMenu: ReactNode;
+  timelineOn: boolean;
+  onToggleTimeline: () => void;
 }
 
 export function Toolbar({
@@ -43,6 +45,8 @@ export function Toolbar({
   showCitations,
   onToggleCitations,
   viewMenu,
+  timelineOn,
+  onToggleTimeline,
 }: ToolbarProps) {
   const apiHealth = useApiHealth();
   const apiTitle =
@@ -110,6 +114,14 @@ export function Toolbar({
         {layoutDirection === 'LR' ? 'Left→Right' : 'Top→Bottom'}
       </button>
       <div className={styles.separator} />
+      <button
+        className={`${styles.btn} ${timelineOn ? styles.btnActive : ''}`}
+        onClick={onToggleTimeline}
+        aria-pressed={timelineOn}
+        title="Arrange papers by year"
+      >
+        Timeline
+      </button>
       {viewMenu}
       <button
         className={`${styles.btn} ${showCitations ? '' : styles.btnOff}`}

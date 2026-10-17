@@ -122,3 +122,23 @@
   opacity: 0.18;
   filter: grayscale(0.6);
 }
+
+.role {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 0 7px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  border-radius: 999px;
+}
+
+.roleFoundation {
+  color: #fff;
+  background: #1a1a2e;
+}
+
+.roleRecent {
+  color: #6d28d9;
+  background: #f5f3ff;
+}
