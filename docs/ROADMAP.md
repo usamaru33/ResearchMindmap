@@ -58,7 +58,7 @@
 | 4.11 | ☑ | `feat/screening` | 採用 / 除外 / 保留と理由、PRISMA 用の件数集計 | B7 | 判定がマップの表示に反映され、件数が集計される |
 | 4.12 | ☑ | `feat/timeline-layout` | 年を軸にした配置、基礎論文・最新の発展の印付け | C4, C5 | Toolbar から時系列配置に切り替えられる |
 | 4.13 | ☑ | `feat/search-history` | 検索履歴・保存クエリ・再実行 | A9 | プロジェクトごとに履歴が残り、再実行できる |
-| 4.14 | ☐ | `feat/undo-redo-shortcuts` | 元に戻す / やり直す、キーボードショートカット | E3, E4 | Ctrl+Z / Ctrl+Shift+Z が効く。ショートカット一覧を表示できる |
+| 4.14 | ☑ | `feat/undo-redo-shortcuts` | 元に戻す / やり直す、キーボードショートカット | E3, E4 | Ctrl+Z / Ctrl+Shift+Z が効く。ショートカット一覧を表示できる |
 | 4.15 | ☐ | `feat/export-image` | マップの PNG / SVG 出力 | E2 | 表示中のマップを画像で保存できる |
 | 4.16 | ☐ | `feat/settings` | 設定画面（ソースの選択と件数、LLM の利用、API の状態） | E7 | 設定が保存され、検索に反映される |
 | 4.17 | ☐ | `feat/author-explore` | 著者・会議から探す、共著ネットワーク | A12, C8 | 著者名から論文をまとめて取り込める |
