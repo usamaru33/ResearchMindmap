@@ -130,3 +130,25 @@ export interface SearchResponse {
   enriched: number;
   tookMs: number;
 }
+
+export interface Cluster {
+  id: string;
+  label: string;
+  /** OpenAlex topic level, or `keyword` for facet clusters. */
+  level: Topic['level'] | 'keyword';
+  paperIds: string[];
+}
+
+export interface GraphBuildRequest {
+  papers: Paper[];
+  clusterLevel?: Topic['level'] | 'keyword' | 'auto';
+}
+
+export interface GraphBuildResponse {
+  /** Input papers, enriched, with `references` set to the in-set papers they cite. */
+  papers: Paper[];
+  citationLinks: Array<{ source: string; target: string }>;
+  clusters: Cluster[];
+  enriched: number;
+  warnings: string[];
+}
