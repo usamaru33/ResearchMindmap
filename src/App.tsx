@@ -4,6 +4,8 @@ import { MindMap } from './components/MindMap/MindMap';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { DetailPanel } from './components/DetailPanel/DetailPanel';
 import { Library } from './components/Library/Library';
+import { WritingPanel } from './components/Writing/WritingPanel';
+import { clusterGroups } from './store/groups';
 import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
 import { SearchPanel, type BuildMode, type BuildTarget } from './components/SearchPanel/SearchPanel';
 import { apiPost } from './api/client';
@@ -60,6 +62,20 @@ export default function App() {
     },
     [dispatch, projects],
   );
+
+  const [draftIds, setDraftIds] = useState<string[]>([]);
+  const groups = useMemo(() => clusterGroups(state.nodes, state.edges), [state.nodes, state.edges]);
+  const openWriting = useCallback(
+    (ids: string[]) => {
+      setDraftIds(ids);
+      dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'write' });
+    },
+    [dispatch],
+  );
+  const handleToggleWrite = useCallback(() => {
+    if (state.sidebarMode === 'write') dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'closed' });
+    else openWriting([]);
+  }, [dispatch, state.sidebarMode, openWriting]);
 
   const handleToggleLibrary = useCallback(() => {
     dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'library' ? 'closed' : 'library' });
@@ -150,6 +166,16 @@ export default function App() {
               }
             }}
             onDelete={(ids) => dispatch({ type: 'DELETE_PAPERS', payload: ids })}
+            onDraft={openWriting}
+          />
+        }
+        writingPanel={
+          <WritingPanel
+            key={draftIds.join(',')}
+            papers={allPapers}
+            initialIds={draftIds}
+            groups={groups}
+            projectName={projects.activeProject.name}
           />
         }
         searchPanel={
@@ -196,6 +222,8 @@ export default function App() {
           searchOpen={state.sidebarMode === 'search'}
           onToggleLibrary={handleToggleLibrary}
           libraryOpen={state.sidebarMode === 'library'}
+          onToggleWrite={handleToggleWrite}
+          writeOpen={state.sidebarMode === 'write'}
         />
       </div>
       <DetailPanel

@@ -40,6 +40,8 @@ interface MindMapProps {
   searchOpen: boolean;
   onToggleLibrary: () => void;
   libraryOpen: boolean;
+  onToggleWrite: () => void;
+  writeOpen: boolean;
 }
 
 export function MindMap({
@@ -53,6 +55,8 @@ export function MindMap({
   searchOpen,
   onToggleLibrary,
   libraryOpen,
+  onToggleWrite,
+  writeOpen,
 }: MindMapProps) {
   const { fitView } = useReactFlow();
   const { applyLayout } = useAutoLayout();
@@ -92,19 +96,29 @@ export function MindMap({
   );
 
   // Run the layout / fit the view whenever the store asks for it (initial
-  // load, project switch, imported results). Node measurements are only
-  // available after the first paint, hence the animation frame.
+  // load, project switch, imported results). Both wait until React Flow has
+  // measured every node: layout needs real sizes, and fitView ignores
+  // unmeasured nodes (it would zoom onto the few that are).
+  const allMeasured = nodes.every((n) => n.measured?.width);
   const handledSeq = useRef(-1);
+  // Set when a layout was dispatched; the view is fitted once those positions render.
+  const fitAfterLayout = useRef(false);
   useEffect(() => {
-    if (handledSeq.current === viewRequest.seq) return;
+    if (!fitAfterLayout.current || !allMeasured) return;
+    fitAfterLayout.current = false;
+    window.requestAnimationFrame(() => fitView({ padding: 0.2, duration: 300 }));
+  }, [nodes, allMeasured, fitView]);
+  useEffect(() => {
+    if (handledSeq.current === viewRequest.seq || !allMeasured) return;
     handledSeq.current = viewRequest.seq;
     if (viewRequest.kind === 'layout' && nodes.length > 0) {
       const result = applyLayout(nodes, edges, layoutDirection);
+      fitAfterLayout.current = true;
       dispatch({ type: 'APPLY_LAYOUT', payload: result });
     } else {
-      window.requestAnimationFrame(() => fitView({ padding: 0.2, duration: 300 }));
+      fitAfterLayout.current = true;
     }
-  }, [viewRequest]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [viewRequest, allMeasured]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Removals go through the reducer so that references, derived edges and
   // the selection stay consistent; all other changes are applied directly.
@@ -172,6 +186,7 @@ export function MindMap({
 
   const handleAutoLayout = useCallback(() => {
     const result = applyLayout(nodes, edges, layoutDirection);
+    fitAfterLayout.current = true;
     dispatch({ type: 'APPLY_LAYOUT', payload: result });
   }, [nodes, edges, layoutDirection, applyLayout, dispatch]);
 
@@ -183,6 +198,7 @@ export function MindMap({
     const newDir = layoutDirection === 'LR' ? 'TB' : 'LR';
     dispatch({ type: 'SET_LAYOUT_DIRECTION', payload: newDir });
     const result = applyLayout(nodes, edges, newDir);
+    fitAfterLayout.current = true;
     dispatch({ type: 'APPLY_LAYOUT', payload: result });
   }, [layoutDirection, nodes, edges, applyLayout, dispatch]);
 
@@ -230,6 +246,8 @@ export function MindMap({
                 searchOpen={searchOpen}
                 onToggleLibrary={onToggleLibrary}
                 libraryOpen={libraryOpen}
+              onToggleWrite={onToggleWrite}
+              writeOpen={writeOpen}
                 onFitView={handleFitView}
                 onToggleDirection={handleToggleDirection}
                 showCitations={showCitations}

@@ -13,6 +13,7 @@ interface LibraryProps {
   onFocus: (id: string) => void;
   onUpdate: (ids: string[], patch: (paper: Paper) => Partial<Paper>) => void;
   onDelete: (ids: string[]) => void;
+  onDraft: (ids: string[]) => void;
 }
 
 const COLUMNS: Array<{ key: SortKey; label: string; className?: string }> = [
@@ -23,7 +24,7 @@ const COLUMNS: Array<{ key: SortKey; label: string; className?: string }> = [
   { key: 'rating', label: '★', className: styles.colNum },
 ];
 
-export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDelete }: LibraryProps) {
+export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDelete, onDraft }: LibraryProps) {
   const [filters, setFilters] = useState<LibraryFilters>(EMPTY_FILTERS);
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'added', dir: 'desc' });
   const [checked, setChecked] = useState<Set<string>>(new Set());
@@ -124,6 +125,9 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
               <option key={t} value={t} />
             ))}
           </datalist>
+          <button type="button" className={styles.bulkBtn} onClick={() => onDraft(visibleChecked)}>
+            Draft related work
+          </button>
           <button
             type="button"
             className={styles.bulkBtn}
