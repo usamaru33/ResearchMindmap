@@ -14,7 +14,8 @@ import {
   type EdgeChange,
   type Connection,
 } from '@xyflow/react';
-import { isPaperNode, type MapNode, type PaperEdge, type MindMapAction, type LayoutDirection, type ViewRequest } from '../../types';
+import { isPaperNode, type MapNode, type PaperEdge, type LayoutDirection, type ViewRequest } from '../../types';
+import type { UndoAction } from '../../store/undo';
 import { PaperNode as PaperNodeComponent } from '../PaperNode/PaperNode';
 import { ClusterNode } from '../MapNodes/ClusterNode';
 import { QueryRootNode } from '../MapNodes/QueryRootNode';
@@ -41,7 +42,7 @@ interface MindMapProps {
   edges: PaperEdge[];
   layoutDirection: LayoutDirection;
   viewRequest: ViewRequest;
-  dispatch: React.Dispatch<MindMapAction>;
+  dispatch: React.Dispatch<UndoAction>;
   onAddPaper: () => void;
   onToggleSearch: () => void;
   searchOpen: boolean;
@@ -158,7 +159,7 @@ export function MindMap({
     if (viewRequest.kind === 'layout' && nodes.length > 0) {
       const result = applyLayout(nodes, edges, layoutDirection);
       fitAfterLayout.current = true;
-      dispatch({ type: 'APPLY_LAYOUT', payload: result });
+      dispatch({ type: 'APPLY_LAYOUT', payload: result, record: false });
     } else {
       fitAfterLayout.current = true;
     }
@@ -283,6 +284,8 @@ export function MindMap({
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
               onNodeClick={onNodeClick}
+          // One undo step per drag, taken before the first move.
+          onNodeDragStart={() => dispatch({ type: 'CHECKPOINT' })}
               onPaneClick={onPaneClick}
               nodeTypes={nodeTypes}
               fitView

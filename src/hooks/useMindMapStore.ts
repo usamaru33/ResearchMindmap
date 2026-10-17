@@ -1,9 +1,15 @@
 import { useReducer, useCallback, useMemo } from 'react';
 import { isPaperNode, type MapSnapshot, type Paper } from '../types';
 import { initMindMapState, mindMapReducer } from '../store/mindMapReducer';
+import { initUndoState, withUndo } from '../store/undo';
+
+const undoableReducer = withUndo(mindMapReducer);
 
 export function useMindMapStore(initialMap: MapSnapshot) {
-  const [state, dispatch] = useReducer(mindMapReducer, initialMap, initMindMapState);
+  const [undo, dispatch] = useReducer(undoableReducer, initialMap, (m) => initUndoState(initMindMapState(m)));
+  const state = undo.present;
+  const canUndo = undo.past.length > 0;
+  const canRedo = undo.future.length > 0;
 
   const papers = useMemo(() => state.nodes.filter(isPaperNode).map((n) => n.data.paper), [state.nodes]);
   const byId = useMemo(() => new Map(papers.map((p) => [p.id, p])), [papers]);
@@ -29,5 +35,5 @@ export function useMindMapStore(initialMap: MapSnapshot) {
     [byId],
   );
 
-  return { state, dispatch, getSelectedPaper, getAllPapers, getCitedBy, getReferences };
+  return { state, dispatch, canUndo, canRedo, getSelectedPaper, getAllPapers, getCitedBy, getReferences };
 }
