@@ -282,15 +282,17 @@ RQL → parse → AST
 
 ### 5.5 検索結果からのマインドマップ生成
 
-1. ユーザーは結果一覧でチェックを付ける（既定は上位 30 件すべて）
-2. `POST /api/graph/build` で次の 3 つを作る
-   - **引用エッジ**: OpenAlex の `referenced_works` 同士の交差。マップ内の論文同士だけを結ぶ
-   - **クラスタ**: OpenAlex の `primary_topic`（件数に応じて topic → subfield へ粒度を上げ、5〜8 クラスタに収める）。LLM が使えれば、各クラスタの論文タイトルから名前を付け直す
-   - **根ノード**: クエリ文字列
-3. フロント側で既存マップに**追加**するか**新規プロジェクト**にするかを選び、dagre で自動配置する
-4. ノードの大きさは被引用数の対数、色は年（既存）／クラスタ／読書状態から切り替える
-
----
+1. 利用者は結果一覧でチェックを付ける（既定はすべて）。生成先は「新しいプロジェクト」か「今のマップに追加」
+2. `POST /api/graph/build` で次を作る（実装: `server/core/graph.ts`）
+   - **引用関係**: OpenAlex の `referenced_works` 同士の交差。各論文の `references` に、マップ内で引用している論文の ID を入れて返す（引用エッジは既存どおり `references` から派生）
+   - **クラスタ**: 次の 2 方式を両方計算し、点数の高い方を採用する
+     - トピック階層: OpenAlex の primary topic → subfield → field → domain の順に、少数（≤ 8）の大きなグループに収まる最も細かい階層
+     - ファセット: 各論文のトピック名とキーワードのうち、まだ割り当てていない論文を最も多く含むものを順に選ぶ（貪欲法）。全体の 45% 以上が持つ語（多くはクエリそのもの、例: "virtual reality"）と arXiv の分類コード（cs.HC 等）は使わない
+     - 点数 = 被覆率 ×（最大グループの割合が 45% を超えた分の減点）×（グループ数の加点）。実データでは、トピック階層だと 1 つのトピックに 60 件中 52 件が集まって役に立たないことがあり、ファセット方式が 7 グループに分けた
+   - LLM が使えるときは、後の工程（4.9）でクラスタ名を付け直す
+3. フロントで「クエリ（根）→ クラスタ → 論文」のノードと構造エッジ（`root-*` / `grp-*`）を作り、`IMPORT_GRAPH` で取り込む。既にある論文は、利用者が書いた項目（メモ・タグ・状態など）と引用を残したまま、メタデータだけ更新する
+4. **マインドマップ配置**（`src/utils/mindMapLayout.ts`）: 根を中央に置き、クラスタを左右の高さが釣り合うように振り分け、各クラスタの論文を外側に列（1 列最大 7 件）で並べる。左側のノードはハンドルの向きも反転する。木に属さない論文（手で追加したもの）は木の下に dagre で並べる
+5. Toolbar の「Citations」で引用エッジの表示を切り替えられる（論文数が多いと引用の線が密になるため）
 
 ## 6. なんとなく検索（R2）
 
@@ -343,7 +345,7 @@ RQL → parse → AST
 | POST | `/api/query/parse` | `{ query }` | `{ ok, query: { text, filters }, canonical, errors[], warnings[] }` |
 | POST | `/api/search` | `{ query, sources?, limitPerSource?(≤50, 既定 25), limit?(≤200, 既定 60), enrich?(既定 true) }` | `{ results, perSource: SourceReport[], query, canonical, warnings, candidates, enriched, tookMs }` |
 | POST | `/api/vague-search` | `{ description, limit?, useLlm? }` | `{ results, expandedQueries[], englishSummary?, reasons: {id: string}, mode }` |
-| POST | `/api/graph/build` | `{ papers: Paper[], query?, clusterBy? }` | `{ papers, citationLinks[], clusters[] }` |
+| POST | `/api/graph/build` | `{ papers: Paper[] (≤300), clusterLevel?: 'auto' \| 'topic' \| 'subfield' \| 'field' \| 'domain' \| 'keyword' }` | `{ papers, citationLinks[], clusters[], enriched, warnings }` |
 | GET | `/api/papers/:id/references` | — | `{ papers }` |
 | GET | `/api/papers/:id/citations` | `?limit` | `{ papers }` |
 | GET | `/api/papers/:id/related` | `?limit` | `{ papers }` |
