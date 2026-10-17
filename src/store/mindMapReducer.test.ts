@@ -178,3 +178,29 @@ describe('ADD_LINKED_PAPERS', () => {
     expect(s.nodes.find((n) => n.id === 'x1')!.position.y).toBeGreaterThan(500);
   });
 });
+
+describe('paper identity across sources', () => {
+  it('links an incoming paper to an existing node with the same arXiv id instead of duplicating', () => {
+    const anchor = createPaperNode(paper('anchor'), { x: 0, y: 0 });
+    const bert = createPaperNode({ ...paper('bert'), ids: { arxiv: '1810.04805' } }, { x: 0, y: 0 });
+    let s = initMindMapState({ nodes: [anchor, bert], edges: [], layoutDirection: 'LR' });
+    const fromOpenAlex = { ...paper('doi:10.48550/arxiv.1810.04805'), ids: { arxiv: '1810.04805', openalex: 'W1' } };
+    s = mindMapReducer(s, { type: 'ADD_LINKED_PAPERS', payload: { anchorId: 'anchor', kind: 'citations', papers: [fromOpenAlex] } });
+    expect(s.nodes.map((n) => n.id)).toEqual(['anchor', 'bert']);
+    expect(refsOf(s, 'bert')).toEqual(['anchor']);
+  });
+
+  it('remaps imported graphs onto existing papers matched by title', () => {
+    const mine = createPaperNode({ ...paper('my-uuid'), title: 'A Sufficiently Long Paper Title Here', notes: 'keep' }, { x: 0, y: 0 });
+    let s = initMindMapState({ nodes: [mine], edges: [], layoutDirection: 'LR' });
+    const incoming = createPaperNode({ ...paper('doi:10.1/x'), title: 'A sufficiently long paper title here', ids: { doi: '10.1/x' } }, { x: 0, y: 0 });
+    s = mindMapReducer(s, {
+      type: 'IMPORT_GRAPH',
+      payload: { nodes: [incoming], edges: [{ id: 'grp-c-doi:10.1/x', source: 'c', target: 'doi:10.1/x' }] },
+    });
+    expect(s.nodes.filter(isPaperNode).map((n) => n.id)).toEqual(['my-uuid']);
+    const p = s.nodes.filter(isPaperNode)[0].data.paper;
+    expect(p.notes).toBe('keep');
+    expect(p.ids?.doi).toBe('10.1/x');
+  });
+});
