@@ -1,17 +1,20 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import type { Paper } from '../../shared/types';
-import type { ClusterNamesResponse, GapsResponse } from '../../shared/types';
+import type { AspectFillResponse, ClusterNamesResponse, GapsResponse } from '../../shared/types';
+import { canFillWithoutLlm, fillByCue } from '../core/aspects';
 import { cleanGaps, collectStatedGaps } from '../core/gaps';
 import { papersBlock, templateDraft } from '../core/relatedWork';
-import { ClusterNames, ResearchGaps } from '../llm/schemas';
+import { AspectValues, ClusterNames, ResearchGaps } from '../llm/schemas';
 import { extractiveSummary } from '../core/summarize';
 import { ApiHttpError } from '../http/errors';
 import { streamText } from '../http/sse';
 import { readJson } from '../http/validate';
 import { LlmError, getLlm } from '../llm/client';
 import {
+  ASPECT_SYSTEM,
   CLUSTER_NAMES_SYSTEM,
+  aspectUser,
   GAPS_SYSTEM,
   SUMMARY_SYSTEM,
   clusterNamesUser,
@@ -41,6 +44,13 @@ const GapsBody = z.object({
   papers: z.array(PaperInput).min(1).max(80),
   groups: z.array(z.object({ label: z.string().max(200), paperIds: z.array(z.string()) })).default([]),
   topic: z.string().max(2000).default(''),
+  lang: z.enum(['ja', 'en']).default('ja'),
+  useLlm: z.boolean().default(true),
+});
+
+const AspectBody = z.object({
+  aspect: z.string().trim().min(1).max(100),
+  papers: z.array(PaperInput).min(1).max(60),
   lang: z.enum(['ja', 'en']).default('ja'),
   useLlm: z.boolean().default(true),
 });
@@ -127,6 +137,26 @@ export function llmRoutes(services: Services) {
         }
       }
       return c.json({ mode: 'fallback', gaps: collectStatedGaps(papers, body.groups), warnings } satisfies GapsResponse);
+    })
+    .post('/fill-aspect', async (c) => {
+      const body = await readJson(c, AspectBody);
+      const papers = body.papers as unknown as Paper[];
+      const llm = body.useLlm ? getLlm(services.config) : null;
+      if (!llm) {
+        if (!canFillWithoutLlm(body.aspect)) {
+          throw new ApiHttpError(400, 'needs_llm', `「${body.aspect}」は LLM なしでは埋められません（手法・結果・目的・限界・データ・評価は可）`);
+        }
+        return c.json({ mode: 'fallback', values: fillByCue(body.aspect, papers) } satisfies AspectFillResponse);
+      }
+      const out = await llm
+        .structured({ system: ASPECT_SYSTEM, user: aspectUser(body.aspect, papers, body.lang), schema: AspectValues, effort: 'low', maxTokens: 8000 })
+        .catch((err: Error) => {
+          throw new ApiHttpError(502, 'llm_error', err.message);
+        });
+      const ids = new Set(papers.map((p) => p.id));
+      const values: Record<string, string> = {};
+      for (const v of out?.values ?? []) if (ids.has(v.id)) values[v.id] = v.value.trim();
+      return c.json({ mode: 'llm', values } satisfies AspectFillResponse);
     })
     .post('/cluster-names', async (c) => {
       const body = await readJson(c, ClusterNamesBody);

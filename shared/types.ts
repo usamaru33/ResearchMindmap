@@ -65,6 +65,8 @@ export interface Paper {
   notes?: string;
   rating?: number;
   screening?: Screening;
+  /** Comparison-table cells, by aspect name. */
+  comparison?: Record<string, string>;
   addedAt?: string;
 }
 
@@ -200,6 +202,12 @@ export interface GapsResponse {
   mode: 'llm' | 'fallback';
   gaps: GapItem[];
   warnings: string[];
+}
+
+export interface AspectFillResponse {
+  mode: 'llm' | 'fallback';
+  /** Cell value by paper id ('' when the abstract does not say). */
+  values: Record<string, string>;
 }
 
 export interface ClusterNamesResponse {
