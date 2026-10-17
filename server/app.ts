@@ -5,6 +5,7 @@ import { createServices, type Services } from './services';
 import { ApiHttpError } from './http/errors';
 import { getLlm } from './llm/client';
 import { graphRoutes } from './routes/graph';
+import { llmRoutes } from './routes/llm';
 import { paperRoutes } from './routes/papers';
 import { queryRoutes } from './routes/query';
 import { resolveRoutes } from './routes/resolve';
@@ -40,6 +41,7 @@ export function createApp(config: AppConfig, services: Services = createServices
   app.route('/api/vague-search', vagueRoutes(services));
   app.route('/api/papers', paperRoutes(services));
   app.route('/api/resolve', resolveRoutes(services));
+  app.route('/api/llm', llmRoutes(services));
 
   app.notFound((c) =>
     c.json({ error: { code: 'not_found', message: `No route for ${c.req.path}` } }, 404),

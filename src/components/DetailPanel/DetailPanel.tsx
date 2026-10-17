@@ -3,6 +3,7 @@ import type { Paper } from '../../types';
 import { ExpandSection } from './ExpandSection';
 import { ReadingSection } from './ReadingSection';
 import { CiteSection } from './CiteSection';
+import { SummarySection } from './SummarySection';
 import { getYearColor } from '../../utils/helpers';
 import styles from './DetailPanel.module.css';
 
@@ -68,7 +69,8 @@ export function DetailPanel({
             </div>
 
             <ReadingSection
-              key={`reading-${paper.id}`}
+              // Remount when notes change from outside (e.g. "メモに追加") so the editor shows them.
+              key={`reading-${paper.id}-${(paper.notes ?? '').length}`}
               paper={paper}
               knownTags={knownTags}
               onChange={(patch) => onUpdateMeta(paper.id, patch)}
@@ -108,6 +110,14 @@ export function DetailPanel({
                 <div className={styles.futureWorkText}>{paper.futureWork}</div>
               </div>
             )}
+
+            <SummarySection
+              key={`summary-${paper.id}`}
+              paper={paper}
+              onAppendNotes={(text) =>
+                onUpdateMeta(paper.id, { notes: paper.notes ? `${paper.notes}\n\n${text}` : text })
+              }
+            />
 
             <CiteSection key={`cite-${paper.id}`} paper={paper} />
 
