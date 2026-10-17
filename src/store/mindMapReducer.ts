@@ -113,6 +113,63 @@ function importGraph(state: MindMapState, incoming: MapNode[], incomingEdges: Pa
   };
 }
 
+const LINK_COLUMN_WIDTH = 340;
+const LINK_ROW_HEIGHT = 150;
+const LINKS_PER_COLUMN = 6;
+
+/**
+ * Add papers found from one paper (snowballing) next to it: references on
+ * its left, citing papers on its right, related papers below. Papers already
+ * in the map are linked, not duplicated.
+ */
+function addLinkedPapers(state: MindMapState, anchorId: string, papers: Paper[], kind: 'references' | 'citations' | 'related'): MindMapState {
+  const anchor = state.nodes.find((n) => n.id === anchorId);
+  if (!anchor || !isPaperNode(anchor)) return state;
+  const existing = new Map(state.nodes.filter(isPaperNode).map((n) => [n.id, n]));
+  const fresh = papers.filter((p) => p.id !== anchorId && !existing.has(p.id));
+  const linkedIds = papers.filter((p) => p.id !== anchorId).map((p) => p.id);
+
+  const placed = fresh.map((paper, i) => {
+    const col = Math.floor(i / LINKS_PER_COLUMN);
+    const row = i % LINKS_PER_COLUMN;
+    const { x, y } = anchor.position;
+    const offsetY = (row - (Math.min(fresh.length, LINKS_PER_COLUMN) - 1) / 2) * LINK_ROW_HEIGHT;
+    const position =
+      kind === 'references'
+        ? { x: x - LINK_COLUMN_WIDTH * (col + 1), y: y + offsetY }
+        : kind === 'citations'
+          ? { x: x + LINK_COLUMN_WIDTH * (col + 1), y: y + offsetY }
+          : { x: x + (row - 2.5) * LINK_COLUMN_WIDTH, y: y + LINK_ROW_HEIGHT * (col + 1.2) };
+    const withRefs = kind === 'citations' ? { ...paper, references: [...new Set([...paper.references, anchorId])] } : paper;
+    return createPaperNode({ ...withRefs, addedAt: withRefs.addedAt ?? new Date().toISOString() }, position);
+  });
+
+  let nodes: MapNode[] = [...state.nodes, ...placed];
+  if (kind === 'references') {
+    nodes = nodes.map((n) => (n.id === anchorId ? updatePaper(n, (p) => ({ ...p, references: [...new Set([...p.references, ...linkedIds])] })) : n));
+  } else if (kind === 'citations') {
+    const citing = new Set(linkedIds);
+    nodes = nodes.map((n) =>
+      citing.has(n.id) && existing.has(n.id) ? updatePaper(n, (p) => ({ ...p, references: [...new Set([...p.references, anchorId])] })) : n,
+    );
+  }
+
+  let edges = state.edges;
+  if (kind === 'related') {
+    const ids = new Set(edges.map((e) => e.id));
+    const related = linkedIds
+      .map((id) => createStyledEdge(`e-rel-${anchorId}-${id}`, anchorId, id, 'related to'))
+      .filter((e) => !ids.has(e.id));
+    edges = [...edges, ...related];
+  }
+  return {
+    ...state,
+    nodes,
+    edges: rebuildEdges(nodes, edges),
+    viewRequest: { kind: 'fit', seq: state.viewRequest.seq + 1 },
+  };
+}
+
 function deletePapers(state: MindMapState, ids: string[]): MindMapState {
   const removed = new Set(ids);
   if (removed.size === 0) return state;
@@ -238,6 +295,9 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
         viewRequest: { ...next.viewRequest, seq: state.viewRequest.seq + 1 },
       };
     }
+
+    case 'ADD_LINKED_PAPERS':
+      return addLinkedPapers(state, action.payload.anchorId, action.payload.papers, action.payload.kind);
 
     case 'IMPORT_GRAPH':
       return importGraph(state, action.payload.nodes, action.payload.edges);

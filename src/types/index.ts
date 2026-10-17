@@ -1,5 +1,5 @@
 import type { Node, Edge } from '@xyflow/react';
-import type { Paper } from '../../shared/types';
+import type { ExpandKind, Paper } from '../../shared/types';
 
 export type { Paper } from '../../shared/types';
 
@@ -86,6 +86,7 @@ export type MindMapAction =
   | { type: 'APPLY_LAYOUT'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
   | { type: 'LOAD_MAP'; payload: MapSnapshot }
   | { type: 'IMPORT_GRAPH'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
+  | { type: 'ADD_LINKED_PAPERS'; payload: { anchorId: string; papers: Paper[]; kind: ExpandKind } }
   | { type: 'REQUEST_VIEW'; payload: ViewRequest['kind'] };
 
 export function isPaperNode(node: MapNode): node is PaperNode {

@@ -153,6 +153,10 @@ export default function App() {
         onEdit={handleEditFromDetail}
         onDelete={handleDeleteFromDetail}
         onSelectPaper={handleSelectPaper}
+        mapIds={mapIds}
+        onAddLinked={(anchorId, papers, kind) =>
+          dispatch({ type: 'ADD_LINKED_PAPERS', payload: { anchorId, papers, kind } })
+        }
       />
     </div>
   );

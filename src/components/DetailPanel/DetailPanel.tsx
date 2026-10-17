@@ -1,4 +1,6 @@
+import type { ExpandKind } from '../../../shared/types';
 import type { Paper } from '../../types';
+import { ExpandSection } from './ExpandSection';
 import { getYearColor } from '../../utils/helpers';
 import styles from './DetailPanel.module.css';
 
@@ -10,6 +12,8 @@ interface DetailPanelProps {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onSelectPaper: (id: string) => void;
+  mapIds: Set<string>;
+  onAddLinked: (anchorId: string, papers: Paper[], kind: ExpandKind) => void;
 }
 
 export function DetailPanel({
@@ -20,6 +24,8 @@ export function DetailPanel({
   onEdit,
   onDelete,
   onSelectPaper,
+  mapIds,
+  onAddLinked,
 }: DetailPanelProps) {
   const isOpen = paper !== null;
 
@@ -89,6 +95,13 @@ export function DetailPanel({
                 <div className={styles.futureWorkText}>{paper.futureWork}</div>
               </div>
             )}
+
+            <ExpandSection
+              key={paper.id}
+              paper={paper}
+              mapIds={mapIds}
+              onAdd={(papers, kind) => onAddLinked(paper.id, papers, kind)}
+            />
 
             <div className={styles.section}>
               <div className={styles.sectionLabel}>

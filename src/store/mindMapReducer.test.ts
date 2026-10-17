@@ -140,3 +140,41 @@ describe('mindMapReducer', () => {
     expect(s.viewRequest.kind).toBe('fit');
   });
 });
+
+describe('ADD_LINKED_PAPERS', () => {
+  const base = () => {
+    const anchor = createPaperNode(paper('anchor'), { x: 1000, y: 500 });
+    const known = createPaperNode(paper('known'), { x: 0, y: 0 });
+    return initMindMapState({ nodes: [anchor, known], edges: [], layoutDirection: 'LR' });
+  };
+
+  it('adds references to the left and links them as cited by the anchor', () => {
+    const s = mindMapReducer(base(), {
+      type: 'ADD_LINKED_PAPERS',
+      payload: { anchorId: 'anchor', kind: 'references', papers: [paper('r1'), paper('known')] },
+    });
+    expect(s.nodes.map((n) => n.id)).toEqual(['anchor', 'known', 'r1']);
+    expect(refsOf(s, 'anchor')).toEqual(['r1', 'known']);
+    expect(s.edges.map((e) => e.id).sort()).toEqual(['cite-known-anchor', 'cite-r1-anchor']);
+    expect(s.nodes.find((n) => n.id === 'r1')!.position.x).toBeLessThan(1000);
+  });
+
+  it('adds citing papers to the right with a reference to the anchor', () => {
+    const s = mindMapReducer(base(), {
+      type: 'ADD_LINKED_PAPERS',
+      payload: { anchorId: 'anchor', kind: 'citations', papers: [paper('c1'), paper('known')] },
+    });
+    expect(refsOf(s, 'c1')).toEqual(['anchor']);
+    expect(refsOf(s, 'known')).toEqual(['anchor']);
+    expect(s.nodes.find((n) => n.id === 'c1')!.position.x).toBeGreaterThan(1000);
+  });
+
+  it('connects related papers with a manual "related to" edge below', () => {
+    const s = mindMapReducer(base(), {
+      type: 'ADD_LINKED_PAPERS',
+      payload: { anchorId: 'anchor', kind: 'related', papers: [paper('x1')] },
+    });
+    expect(s.edges.map((e) => e.id)).toEqual(['e-rel-anchor-x1']);
+    expect(s.nodes.find((n) => n.id === 'x1')!.position.y).toBeGreaterThan(500);
+  });
+});
