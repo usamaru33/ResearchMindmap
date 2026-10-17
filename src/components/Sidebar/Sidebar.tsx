@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { Suspense, useState, type ReactNode } from 'react';
 import type { Paper, SidebarMode } from '../../types';
 import { PaperForm } from '../PaperForm/PaperForm';
 import { IdentifierImport } from './IdentifierImport';
@@ -49,10 +49,12 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
       </div>
       <div className={styles.body}>
         <div hidden={mode !== 'search'}>{searchPanel}</div>
-        {mode === 'library' && libraryPanel}
-        {mode === 'write' && writingPanel}
-        {mode === 'compare' && comparePanel}
-        {mode === 'screen' && screeningPanel}
+        <Suspense fallback={<div className={styles.loading}>Loading…</div>}>
+          {mode === 'library' && libraryPanel}
+          {mode === 'write' && writingPanel}
+          {mode === 'compare' && comparePanel}
+          {mode === 'screen' && screeningPanel}
+        </Suspense>
         {mode === 'add' && (
           <div className={styles.addTabs} role="tablist">
             <button

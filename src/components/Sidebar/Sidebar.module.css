@@ -194,3 +194,9 @@
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
+
+.loading {
+  padding: var(--space-lg);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

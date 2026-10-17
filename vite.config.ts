@@ -12,6 +12,19 @@ export default defineConfig({
       '/api': `http://localhost:${apiPort}`,
     },
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        // Keep third-party code (React, React Flow, dagre) in its own long-cached chunk.
+        codeSplitting: {
+          groups: [
+            { name: 'react', test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/ },
+            { name: 'flow', test: /node_modules[\\/](@xyflow|@dagrejs|d3-[a-z-]+|classcat|zustand)[\\/]/ },
+          ],
+        },
+      },
+    },
+  },
   test: {
     include: ['{src,server,shared}/**/*.test.{ts,tsx}'],
   },
