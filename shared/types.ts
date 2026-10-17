@@ -1,5 +1,7 @@
 // Types shared by the browser app (src/) and the API server (server/).
 
+import type { ParsedQuery, QueryError } from './query/ast';
+
 export type SourceName =
   | 'openalex'
   | 'semanticscholar'
@@ -82,4 +84,13 @@ export interface HealthResponse {
 
 export interface ApiError {
   error: { code: string; message: string; details?: unknown };
+}
+
+export interface QueryParseResponse {
+  ok: boolean;
+  query?: ParsedQuery;
+  /** Canonical RQL text for the parsed query. */
+  canonical?: string;
+  errors: QueryError[];
+  warnings: QueryError[];
 }
