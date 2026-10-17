@@ -1,5 +1,6 @@
 import { MarkerType } from '@xyflow/react';
-import type { MindMapState, MindMapAction, PaperNode, PaperEdge, Paper } from '../types';
+import type { MindMapState, MindMapAction, MapSnapshot, PaperNode, PaperEdge, Paper } from '../types';
+import { needsLayout } from './projects';
 import { getEdgeStyle } from '../utils/helpers';
 
 export const CITE_EDGE_PREFIX = 'cite-';
@@ -113,6 +114,17 @@ function removeConnections(state: MindMapState, ids: string[]): MindMapState {
   return { ...state, nodes, edges: state.edges.filter((e) => !removed.has(e.id)) };
 }
 
+export function initMindMapState(snapshot: MapSnapshot): MindMapState {
+  return {
+    nodes: snapshot.nodes,
+    edges: rebuildEdges(snapshot.nodes, snapshot.edges),
+    selectedNodeId: null,
+    sidebarMode: 'closed',
+    layoutDirection: snapshot.layoutDirection,
+    viewRequest: { kind: needsLayout(snapshot.nodes) ? 'layout' : 'fit', seq: 0 },
+  };
+}
+
 export function mindMapReducer(state: MindMapState, action: MindMapAction): MindMapState {
   switch (action.type) {
     case 'SET_NODES':
@@ -171,6 +183,14 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
 
     case 'APPLY_LAYOUT':
       return { ...state, nodes: action.payload.nodes, edges: action.payload.edges };
+
+    case 'LOAD_MAP': {
+      const next = initMindMapState(action.payload);
+      return { ...next, viewRequest: { ...next.viewRequest, seq: state.viewRequest.seq + 1 } };
+    }
+
+    case 'REQUEST_VIEW':
+      return { ...state, viewRequest: { kind: action.payload, seq: state.viewRequest.seq + 1 } };
 
     default:
       return state;

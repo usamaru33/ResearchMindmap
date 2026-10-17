@@ -26,6 +26,19 @@ export interface MindMapState {
   selectedNodeId: string | null;
   sidebarMode: SidebarMode;
   layoutDirection: LayoutDirection;
+  /** Bumped when the canvas should re-run auto layout or fit the view. */
+  viewRequest: ViewRequest;
+}
+
+export interface ViewRequest {
+  kind: 'layout' | 'fit';
+  seq: number;
+}
+
+export interface MapSnapshot {
+  nodes: PaperNode[];
+  edges: PaperEdge[];
+  layoutDirection: LayoutDirection;
 }
 
 export type MindMapAction =
@@ -42,4 +55,6 @@ export type MindMapAction =
   | { type: 'SELECT_NODE'; payload: string | null }
   | { type: 'SET_SIDEBAR_MODE'; payload: SidebarMode }
   | { type: 'SET_LAYOUT_DIRECTION'; payload: 'TB' | 'LR' }
-  | { type: 'APPLY_LAYOUT'; payload: { nodes: PaperNode[]; edges: PaperEdge[] } };
+  | { type: 'APPLY_LAYOUT'; payload: { nodes: PaperNode[]; edges: PaperEdge[] } }
+  | { type: 'LOAD_MAP'; payload: MapSnapshot }
+  | { type: 'REQUEST_VIEW'; payload: ViewRequest['kind'] };
