@@ -23,6 +23,8 @@ export interface RequestOptions {
   ttlMs?: number;
   timeoutMs?: number;
   signal?: AbortSignal;
+  /** Override the client's retry count for this request. */
+  retries?: number;
 }
 
 export interface HttpResult<T> {
@@ -145,7 +147,7 @@ export class HttpClient {
         if (opts.signal?.aborted) throw err;
         const status = err instanceof HttpError ? err.status : 0;
         const retryable = err instanceof HttpError ? RETRYABLE.has(status) : true;
-        if (!retryable || attempt >= this.maxRetries) {
+        if (!retryable || attempt >= (opts.retries ?? this.maxRetries)) {
           if (err instanceof HttpError) throw err;
           const name = (err as Error).name;
           const message = name === 'TimeoutError' ? 'タイムアウトしました' : (err as Error).message;
@@ -153,7 +155,7 @@ export class HttpClient {
         }
         const hinted = (err as { retryAfter?: number }).retryAfter;
         const backoff = Math.min(10_000, hinted ?? 500 * 2 ** attempt + Math.random() * 250);
-        this.log(`[http] ${source} retry ${attempt + 1}/${this.maxRetries} in ${Math.round(backoff)}ms (${status || 'network'})`);
+        this.log(`[http] ${source} retry ${attempt + 1}/${opts.retries ?? this.maxRetries} in ${Math.round(backoff)}ms (${status || 'network'})`);
         await this.sleep(backoff);
         attempt++;
       }

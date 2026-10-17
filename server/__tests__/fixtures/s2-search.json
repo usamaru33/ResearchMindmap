@@ -1,0 +1,38 @@
+{
+ "_comment": "Hand-written from the documented Graph API /paper/search response shape (live API returned 429 without a key when this fixture was made).",
+ "total": 1284,
+ "offset": 0,
+ "next": 3,
+ "data": [
+  {
+   "paperId": "0f4c1b5e0d6f3e4d2c1b0a9f8e7d6c5b4a3f2e1d",
+   "externalIds": { "DOI": "10.1162/PRES_a_00124", "MAG": "2136373574", "CorpusId": 11424361 },
+   "url": "https://www.semanticscholar.org/paper/0f4c1b5e0d6f3e4d2c1b0a9f8e7d6c5b4a3f2e1d",
+   "title": "The Sense of Embodiment in Virtual Reality",
+   "abstract": "What does it mean to have a sense of embodiment toward an artificial body?",
+   "venue": "Presence: Teleoperators and Virtual Environments",
+   "year": 2012,
+   "citationCount": 1500,
+   "openAccessPdf": { "url": "https://example.org/embodiment.pdf", "status": "GREEN" },
+   "publicationTypes": ["JournalArticle"],
+   "s2FieldsOfStudy": [{ "category": "Computer Science", "source": "s2-fos-model" }, { "category": "Psychology", "source": "s2-fos-model" }],
+   "journal": { "name": "Presence: Teleoperators & Virtual Environments", "volume": "21", "pages": "373-387" },
+   "authors": [{ "authorId": "1", "name": "Konstantina Kilteni" }, { "authorId": "2", "name": "Raphaela Groten" }, { "authorId": "3", "name": "Mel Slater" }]
+  },
+  {
+   "paperId": "1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d",
+   "externalIds": { "ArXiv": "2105.01234", "CorpusId": 233000001 },
+   "url": "https://www.semanticscholar.org/paper/1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d",
+   "title": "Body Ownership Illusions with Avatars of Different Sizes",
+   "abstract": null,
+   "venue": "",
+   "year": 2021,
+   "citationCount": 3,
+   "openAccessPdf": null,
+   "publicationTypes": null,
+   "s2FieldsOfStudy": [],
+   "journal": null,
+   "authors": [{ "authorId": null, "name": "A. Researcher" }]
+  }
+ ]
+}
