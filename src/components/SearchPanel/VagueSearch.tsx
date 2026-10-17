@@ -1,6 +1,8 @@
 import { useId, useState } from 'react';
 import type { VagueSearchRequest } from '../../../shared/types';
 import type { VagueState } from '../../hooks/useSearch';
+import { useSettings } from '../../hooks/settingsContext';
+import { VAGUE_LIMIT_OPTIONS } from '../../store/settings';
 import { Elapsed, ResultsSection, type BuildMapHandler } from './ResultsSection';
 import styles from './SearchPanel.module.css';
 
@@ -35,10 +37,13 @@ export function VagueSearch({
   onDescriptionChange: setDescription,
 }: VagueSearchProps) {
   const id = useId();
-  const [useLlm, setUseLlm] = useState(true);
+  const { settings } = useSettings();
+  const [useLlmOverride, setUseLlm] = useState<boolean | null>(null);
+  const useLlm = useLlmOverride ?? settings.useLlm;
   const [yearFrom, setYearFrom] = useState('');
   const [yearTo, setYearTo] = useState('');
-  const [limit, setLimit] = useState(40);
+  const [limitOverride, setLimit] = useState<number | null>(null);
+  const limit = limitOverride ?? settings.vagueLimit;
 
   const loading = search.status === 'loading';
   const canSearch = description.trim().length >= 5 && !loading;
@@ -50,6 +55,7 @@ export function VagueSearch({
       description: description.trim(),
       useLlm,
       limit,
+      lang: settings.aiLanguage,
       yearMin: yearFrom ? Number(yearFrom) : undefined,
       yearMax: yearTo ? Number(yearTo) : undefined,
     });
@@ -122,7 +128,7 @@ export function VagueSearch({
             <label className={styles.inlineSelect}>
               results
               <select value={limit} onChange={(e) => setLimit(Number(e.target.value))}>
-                {[20, 40, 60, 100].map((n) => (
+                {VAGUE_LIMIT_OPTIONS.map((n) => (
                   <option key={n} value={n}>
                     {n}
                   </option>

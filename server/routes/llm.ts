@@ -38,7 +38,7 @@ export const PaperInput = z
   })
   .passthrough();
 
-const PaperBody = z.object({ paper: PaperInput, lang: z.enum(['ja', 'en']).default('ja') });
+const PaperBody = z.object({ paper: PaperInput, lang: z.enum(['ja', 'en']).default('ja'), useLlm: z.boolean().default(true) });
 
 const GapsBody = z.object({
   papers: z.array(PaperInput).min(1).max(80),
@@ -61,6 +61,7 @@ const ClusterNamesBody = z.object({
     .min(1)
     .max(20),
   lang: z.enum(['ja', 'en']).default('ja'),
+  useLlm: z.boolean().default(true),
 });
 
 const DraftBody = z.object({
@@ -74,10 +75,10 @@ const DraftBody = z.object({
 export function llmRoutes(services: Services) {
   return new Hono()
     .post('/summarize', async (c) => {
-      const { paper, lang } = await readJson(c, PaperBody);
+      const { paper, lang, useLlm } = await readJson(c, PaperBody);
       const p = paper as unknown as Paper;
       return streamText(c, async (events, signal) => {
-        const llm = getLlm(services.config);
+        const llm = useLlm ? getLlm(services.config) : null;
         if (!llm || !p.abstract) {
           // No LLM (or nothing to summarize): extract key sentences instead.
           const text = extractiveSummary(p);
@@ -160,7 +161,7 @@ export function llmRoutes(services: Services) {
     })
     .post('/cluster-names', async (c) => {
       const body = await readJson(c, ClusterNamesBody);
-      const llm = getLlm(services.config);
+      const llm = body.useLlm ? getLlm(services.config) : null;
       if (!llm) return c.json({ mode: 'fallback', names: {} } satisfies ClusterNamesResponse);
       const out = await llm
         .structured({

@@ -1,5 +1,6 @@
 import type { Paper } from '../../types';
 import { useApiHealth } from '../../hooks/useApiHealth';
+import { useSettings } from '../../hooks/settingsContext';
 import { useStream } from '../../hooks/useStream';
 import { MiniMarkdown } from '../common/MiniMarkdown';
 import styles from './DetailPanel.module.css';
@@ -11,10 +12,11 @@ interface SummarySectionProps {
 
 export function SummarySection({ paper, onAppendNotes }: SummarySectionProps) {
   const health = useApiHealth();
-  const llmEnabled = health.status === 'ok' && health.health.llm.enabled;
+  const { settings } = useSettings();
+  const llmEnabled = health.status === 'ok' && health.health.llm.enabled && settings.useLlm;
   const summary = useStream('/api/llm/summarize');
   const translation = useStream('/api/llm/translate');
-  const body = { paper, lang: 'ja' };
+  const body = { paper, lang: settings.aiLanguage, useLlm: settings.useLlm };
   const busy = summary.state.status === 'streaming' || translation.state.status === 'streaming';
 
   const result = (s: ReturnType<typeof useStream>['state'], label: string) => {

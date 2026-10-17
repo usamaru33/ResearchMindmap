@@ -7,6 +7,7 @@ import { clusterGroups } from './store/groups';
 import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
 import { UndoButtons } from './components/ProjectMenu/UndoButtons';
 import { ShortcutHelp } from './components/Shortcuts/ShortcutHelp';
+import { SettingsDialog } from './components/Settings/SettingsDialog';
 import { useShortcuts } from './hooks/useShortcuts';
 import { SearchPanel, type BuildMode, type BuildTarget } from './components/SearchPanel/SearchPanel';
 import { apiPost } from './api/client';
@@ -45,6 +46,7 @@ export default function App() {
   const knownTags = useMemo(() => tagCounts(allPapers.map((p) => p.tags)).map(([t]) => t), [allPapers]);
   const { screenToFlowPosition, getNode, getNodes, setCenter, fitView } = useReactFlow();
   const [helpOpen, setHelpOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const selectedPaper = getSelectedPaper();
   // The paper form and the detail panel compete for attention; search can sit next to details.
@@ -71,6 +73,7 @@ export default function App() {
     toggleHelp: () => setHelpOpen((v) => !v),
     closePanels: () => {
       if (helpOpen) setHelpOpen(false);
+      else if (settingsOpen) setSettingsOpen(false);
       else if (state.sidebarMode !== 'closed') dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'closed' });
       else dispatch({ type: 'SELECT_NODE', payload: null });
     },
@@ -280,6 +283,7 @@ export default function App() {
               onUndo={() => dispatch({ type: 'UNDO' })}
               onRedo={() => dispatch({ type: 'REDO' })}
               onHelp={() => setHelpOpen(true)}
+              onSettings={() => setSettingsOpen(true)}
             />
           }
           onExportBibliography={(format) => exportPapers(allPapers, format, projects.activeProject.name)}
@@ -328,6 +332,7 @@ export default function App() {
         }
       />
       {helpOpen && <ShortcutHelp onClose={() => setHelpOpen(false)} />}
+      {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} />}
     </div>
   );
 }

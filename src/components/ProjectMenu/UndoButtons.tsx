@@ -6,9 +6,10 @@ interface UndoButtonsProps {
   onUndo: () => void;
   onRedo: () => void;
   onHelp: () => void;
+  onSettings: () => void;
 }
 
-export function UndoButtons({ canUndo, canRedo, onUndo, onRedo, onHelp }: UndoButtonsProps) {
+export function UndoButtons({ canUndo, canRedo, onUndo, onRedo, onHelp, onSettings }: UndoButtonsProps) {
   return (
     <>
       <button type="button" className={styles.iconBtn} onClick={onUndo} disabled={!canUndo} aria-label="Undo" title="元に戻す (Ctrl+Z)">
@@ -19,6 +20,9 @@ export function UndoButtons({ canUndo, canRedo, onUndo, onRedo, onHelp }: UndoBu
       </button>
       <button type="button" className={styles.iconBtn} onClick={onHelp} aria-label="Keyboard shortcuts" title="ショートカット (?)">
         ?
+      </button>
+      <button type="button" className={styles.iconBtn} onClick={onSettings} aria-label="Settings" title="設定">
+        ⚙
       </button>
     </>
   );

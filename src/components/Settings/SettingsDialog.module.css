@@ -1,0 +1,144 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1000;
+  width: min(520px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: var(--space-xl);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  transform: translate(-50%, -50%);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.header h3 {
+  font-size: var(--font-size-lg);
+}
+
+.close {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+}
+
+.section {
+  padding: var(--space-md) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.section h4 {
+  margin-bottom: var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+  font-size: var(--font-size-sm);
+  list-style: none;
+}
+
+.status li {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: baseline;
+}
+
+.dotOn,
+.dotOff {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dotOn {
+  background: #22a35a;
+}
+
+.dotOff {
+  background: var(--color-border);
+}
+
+.name {
+  min-width: 110px;
+  font-weight: 600;
+}
+
+.muted {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.error {
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+}
+
+.hint {
+  margin-top: var(--space-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.row {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: var(--font-size-sm);
+}
+
+.label {
+  flex-shrink: 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  justify-content: flex-end;
+}
+
+.check {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.reset {
+  padding: 4px 12px;
+  font-size: var(--font-size-sm);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
