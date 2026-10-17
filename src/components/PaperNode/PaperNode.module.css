@@ -117,3 +117,8 @@
   font-size: 10px;
   color: var(--color-text-muted);
 }
+
+.dimmed {
+  opacity: 0.18;
+  filter: grayscale(0.6);
+}

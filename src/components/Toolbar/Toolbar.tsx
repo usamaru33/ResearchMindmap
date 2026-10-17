@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { LayoutDirection } from '../../types';
 import { useApiHealth } from '../../hooks/useApiHealth';
 import styles from './Toolbar.module.css';
@@ -14,6 +15,7 @@ interface ToolbarProps {
   libraryOpen: boolean;
   showCitations: boolean;
   onToggleCitations: () => void;
+  viewMenu: ReactNode;
 }
 
 export function Toolbar({
@@ -28,6 +30,7 @@ export function Toolbar({
   libraryOpen,
   showCitations,
   onToggleCitations,
+  viewMenu,
 }: ToolbarProps) {
   const apiHealth = useApiHealth();
   const apiTitle =
@@ -71,6 +74,7 @@ export function Toolbar({
         {layoutDirection === 'LR' ? 'Left→Right' : 'Top→Bottom'}
       </button>
       <div className={styles.separator} />
+      {viewMenu}
       <button
         className={`${styles.btn} ${showCitations ? '' : styles.btnOff}`}
         onClick={onToggleCitations}

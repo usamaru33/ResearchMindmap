@@ -1,15 +1,20 @@
 import { memo, useEffect, useRef } from 'react';
 import { Handle, Position, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
 import type { PaperNodeData } from '../../types';
-import { getYearColor, truncateAuthors } from '../../utils/helpers';
+import { truncateAuthors } from '../../utils/helpers';
 import { statusInfo } from '../../utils/reading';
 import { useHandlePositions } from '../MindMap/layoutDirectionContext';
+import { accentColor, badgeColor, citationScale, useMapView } from '../MindMap/mapViewContext';
 import styles from './PaperNode.module.css';
 
 function PaperNodeComponent({ id, data, selected }: NodeProps) {
   const nodeData = data as unknown as PaperNodeData;
   const { paper } = nodeData;
-  const yearColor = getYearColor(paper.year);
+  const view = useMapView();
+  const accent = accentColor(view.colorMode, paper, nodeData.accent);
+  const yearColor = badgeColor(view.colorMode, paper, accent);
+  const scale = view.sizeByCitations ? citationScale(paper.citationCount, view.maxCitations) : 1;
+  const dimmed = view.highlight !== null && !view.highlight.has(id);
   // "To read" is the default; only show a status once the user has set one.
   const status = paper.status && paper.status !== 'unread' ? statusInfo(paper.status) : undefined;
   const directional = useHandlePositions();
@@ -35,8 +40,12 @@ function PaperNodeComponent({ id, data, selected }: NodeProps) {
     <>
       <Handle type="target" position={handles.target} />
       <div
-        className={`${styles.card} ${selected ? styles.cardSelected : ''}`}
-        style={nodeData.accent ? { borderLeft: `4px solid ${nodeData.accent}` } : undefined}
+        className={`${styles.card} ${selected ? styles.cardSelected : ''} ${dimmed ? styles.dimmed : ''}`}
+        style={{
+          ...(accent ? { borderLeft: `4px solid ${accent}` } : {}),
+          // zoom scales the whole card (text included) and React Flow measures the result.
+          ...(scale !== 1 ? { zoom: scale } : {}),
+        }}
       >
         <div className={styles.header}>
           <span className={styles.yearBadge} style={{ backgroundColor: yearColor }}>

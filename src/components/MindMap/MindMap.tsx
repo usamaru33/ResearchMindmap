@@ -13,7 +13,7 @@ import {
   type EdgeChange,
   type Connection,
 } from '@xyflow/react';
-import type { MapNode, PaperEdge, MindMapAction, LayoutDirection, ViewRequest } from '../../types';
+import { isPaperNode, type MapNode, type PaperEdge, type MindMapAction, type LayoutDirection, type ViewRequest } from '../../types';
 import { PaperNode as PaperNodeComponent } from '../PaperNode/PaperNode';
 import { ClusterNode } from '../MapNodes/ClusterNode';
 import { QueryRootNode } from '../MapNodes/QueryRootNode';
@@ -21,6 +21,9 @@ import { Toolbar } from '../Toolbar/Toolbar';
 import { useAutoLayout } from '../../hooks/useAutoLayout';
 import { getYearColor, generateId, RELATIONSHIP_OPTIONS } from '../../utils/helpers';
 import { LayoutDirectionContext } from './layoutDirectionContext';
+import { MapViewContext, type ColorMode, type MapView } from './mapViewContext';
+import { ViewMenu } from '../Toolbar/ViewMenu';
+import { EMPTY_FILTERS, filterPapers } from '../../store/library';
 import { isCitationEdge } from '../../store/mindMapReducer';
 import styles from './MindMap.module.css';
 
@@ -56,9 +59,36 @@ export function MindMap({
   const [pendingConnection, setPendingConnection] = useState<Connection | null>(null);
   const [selectedRelationship, setSelectedRelationship] = useState(RELATIONSHIP_OPTIONS[0]);
   const [showCitations, setShowCitations] = useState(true);
+  const [colorMode, setColorMode] = useState<ColorMode>('year');
+  const [sizeByCitations, setSizeByCitations] = useState(false);
+  const [filter, setFilter] = useState('');
+
+  const papers = useMemo(() => nodes.filter(isPaperNode).map((n) => n.data.paper), [nodes]);
+  const highlight = useMemo(
+    () => (filter.trim() ? new Set(filterPapers(papers, { ...EMPTY_FILTERS, text: filter }).map((p) => p.id)) : null),
+    [papers, filter],
+  );
+  const view: MapView = useMemo(
+    () => ({
+      colorMode,
+      sizeByCitations,
+      highlight,
+      maxCitations: Math.max(0, ...papers.map((p) => p.citationCount ?? 0)),
+    }),
+    [colorMode, sizeByCitations, highlight, papers],
+  );
+
   const visibleEdges = useMemo(
-    () => (showCitations ? edges : edges.map((e) => (isCitationEdge(e) ? { ...e, hidden: true } : e))),
-    [edges, showCitations],
+    () =>
+      edges.map((e) => {
+        if (!showCitations && isCitationEdge(e)) return { ...e, hidden: true };
+        // Fade edges that do not touch a highlighted paper.
+        if (highlight && !highlight.has(e.source) && !highlight.has(e.target)) {
+          return { ...e, style: { ...e.style, opacity: 0.12 } };
+        }
+        return e;
+      }),
+    [edges, showCitations, highlight],
   );
 
   // Run the layout / fit the view whenever the store asks for it (initial
@@ -163,80 +193,97 @@ export function MindMap({
   }, []);
 
   return (
-    <LayoutDirectionContext.Provider value={layoutDirection}>
-      <div className={styles.wrapper}>
-        <ReactFlow
-          nodes={nodes}
-          edges={visibleEdges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onNodeClick={onNodeClick}
-          onPaneClick={onPaneClick}
-          nodeTypes={nodeTypes}
-          fitView
-          fitViewOptions={{ padding: 0.3 }}
-          minZoom={0.1}
-          maxZoom={2}
-          defaultEdgeOptions={{ type: 'smoothstep' }}
-          proOptions={{ hideAttribution: true }}
-        >
-          <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />
-          <Controls position="bottom-right" showInteractive={false} />
-          <MiniMap
-            position="bottom-left"
-            pannable
-            zoomable
-            nodeColor={minimapNodeColor}
-            maskColor="rgba(250, 251, 252, 0.7)"
-          />
-          <Panel position="top-right">
-            <Toolbar
-              layoutDirection={layoutDirection}
-              onAutoLayout={handleAutoLayout}
-              onAddPaper={onAddPaper}
-              onToggleSearch={onToggleSearch}
-              searchOpen={searchOpen}
-              onToggleLibrary={onToggleLibrary}
-              libraryOpen={libraryOpen}
-              onFitView={handleFitView}
-              onToggleDirection={handleToggleDirection}
-              showCitations={showCitations}
-              onToggleCitations={() => setShowCitations((v) => !v)}
+    <MapViewContext.Provider value={view}>
+      <LayoutDirectionContext.Provider value={layoutDirection}>
+        <div className={styles.wrapper}>
+          <ReactFlow
+            nodes={nodes}
+            edges={visibleEdges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onNodeClick={onNodeClick}
+            onPaneClick={onPaneClick}
+            nodeTypes={nodeTypes}
+            fitView
+            fitViewOptions={{ padding: 0.3 }}
+            minZoom={0.1}
+            maxZoom={2}
+            defaultEdgeOptions={{ type: 'smoothstep' }}
+            proOptions={{ hideAttribution: true }}
+          >
+            <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />
+            <Controls position="bottom-right" showInteractive={false} />
+            <MiniMap
+              position="bottom-left"
+              pannable
+              zoomable
+              nodeColor={minimapNodeColor}
+              maskColor="rgba(250, 251, 252, 0.7)"
             />
-          </Panel>
-        </ReactFlow>
+            <Panel position="top-right">
+              <Toolbar
+                layoutDirection={layoutDirection}
+                onAutoLayout={handleAutoLayout}
+                onAddPaper={onAddPaper}
+                onToggleSearch={onToggleSearch}
+                searchOpen={searchOpen}
+                onToggleLibrary={onToggleLibrary}
+                libraryOpen={libraryOpen}
+                onFitView={handleFitView}
+                onToggleDirection={handleToggleDirection}
+                showCitations={showCitations}
+                onToggleCitations={() => setShowCitations((v) => !v)}
+                viewMenu={
+                  <ViewMenu
+                    colorMode={colorMode}
+                    onColorMode={setColorMode}
+                    sizeByCitations={sizeByCitations}
+                    onSizeByCitations={(on) => {
+                    setSizeByCitations(on);
+                    // Re-run the layout once React Flow has measured the resized cards.
+                    window.setTimeout(() => dispatch({ type: 'REQUEST_VIEW', payload: 'layout' }), 120);
+                  }}
+                    filter={filter}
+                    onFilter={setFilter}
+                    matchCount={highlight ? highlight.size : null}
+                  />
+                }
+              />
+            </Panel>
+          </ReactFlow>
 
-        {pendingConnection && (
-          <>
-            <div className={styles.overlay} onClick={cancelConnection} />
-            <div className={styles.connectionDialog}>
-              <h3>Add Connection</h3>
-              <select
-                value={selectedRelationship}
-                onChange={(e) => setSelectedRelationship(e.target.value)}
-              >
-                {RELATIONSHIP_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-              <div className={styles.dialogActions}>
-                <button className={styles.dialogBtn} onClick={cancelConnection}>
-                  Cancel
-                </button>
-                <button
-                  className={`${styles.dialogBtn} ${styles.dialogBtnPrimary}`}
-                  onClick={confirmConnection}
+          {pendingConnection && (
+            <>
+              <div className={styles.overlay} onClick={cancelConnection} />
+              <div className={styles.connectionDialog}>
+                <h3>Add Connection</h3>
+                <select
+                  value={selectedRelationship}
+                  onChange={(e) => setSelectedRelationship(e.target.value)}
                 >
-                  Add
-                </button>
+                  {RELATIONSHIP_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+                <div className={styles.dialogActions}>
+                  <button className={styles.dialogBtn} onClick={cancelConnection}>
+                    Cancel
+                  </button>
+                  <button
+                    className={`${styles.dialogBtn} ${styles.dialogBtnPrimary}`}
+                    onClick={confirmConnection}
+                  >
+                    Add
+                  </button>
+                </div>
               </div>
-            </div>
-          </>
-        )}
-      </div>
-    </LayoutDirectionContext.Provider>
+            </>
+          )}
+        </div>
+      </LayoutDirectionContext.Provider>
+    </MapViewContext.Provider>
   );
 }
