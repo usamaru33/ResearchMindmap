@@ -117,6 +117,11 @@ describe('facetClusters', () => {
     expect(facetClusters(set).map((c) => c.label)).toEqual(['Haptics', 'Presence']);
   });
 
+  it('ignores generic one-word facets', () => {
+    const set = Array.from({ length: 6 }, (_, i) => paper(String(i), { keywords: ['Change', i < 3 ? 'haptics' : 'presence'] }));
+    expect(facetClusters(set).map((c) => c.label)).toEqual(['Haptics', 'Presence']);
+  });
+
   it('can be forced either way', () => {
     expect(clusterPapers(papers, { level: 'topic' })[0].label).toBe('Virtual Reality Applications');
     expect(clusterPapers(papers, { level: 'keyword' })[0].label).toBe('Avatar');

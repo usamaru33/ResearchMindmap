@@ -43,7 +43,9 @@ export function mergeTwo(a: Paper, b: Paper): Paper {
     sources: union(a.sources, b.sources) as SourceName[] | undefined,
     thumbnailUrl: a.thumbnailUrl ?? b.thumbnailUrl,
   };
-  merged.id = canonicalId(ids, merged.title, merged.year);
+  // Re-derive the id only when an external identifier can back it; otherwise
+  // keep the caller's id (e.g. a hand-added paper's UUID).
+  merged.id = Object.values(ids).some(Boolean) ? canonicalId(ids, merged.title, merged.year) : a.id;
   return merged;
 }
 

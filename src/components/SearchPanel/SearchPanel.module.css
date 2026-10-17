@@ -509,3 +509,110 @@
   display: flex;
   gap: 6px;
 }
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.tab {
+  padding: 6px 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.tabActive {
+  color: var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.vagueInput {
+  min-height: 110px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.exampleText {
+  text-align: left;
+  padding: 4px 8px;
+  font-size: var(--font-size-xs);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  background: var(--color-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: 4px;
+}
+
+.exampleText:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.modeLlm,
+.modeFallback {
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.modeLlm {
+  color: #fff;
+  background: var(--color-accent);
+}
+
+.modeFallback {
+  color: var(--color-text-secondary);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+}
+
+.interpretation {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-sm);
+  font-size: var(--font-size-xs);
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  background: var(--color-accent-light);
+  border-radius: var(--radius-sm);
+}
+
+.generatedQueries {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.generatedQueries li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.generatedQueries code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-primary);
+  word-break: break-word;
+}
+
+.reason {
+  font-size: var(--font-size-xs);
+  line-height: 1.5;
+  color: #3730a3;
+}

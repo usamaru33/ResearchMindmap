@@ -4,12 +4,12 @@ import { MindMap } from './components/MindMap/MindMap';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { DetailPanel } from './components/DetailPanel/DetailPanel';
 import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
-import { SearchPanel, type BuildTarget } from './components/SearchPanel/SearchPanel';
+import { SearchPanel, type BuildMode, type BuildTarget } from './components/SearchPanel/SearchPanel';
 import { apiPost } from './api/client';
 import { buildGraphElements } from './store/graphImport';
 import { useMindMapStore } from './hooks/useMindMapStore';
 import { loadInitialProject, useProjects } from './hooks/useProjects';
-import { useSearch } from './hooks/useSearch';
+import { useSearch, useVagueSearch } from './hooks/useSearch';
 import { createProject } from './store/projects';
 import { sampleNodes } from './data/sampleData';
 import type { Paper } from './types';
@@ -24,6 +24,7 @@ export default function App() {
     useMindMapStore(initialProject);
   const projects = useProjects(initialProject, state, dispatch);
   const search = useSearch();
+  const vague = useVagueSearch();
   const mapIds = useMemo(() => new Set(state.nodes.map((n) => n.id)), [state.nodes]);
   const { screenToFlowPosition } = useReactFlow();
 
@@ -42,9 +43,9 @@ export default function App() {
   }, [dispatch, state.sidebarMode]);
 
   const handleBuildMap = useCallback(
-    async (papers: Paper[], target: BuildTarget, query: string) => {
+    async (papers: Paper[], target: BuildTarget, query: string, mode: BuildMode) => {
       const graph = await apiPost<GraphBuildResponse>('/api/graph/build', { papers });
-      const elements = buildGraphElements(graph, { query, mode: 'query' });
+      const elements = buildGraphElements(graph, { query, mode });
       if (target === 'new') {
         const name = query.length > 60 ? `${query.slice(0, 57)}…` : query;
         projects.createNew(name, { ...elements, layoutDirection: 'LR' });
@@ -110,7 +111,14 @@ export default function App() {
         onSubmit={handleSubmitPaper}
         onClose={handleCloseSidebar}
         searchPanel={
-          <SearchPanel search={search.state} onSearch={search.run} mapIds={mapIds} onBuildMap={handleBuildMap} />
+          <SearchPanel
+            search={search.state}
+            onSearch={search.run}
+            vague={vague.state}
+            onVague={vague.run}
+            mapIds={mapIds}
+            onBuildMap={handleBuildMap}
+          />
         }
       />
       <div className={styles.canvas}>

@@ -44,12 +44,13 @@ export function SourceReports({ reports }: { reports: SourceReport[] }) {
 
 interface ResultItemProps {
   paper: Paper;
+  reason?: string;
   checked: boolean;
   inMap: boolean;
   onToggle: () => void;
 }
 
-function ResultItem({ paper, checked, inMap, onToggle }: ResultItemProps) {
+function ResultItem({ paper, reason, checked, inMap, onToggle }: ResultItemProps) {
   const [open, setOpen] = useState(false);
   const link = paper.url ?? (paper.ids?.doi ? `https://doi.org/${paper.ids.doi}` : undefined);
   return (
@@ -74,6 +75,7 @@ function ResultItem({ paper, checked, inMap, onToggle }: ResultItemProps) {
           {truncateAuthors(paper.authors, 3)}
           {paper.venue && <> · <i>{paper.venue}</i></>}
         </div>
+        {reason && <div className={styles.reason}>💡 {reason}</div>}
         <div className={styles.resultTags}>
           {(paper.sources ?? []).map((s) => (
             <span key={s} className={styles.sourceTag} title={s}>
@@ -106,13 +108,14 @@ function ResultItem({ paper, checked, inMap, onToggle }: ResultItemProps) {
 
 interface SearchResultsProps {
   results: Paper[];
+  reasons?: Record<string, string>;
   selected: Set<string>;
   mapIds: Set<string>;
   onToggle: (id: string) => void;
   onSelectAll: (all: boolean) => void;
 }
 
-export function SearchResults({ results, selected, mapIds, onToggle, onSelectAll }: SearchResultsProps) {
+export function SearchResults({ results, reasons, selected, mapIds, onToggle, onSelectAll }: SearchResultsProps) {
   if (results.length === 0) {
     return <div className={styles.empty}>No results. Try fewer terms, OR alternatives, or removing filters.</div>;
   }
@@ -136,6 +139,7 @@ export function SearchResults({ results, selected, mapIds, onToggle, onSelectAll
           <ResultItem
             key={p.id}
             paper={p}
+            reason={reasons?.[p.id]}
             checked={selected.has(p.id)}
             inMap={mapIds.has(p.id)}
             onToggle={() => onToggle(p.id)}
