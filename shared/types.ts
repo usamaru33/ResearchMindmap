@@ -237,3 +237,43 @@ export interface ResolveItem {
 export interface ResolveResponse {
   items: ResolveItem[];
 }
+
+export type ExploreKind = 'author' | 'venue';
+
+/** An author or a venue (journal / conference) found in OpenAlex. */
+export interface ExploreEntity {
+  kind: ExploreKind;
+  /** OpenAlex id, e.g. A5001226970 or S4363607743. */
+  id: string;
+  name: string;
+  /** Institution for an author; publisher or venue type for a venue. */
+  detail?: string;
+  worksCount: number;
+  citedByCount: number;
+  hIndex?: number;
+  topics: string[];
+  orcid?: string;
+}
+
+export interface ExploreSearchResponse {
+  entities: ExploreEntity[];
+}
+
+export type ExploreSort = 'cited' | 'recent';
+
+export interface ExploreWorksRequest {
+  kind: ExploreKind;
+  id: string;
+  limit?: number;
+  sort?: ExploreSort;
+  yearMin?: number;
+  yearMax?: number;
+}
+
+export interface ExploreWorksResponse {
+  papers: Paper[];
+  /** Works matching the filter (the list is truncated to the limit). */
+  total: number;
+  /** Publication count per year across all works, oldest first. */
+  byYear: Array<{ year: number; count: number }>;
+}

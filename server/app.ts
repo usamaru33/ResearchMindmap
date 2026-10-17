@@ -4,6 +4,7 @@ import type { AppConfig } from './config';
 import { createServices, type Services } from './services';
 import { ApiHttpError } from './http/errors';
 import { getLlm } from './llm/client';
+import { exploreRoutes } from './routes/explore';
 import { graphRoutes } from './routes/graph';
 import { llmRoutes } from './routes/llm';
 import { paperRoutes } from './routes/papers';
@@ -42,6 +43,7 @@ export function createApp(config: AppConfig, services: Services = createServices
   app.route('/api/papers', paperRoutes(services));
   app.route('/api/resolve', resolveRoutes(services));
   app.route('/api/llm', llmRoutes(services));
+  app.route('/api/explore', exploreRoutes(services));
 
   app.notFound((c) =>
     c.json({ error: { code: 'not_found', message: `No route for ${c.req.path}` } }, 404),
