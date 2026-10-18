@@ -546,7 +546,8 @@ CACHE_TTL_HOURS=72
 ### 13.6 文献ノートの書き出し（D8）
 
 - プロジェクトメニューの書き出しに「文献ノート (.md)」。論文ごとに見出し・書誌・引用キー・読書状況・評価・タグ・比較表の値・メモ・抄録を並べる
-- Obsidian 向け: 論文ごとに YAML front matter（title, authors, year, citekey, tags, status）を持つ節に分け、引用関係を `[[引用キー]]` のリンクで書く。1 ファイルにまとめ、区切り行で分ける（zip は使わない）
+- 見出しや項目名は表示言語で書く（8.4 の「書き出す文書は翻訳しない」の例外。ノートは利用者が読み続ける文書のため）
+- Obsidian 用: 論文ごとに 1 ノート（`<プロジェクト名>/<引用キー>.md`、YAML front matter に title・authors・year・citekey・venue・doi・status・rating・tags）と一覧の `_index.md` を zip（無圧縮、`src/utils/zip.ts`）で渡す。マップ内の引用関係は `[[引用キー|Vaswani et al. (2017)]]` のリンクにする。Obsidian は 1 ファイルに 1 つの front matter しか読まないため、1 ファイルにはまとめない。ファイル名に使えない文字は `_` にする
 
 ### 13.7 コマンドパレット（E9）
 

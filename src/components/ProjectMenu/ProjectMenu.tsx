@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { ProjectSummary } from '../../store/projects';
-import type { ExportFormat } from '../../utils/bibliography';
+import type { ExportFormat, NotesFormat } from '../../utils/bibliography';
 import { useT } from '../../hooks/useT';
 import styles from './ProjectMenu.module.css';
 
@@ -16,6 +16,7 @@ interface ProjectMenuProps {
   onExport: () => void;
   onImport: (file: File) => Promise<void>;
   onExportBibliography: (format: ExportFormat) => void;
+  onExportNotes: (format: NotesFormat) => void;
   /** Resolves with the number of papers added. */
   onImportBibliography: (file: File) => Promise<number>;
   onExportImage: (format: 'png' | 'svg') => Promise<void>;
@@ -40,6 +41,7 @@ export function ProjectMenu({
   onExport,
   onImport,
   onExportBibliography,
+  onExportNotes,
   onImportBibliography,
   onExportImage,
   extra,
@@ -183,6 +185,15 @@ export function ProjectMenu({
             </button>
           </div>
           {bibNote && <div className={styles.note}>{bibNote}</div>}
+          <div className={styles.sectionLabel}>{t('project.notes')}</div>
+          <div className={styles.actions}>
+            <button className={styles.action} onClick={() => onExportNotes('md')}>
+              {t('project.notesMd')}
+            </button>
+            <button className={styles.action} title={t('project.notesObsidianTitle')} onClick={() => onExportNotes('obsidian')}>
+              {t('project.notesObsidian')}
+            </button>
+          </div>
           <div className={styles.sectionLabel}>{t('project.image')}</div>
           <div className={styles.actions}>
             {(['png', 'svg'] as const).map((f) => (

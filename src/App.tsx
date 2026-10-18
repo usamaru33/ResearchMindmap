@@ -13,7 +13,7 @@ import { SearchPanel, type BuildMode, type BuildTarget, type SearchTab } from '.
 import { apiPost } from './api/client';
 import { buildGraphElements } from './store/graphImport';
 import { tagCounts } from './utils/reading';
-import { exportPapers, parseBibliography } from './utils/bibliography';
+import { exportNotes, exportPapers, parseBibliography } from './utils/bibliography';
 import { exportMapImage } from './utils/exportImage';
 import { useMindMapStore } from './hooks/useMindMapStore';
 import { loadInitialProject, useProjects } from './hooks/useProjects';
@@ -330,6 +330,7 @@ export default function App() {
             />
           }
           onExportBibliography={(format) => exportPapers(allPapers, format, projects.activeProject.name)}
+          onExportNotes={(format) => exportNotes(allPapers, format, projects.activeProject.name, state.aspects)}
           onExportImage={(format) => exportMapImage(getNodes(), format, projects.activeProject.name)}
           onImportBibliography={async (file) => {
             const papers = parseBibliography(await file.text());
