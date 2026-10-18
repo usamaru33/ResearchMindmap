@@ -7,7 +7,7 @@ import type { CompiledRequest } from './openalex';
 import type { SourceAdapter, SourceResult } from './types';
 
 const BASE = 'https://api.crossref.org/works';
-const SELECT = [
+export const CROSSREF_SELECT = [
   'DOI',
   'title',
   'author',
@@ -68,7 +68,7 @@ export function compileCrossref(q: ParsedQuery, opts: { limit: number; mailto?: 
   if (filters.length) params.set('filter', filters.join(','));
 
   params.set('rows', String(Math.min(100, opts.limit * 2)));
-  params.set('select', SELECT);
+  params.set('select', CROSSREF_SELECT);
   if (opts.mailto) params.set('mailto', opts.mailto);
   return { url: `${BASE}?${params.toString()}`, warnings, approximate: true };
 }
