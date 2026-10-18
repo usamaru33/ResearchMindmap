@@ -14,14 +14,14 @@ export const EMPTY_FILTERS: LibraryFilters = { text: '', status: 'all', tag: nul
 
 const STATUS_ORDER: Record<ReadingStatus, number> = { reading: 0, unread: 1, read: 2, skipped: 3 };
 
-/** Case/accent-insensitive search over title, authors, venue, tags and notes. */
+/** Case/accent-insensitive search over title, authors, venue, publisher, year, tags and notes. */
 export function filterPapers(papers: Paper[], f: LibraryFilters): Paper[] {
   const words = normalizeText(f.text).split(' ').filter(Boolean);
   return papers.filter((p) => {
     if (f.status !== 'all' && (p.status ?? 'unread') !== f.status) return false;
     if (f.tag && !(p.tags ?? []).includes(f.tag)) return false;
     if (words.length === 0) return true;
-    const hay = normalizeText([p.title, p.authors.join(' '), p.venue, (p.tags ?? []).join(' '), p.notes ?? ''].join(' '));
+    const hay = normalizeText([p.title, p.authors.join(' '), p.venue, p.publisher ?? '', p.year || '', (p.tags ?? []).join(' '), p.notes ?? ''].join(' '));
     return words.every((w) => hay.includes(w));
   });
 }

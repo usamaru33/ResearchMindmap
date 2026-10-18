@@ -33,6 +33,7 @@ const ComparisonTable = lazy(() =>
   import('./components/Comparison/ComparisonTable').then((m) => ({ default: m.ComparisonTable })),
 );
 const ScreeningPanel = lazy(() => import('./components/Screening/ScreeningPanel').then((m) => ({ default: m.ScreeningPanel })));
+const AnalysisPanel = lazy(() => import('./components/Analysis/AnalysisPanel').then((m) => ({ default: m.AnalysisPanel })));
 
 export default function App() {
   const [initialProject] = useState(() =>
@@ -51,6 +52,7 @@ export default function App() {
   const { screenToFlowPosition, getNode, getNodes, setCenter, fitView } = useReactFlow();
   const [helpOpen, setHelpOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [mapFilter, setMapFilter] = useState('');
 
   const selectedPaper = getSelectedPaper();
   // The paper form and the detail panel compete for attention; search can sit next to details.
@@ -139,6 +141,10 @@ export default function App() {
 
   const handleToggleScreen = useCallback(() => {
     dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'screen' ? 'closed' : 'screen' });
+  }, [dispatch, state.sidebarMode]);
+
+  const handleToggleAnalyze = useCallback(() => {
+    dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'analyze' ? 'closed' : 'analyze' });
   }, [dispatch, state.sidebarMode]);
 
   const handleToggleCompare = useCallback(() => {
@@ -258,6 +264,9 @@ export default function App() {
             onFocusPaper={handleFocusPaper}
           />
         }
+        analysisPanel={
+          <AnalysisPanel papers={allPapers} filter={mapFilter} onFilter={setMapFilter} onFocusPaper={handleFocusPaper} />
+        }
         writingPanel={
           <WritingPanel
             key={draftIds.join(',')}
@@ -343,6 +352,10 @@ export default function App() {
           compareOpen={state.sidebarMode === 'compare'}
           onToggleScreen={handleToggleScreen}
           screenOpen={state.sidebarMode === 'screen'}
+          onToggleAnalyze={handleToggleAnalyze}
+          analyzeOpen={state.sidebarMode === 'analyze'}
+          filter={mapFilter}
+          onFilter={setMapFilter}
         />
       </div>
       <DetailPanel
