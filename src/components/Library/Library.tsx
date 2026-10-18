@@ -5,6 +5,7 @@ import { getYearColor, truncateAuthors } from '../../utils/helpers';
 import { STATUS_OPTIONS, normalizeTag, statusInfo } from '../../utils/reading';
 import { exportPapers } from '../../utils/bibliography';
 import { useT } from '../../hooks/useT';
+import { LibraryCheck } from './LibraryCheck';
 import type { MessageKey } from '../../i18n';
 import styles from './Library.module.css';
 
@@ -17,6 +18,7 @@ interface LibraryProps {
   onDelete: (ids: string[]) => void;
   onDraft: (ids: string[]) => void;
   onRecommend: (ids: string[]) => void;
+  onMerge: (keepId: string, mergeIds: string[]) => void;
 }
 
 const COLUMNS: Array<{ key: SortKey; label: MessageKey | '★'; className?: string }> = [
@@ -27,8 +29,9 @@ const COLUMNS: Array<{ key: SortKey; label: MessageKey | '★'; className?: stri
   { key: 'rating', label: '★', className: styles.colNum },
 ];
 
-export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDelete, onDraft, onRecommend }: LibraryProps) {
+export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDelete, onDraft, onRecommend, onMerge }: LibraryProps) {
   const t = useT();
+  const [view, setView] = useState<'list' | 'check'>('list');
   const [filters, setFilters] = useState<LibraryFilters>(EMPTY_FILTERS);
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'added', dir: 'desc' });
   const [checked, setChecked] = useState<Set<string>>(new Set());
@@ -63,8 +66,35 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
     }
   };
 
+  const tabs = (
+    <div className={styles.tabs} role="tablist">
+      {(['list', 'check'] as const).map((v) => (
+        <button
+          key={v}
+          type="button"
+          role="tab"
+          aria-selected={view === v}
+          className={`${styles.tab} ${view === v ? styles.tabActive : ''}`}
+          onClick={() => setView(v)}
+        >
+          {t(v === 'list' ? 'library.tab.list' : 'library.tab.check')}
+        </button>
+      ))}
+    </div>
+  );
+
+  if (view === 'check') {
+    return (
+      <div className={styles.library}>
+        {tabs}
+        <LibraryCheck papers={papers} onFocus={onFocus} onUpdate={onUpdate} onDelete={onDelete} onMerge={onMerge} />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.library}>
+      {tabs}
       <div className={styles.filters}>
         <input
           className={styles.search}

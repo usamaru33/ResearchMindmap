@@ -196,3 +196,164 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
+
+.tabs {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  padding: 3px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.tab {
+  padding: 5px 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.tabActive {
+  color: var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.check {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.checkSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.checkSection h4 {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+}
+
+.checkHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.checkGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.checkGroup h5 {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.checkGroup .checkWarn {
+  color: var(--color-danger);
+}
+
+.checkOk {
+  font-size: var(--font-size-sm);
+  color: var(--color-success, #15803d);
+}
+
+.checkError {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
+}
+
+.checkList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.checkList li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.checkList li:last-child {
+  border-bottom: none;
+}
+
+.checkTitle {
+  padding: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: left;
+  color: var(--color-text-primary);
+  background: none;
+  border: none;
+}
+
+.checkTitle:hover {
+  color: var(--color-accent);
+}
+
+.checkActions {
+  display: flex;
+  gap: 4px;
+}
+
+.dupGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dupItem {
+  display: flex;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+}
+
+.dupItem input {
+  margin-top: 3px;
+  accent-color: var(--color-accent);
+}
+
+.dupItem span span {
+  display: block;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.chipActive {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.checkList .meta {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
