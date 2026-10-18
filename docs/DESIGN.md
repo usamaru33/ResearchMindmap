@@ -366,7 +366,7 @@ RQL → parse → AST
 | POST | `/api/explore/search` | `{ kind: 'author' \| 'venue', query }` | `{ entities: ExploreEntity[] }` |
 | POST | `/api/explore/works` | `{ kind, id, limit?, sort?: 'cited' \| 'recent', yearMin?, yearMax? }` | `{ papers, total, byYear }` |
 | POST | `/api/papers/check` | `{ papers: [{ id, title, year, type?, ids? }] (≤300) }` | `{ retracted: id[], published: { [id]: Paper }, checked: { retraction, preprints, preprintTotal }, failed: ('retraction' \| 'published')[] }` |
-| POST | `/api/trends` | `{ queries: string[] (1–5), yearMin?, yearMax?, share?(既定 true) }` | `{ series: [{ query, byYear, total, warnings, error? }], all?: byYear }` |
+| POST | `/api/trends` | `{ queries: string[] (1–5), yearMin?(既定 終了年 − 19), yearMax?(既定 今年), share?(既定 true) }` | `{ series: [{ query, byYear, total, approximate, error?: 'invalid_query' \| 'upstream' }], all?: byYear, yearMin, yearMax }` |
 
 ### 8.1 設定（`.env`）
 
@@ -541,7 +541,7 @@ CACHE_TTL_HOURS=72
 
 - Toolbar に「分析」を足し、タブ「このマップ」と「研究動向」を持つ
 - このマップ: 論文数・読了率・OA の割合・被引用数の中央値、年ごとの件数、掲載先・著者（8.2 と同じ同一視）・タグ・出版社の上位、読書状況・スクリーニングの内訳、被引用数の上位。項目を押すとマップのフィルタ（C3）にその語を入れる（著者は姓、年は数字。フィルタは出版社と年も対象にした）。掲載先は末尾の回の年（`NeurIPS 2017`・`CHI '20`・`(2019)`）を除いてまとめる。マップのフィルタの状態は App が持ち、表示メニューと分析パネルで共有する
-- 研究動向: 最大 5 つの RQL クエリについて、OpenAlex の `group_by=publication_year` で年ごとの件数を取る（クエリの OpenAlex 向けコンパイルを使い、取得後の絞り込みはできないので近似であることを警告で示す）。全論文の年ごとの件数も取り、割合（‰）で比べられる。SVG の折れ線、CSV 出力。1 つのクエリが失敗しても他は出す
+- 研究動向: 最大 5 つの RQL クエリについて、OpenAlex の `group_by=publication_year` で年ごとの件数を取る（クエリの OpenAlex 向けコンパイルを使い、取得後の絞り込みはできないので近似であることを警告で示す）。全論文の年ごとの件数も取り、割合（‰）で比べられる。SVG の折れ線（近似は点線、今年は途中までなので薄い点）、件数と割合の切替、CSV 出力。1 つのクエリが失敗しても他は出す。最初のクエリには、このマップで最後に実行したクエリ検索を入れておく
 
 ### 13.6 文献ノートの書き出し（D8）
 

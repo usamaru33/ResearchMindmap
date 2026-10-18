@@ -265,7 +265,13 @@ export default function App() {
           />
         }
         analysisPanel={
-          <AnalysisPanel papers={allPapers} filter={mapFilter} onFilter={setMapFilter} onFocusPaper={handleFocusPaper} />
+          <AnalysisPanel
+            papers={allPapers}
+            filter={mapFilter}
+            onFilter={setMapFilter}
+            onFocusPaper={handleFocusPaper}
+            latestQuery={state.history.find((h) => h.kind === 'query')?.text ?? ''}
+          />
         }
         writingPanel={
           <WritingPanel
