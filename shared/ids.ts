@@ -35,6 +35,16 @@ export function normalizeTitle(title: string): string {
     .trim();
 }
 
+/** Token-set Jaccard similarity of two titles (after normalizing them). */
+export function titleSimilarity(a: string, b: string): number {
+  const A = new Set(normalizeTitle(a).split(' ').filter(Boolean));
+  const B = new Set(normalizeTitle(b).split(' ').filter(Boolean));
+  if (!A.size || !B.size) return 0;
+  let inter = 0;
+  for (const t of A) if (B.has(t)) inter++;
+  return inter / (A.size + B.size - inter);
+}
+
 /**
  * Stable paper id, preferring the most universal identifier.
  * See docs/DESIGN.md §4.2.

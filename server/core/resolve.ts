@@ -1,4 +1,4 @@
-import { normalizeArxivId, normalizeDoi, normalizeOpenAlexId, normalizeTitle } from '../../shared/ids';
+import { normalizeArxivId, normalizeDoi, normalizeOpenAlexId, normalizeTitle, titleSimilarity } from '../../shared/ids';
 import type { Paper, ResolveItem } from '../../shared/types';
 import { bestMatch, looksLikeCitation, scoreCandidate, titleGuesses, type CitationScore } from './citation';
 import type { HttpClient } from '../infra/http';
@@ -168,6 +168,12 @@ export async function resolveIdentifier(raw: string, ctx: ResolveContext): Promi
         break;
       case 'arxiv': {
         paper = await pick([() => openAlexByKey(`doi:10.48550/arxiv.${parsed.value}`, ctx), () => arxivById(parsed.value, ctx)]);
+        // OpenAlex sometimes files an arXiv DOI under another work. When the record is not the
+        // arXiv DOI's own, compare its title with arXiv's and prefer arXiv when they disagree.
+        if (!cited && paper && paper.ids?.doi !== `10.48550/arxiv.${parsed.value}` && paper.sources?.includes('openalex')) {
+          const fromArxiv = await arxivById(parsed.value, ctx);
+          if (fromArxiv && titleSimilarity(fromArxiv.title, paper.title) < 0.6) paper = fromArxiv;
+        }
         // OpenAlex may report the work under another DOI; keep the arXiv id the user gave
         // so it still matches the same paper elsewhere.
         if (paper) paper = { ...paper, ids: { ...paper.ids, arxiv: parsed.value } };
