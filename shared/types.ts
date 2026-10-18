@@ -324,3 +324,27 @@ export interface CheckResponse {
   /** Parts of the check that could not be done. */
   failed: Array<'retraction' | 'published'>;
 }
+
+export interface YearCount {
+  year: number;
+  count: number;
+}
+
+/** Papers per year matching one query (POST /api/trends). */
+export interface TrendSeries {
+  query: string;
+  byYear: YearCount[];
+  total: number;
+  /** Parts of the query could not be applied in the count (wildcards, venues, types…). */
+  approximate: boolean;
+  error?: 'invalid_query' | 'upstream';
+  message?: string;
+}
+
+export interface TrendsResponse {
+  series: TrendSeries[];
+  /** All works per year in the same range, for shares; absent when not requested or unavailable. */
+  all?: YearCount[];
+  yearMin: number;
+  yearMax: number;
+}
