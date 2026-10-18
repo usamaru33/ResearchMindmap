@@ -10,6 +10,7 @@ import { recommend } from './messages/recommend';
 import { alerts } from './messages/alerts';
 import { check } from './messages/check';
 import { analysis } from './messages/analysis';
+import { notes } from './messages/notes';
 
 export { detectLang, format, type Lang } from './format';
 
@@ -25,6 +26,7 @@ export const MESSAGES = {
   ...alerts,
   ...check,
   ...analysis,
+  ...notes,
 } as const satisfies Record<string, Entry>;
 
 export type MessageKey = keyof typeof MESSAGES;
