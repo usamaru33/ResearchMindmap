@@ -1,0 +1,39 @@
+import type { Entry } from '../format';
+
+/** Library checks: retractions, published versions, duplicates, missing metadata. */
+export const check = {
+  'library.tab.list': ['一覧', 'List'],
+  'library.tab.check': ['文献チェック', 'Check'],
+
+  'check.remote': ['撤回・公開版', 'Retractions & published versions'],
+  'check.remoteHint': ['OpenAlex で、撤回された論文と、プレプリントの公開版（同じ題名・筆頭著者）を探します。', 'Looks up retracted papers and published versions of preprints (same title and first author) on OpenAlex.'],
+  'check.run': ['OpenAlex で確認', 'Check on OpenAlex'],
+  'check.again': ['もう一度確認', 'Check again'],
+  'check.checking': ['確認中…', 'Checking…'],
+  'check.first300': ['最初の 300 件だけを確認します。', 'Only the first 300 papers are checked.'],
+  'check.done': ['{n} 件の撤回と {preprints} 件のプレプリントを確認しました。', 'Checked {n} {n|paper|papers} for retraction and {preprints} {preprints|preprint|preprints}.'],
+  'check.preprintCap': ['（プレプリント {total} 件のうち最初の {n} 件）', '(the first {n} of {total} preprints)'],
+  'check.failedRetraction': ['撤回の確認に失敗しました。', 'The retraction check failed.'],
+  'check.failedPublished': ['公開版の確認に失敗しました。', 'The published-version check failed.'],
+  'check.remoteOk': ['撤回された論文・公開版のあるプレプリントは見つかりませんでした。', 'No retracted papers or published versions of preprints were found.'],
+  'check.retracted': ['撤回された論文（{n}）', 'Retracted ({n})'],
+  'check.tagRetracted': ['タグ「retracted」を付ける', 'Tag "retracted"'],
+  'check.tagged': ['タグ付け済み', 'Tagged'],
+  'check.published': ['公開版のあるプレプリント（{n}）', 'Preprints with a published version ({n})'],
+  'check.replace': ['公開版に置き換え', 'Use published version'],
+  'check.replaceAll': ['すべて置き換え', 'Replace all'],
+  'check.replaceHint': ['題名・著者・掲載先・年・DOI などを公開版のものにします。メモ・タグ・評価・つながりは残ります。', 'Title, authors, venue, year, DOI etc. come from the published version; notes, tags, rating and links are kept.'],
+
+  'check.local': ['このマップの中', 'Within this map'],
+  'check.localOk': ['重複や書誌の欠けはありません。', 'No duplicates or missing metadata.'],
+  'check.duplicates': ['同じ論文の可能性（{n} 組）', 'Possible duplicates ({n} {n|group|groups})'],
+  'check.hasNotes': ['メモあり', 'has notes'],
+  'check.merge': ['{n} 件を 1 つに統合', 'Merge {n} into one'],
+  'check.mergeHint': ['選んだ記録を残し、空の項目・ID・タグ・メモをほかの記録から足します。引用関係とつながりは残した論文に移ります。', 'Keeps the chosen record and fills its gaps, ids, tags and notes from the others; citations and links move to it.'],
+  'check.missing': ['書誌の欠け', 'Missing metadata'],
+  'check.field.year': ['年', 'Year'],
+  'check.field.authors': ['著者', 'Authors'],
+  'check.field.venue': ['掲載先', 'Venue'],
+  'check.field.abstract': ['抄録', 'Abstract'],
+  'check.field.doi': ['DOI・arXiv ID', 'DOI / arXiv ID'],
+} as const satisfies Record<string, Entry>;

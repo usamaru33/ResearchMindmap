@@ -303,3 +303,24 @@ export interface RecommendResponse {
   /** Candidates considered before ranking. */
   candidates: number;
 }
+
+/** A paper as sent to /api/papers/check. */
+export interface CheckInput {
+  id: string;
+  title: string;
+  year: number;
+  venue?: string;
+  type?: string;
+  authors?: string[];
+  ids?: { doi?: string; arxiv?: string; openalex?: string };
+}
+
+export interface CheckResponse {
+  /** Ids of papers OpenAlex marks as retracted. */
+  retracted: string[];
+  /** Published versions of preprints, by preprint id. */
+  published: Record<string, Paper>;
+  checked: { retraction: number; preprints: number; preprintTotal: number };
+  /** Parts of the check that could not be done. */
+  failed: Array<'retraction' | 'published'>;
+}

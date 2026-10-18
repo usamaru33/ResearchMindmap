@@ -236,6 +236,7 @@ export default function App() {
             onDelete={(ids) => dispatch({ type: 'DELETE_PAPERS', payload: ids })}
             onDraft={openWriting}
             onRecommend={openRecommend}
+            onMerge={(keepId, mergeIds) => dispatch({ type: 'MERGE_PAPERS', payload: { keepId, mergeIds } })}
           />
         }
         comparePanel={

@@ -8,6 +8,7 @@ import { work } from './messages/work';
 import { errors } from './messages/errors';
 import { recommend } from './messages/recommend';
 import { alerts } from './messages/alerts';
+import { check } from './messages/check';
 
 export { detectLang, format, type Lang } from './format';
 
@@ -21,6 +22,7 @@ export const MESSAGES = {
   ...errors,
   ...recommend,
   ...alerts,
+  ...check,
 } as const satisfies Record<string, Entry>;
 
 export type MessageKey = keyof typeof MESSAGES;

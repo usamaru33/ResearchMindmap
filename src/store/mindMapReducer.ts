@@ -2,6 +2,8 @@ import { MarkerType } from '@xyflow/react';
 import { isPaperNode, type MindMapState, type MindMapAction, type MapNode, type MapSnapshot, type PaperNode, type PaperEdge, type Paper } from '../types';
 import { matchExisting } from './identity';
 import { mergeSeen } from './alerts';
+import { mergePaperRecords } from './libraryCheck';
+import { GROUP_EDGE_PREFIX } from '../utils/mindMapLayout';
 import { needsLayout } from './projects';
 import { getEdgeStyle } from '../utils/helpers';
 
@@ -252,6 +254,46 @@ function deletePapers(state: MindMapState, ids: string[]): MindMapState {
   };
 }
 
+/**
+ * Fold duplicate records into one paper: gaps in the kept record are filled from the others,
+ * references to the others point at the kept paper, and their manual and cluster edges move over.
+ */
+function mergePapers(state: MindMapState, keepId: string, mergeIds: string[]): MindMapState {
+  const drop = new Set(mergeIds.filter((id) => id !== keepId));
+  const keepNode = state.nodes.find((n): n is PaperNode => n.id === keepId && isPaperNode(n));
+  const others = state.nodes.filter((n): n is PaperNode => drop.has(n.id) && isPaperNode(n)).map((n) => n.data.paper);
+  if (!keepNode || others.length === 0) return state;
+  const remap = (id: string) => (drop.has(id) ? keepId : id);
+  const refsOf = (p: Paper, extra: string[] = []) => [...new Set([...p.references, ...extra].map(remap))].filter((r) => r !== p.id);
+  const kept = mergePaperRecords(keepNode.data.paper, others);
+  kept.references = refsOf(keepNode.data.paper, others.flatMap((o) => o.references));
+  const nodes = state.nodes
+    .filter((n) => !drop.has(n.id))
+    .map((n) => {
+      if (n.id === keepId) return updatePaper(n, () => kept);
+      return isPaperNode(n) && n.data.paper.references.some((r) => drop.has(r)) ? updatePaper(n, (p) => ({ ...p, references: refsOf(p) })) : n;
+    });
+  const seen = new Set<string>();
+  const moved = state.edges
+    .filter((e) => !isCitationEdge(e))
+    .map((e) => {
+      if (!drop.has(e.source) && !drop.has(e.target)) return e;
+      const source = remap(e.source);
+      const target = remap(e.target);
+      const id = e.id.startsWith(GROUP_EDGE_PREFIX) ? `${GROUP_EDGE_PREFIX}${source}-${target}` : e.id;
+      return { ...e, id, source, target };
+    })
+    .filter((e) => {
+      const key = `${e.data?.relationship ?? ''}|${e.source}|${e.target}`;
+      if (e.source === e.target || seen.has(key) || seen.has(e.id)) return false;
+      seen.add(key);
+      seen.add(e.id);
+      return true;
+    });
+  const selected = state.selectedNodeId && drop.has(state.selectedNodeId) ? keepId : state.selectedNodeId;
+  return { ...state, nodes, edges: rebuildEdges(nodes, moved), selectedNodeId: selected };
+}
+
 function removeConnections(state: MindMapState, ids: string[]): MindMapState {
   const removed = new Set(ids);
   const targets = state.edges.filter((e) => removed.has(e.id));
@@ -443,6 +485,9 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
 
     case 'ADD_PAPERS':
       return addPapers(state, action.payload.papers, action.payload.center);
+
+    case 'MERGE_PAPERS':
+      return mergePapers(state, action.payload.keepId, action.payload.mergeIds);
 
     case 'ADD_LINKED_PAPERS':
       return addLinkedPapers(state, action.payload.anchorId, action.payload.papers, action.payload.kind);

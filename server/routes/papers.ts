@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import type { ExpandResponse, Paper, RecommendResponse } from '../../shared/types';
+import type { CheckResponse, ExpandResponse, Paper, RecommendResponse } from '../../shared/types';
+import { checkPapers } from '../core/check';
 import { expandPaper } from '../core/expand';
 import { recommendPapers } from '../core/recommend';
 import { ApiHttpError } from '../http/errors';
@@ -35,8 +36,30 @@ const RecommendBody = z.object({
   limit: z.number().int().min(1).max(100).default(30),
 });
 
+const CheckBody = z.object({
+  papers: z
+    .array(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+        year: z.number().int().default(0),
+        venue: z.string().optional(),
+        type: z.string().optional(),
+        authors: z.array(z.string()).max(50).optional(),
+        ids: z.object({ doi: z.string().optional(), openalex: z.string().optional(), arxiv: z.string().optional() }).partial().optional(),
+      }),
+    )
+    .min(1)
+    .max(300),
+});
+
 export function paperRoutes(services: Services) {
   return new Hono()
+    .post('/check', async (c) => {
+      const body = await readJson(c, CheckBody);
+      const result = await checkPapers(body.papers, { http: services.http, apiKey: services.config.openalexApiKey });
+      return c.json(result satisfies CheckResponse);
+    })
     .post('/recommend', async (c) => {
       const body = await readJson(c, RecommendBody);
       const result = await recommendPapers(body.seeds, body.exclude, body.limit, {
