@@ -34,7 +34,7 @@ const TITLES: Record<Exclude<SidebarMode, 'closed'>, MessageKey> = {
 
 export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, searchPanel, libraryPanel, writingPanel, comparePanel, screeningPanel, mapIds, onAddPapers }: SidebarProps) {
   const t = useT();
-  const [addTab, setAddTab] = useState<'identifiers' | 'manual'>('identifiers');
+  const [addTab, setAddTab] = useState<'identifiers' | 'references' | 'manual'>('identifiers');
   const isOpen = mode !== 'closed';
   const isForm = mode === 'add' || mode === 'edit';
 
@@ -71,6 +71,15 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
             <button
               type="button"
               role="tab"
+              aria-selected={addTab === 'references'}
+              className={`${styles.addTab} ${addTab === 'references' ? styles.addTabActive : ''}`}
+              onClick={() => setAddTab('references')}
+            >
+              {t('sidebar.fromReferences')}
+            </button>
+            <button
+              type="button"
+              role="tab"
               aria-selected={addTab === 'manual'}
               className={`${styles.addTab} ${addTab === 'manual' ? styles.addTabActive : ''}`}
               onClick={() => setAddTab('manual')}
@@ -79,7 +88,9 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
             </button>
           </div>
         )}
-        {mode === 'add' && addTab === 'identifiers' && <IdentifierImport mapIds={mapIds} onAdd={onAddPapers} />}
+        {mode === 'add' && addTab !== 'manual' && (
+          <IdentifierImport key={addTab} mode={addTab} mapIds={mapIds} onAdd={onAddPapers} />
+        )}
         {isForm && (mode === 'edit' || addTab === 'manual') && (
           <PaperForm
             key={mode === 'edit' ? selectedPaper?.id : 'new'}

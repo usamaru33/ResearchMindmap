@@ -232,9 +232,11 @@ export interface ExpandResponse {
 
 export interface ResolveItem {
   input: string;
-  kind?: 'doi' | 'arxiv' | 'openalex' | 'pmid' | 'title';
+  kind?: 'doi' | 'arxiv' | 'openalex' | 'pmid' | 'title' | 'citation';
   ok: boolean;
   paper?: Paper;
+  /** For free-text references: how sure the match is (low = the title fits but the year or first author does not). */
+  confidence?: 'high' | 'low';
   error?: string;
 }
 

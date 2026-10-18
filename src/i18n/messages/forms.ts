@@ -32,6 +32,11 @@ export const forms = {
   'import.found': ['{n} 件見つかりました', '{n} found'],
   'import.notFound': [' · {n} 件見つかりません', ' · {n} not found'],
   'import.kind.title': ['題名', 'Title'],
+  'import.kind.citation': ['参考文献', 'Reference'],
+  'import.refLabel': ['論文の参考文献リストをそのまま貼り付け（PDF からのコピーで改行が崩れていても可）', 'Paste a paper\'s reference list as is (line breaks from PDF copying are fine)'],
+  'import.split': ['{n} 件の文献に分けました', 'Split into {n} {n|reference|references}'],
+  'import.check': ['要確認', 'Check'],
+  'import.checkTitle': ['題名は一致しますが、年か筆頭著者が参考文献と違います', 'The title matches, but the year or first author differs from the reference'],
   'import.inMap': ['マップにあり', 'in map'],
   'import.add': ['{n} 件をマップに追加', 'Add {n} to map'],
 } as const satisfies Record<string, Entry>;

@@ -5,7 +5,7 @@ import { resolveIdentifier } from '../core/resolve';
 import { readJson } from '../http/validate';
 import type { Services } from '../services';
 
-const ResolveBody = z.object({ inputs: z.array(z.string().max(500)).min(1).max(100) });
+const ResolveBody = z.object({ inputs: z.array(z.string().max(1000)).min(1).max(100) });
 
 export function resolveRoutes(services: Services) {
   return new Hono().post('/', async (c) => {

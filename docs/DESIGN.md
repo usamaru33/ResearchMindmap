@@ -356,7 +356,7 @@ RQL → parse → AST
 | GET | `/api/papers/:id/references` | — | `{ papers }` |
 | GET | `/api/papers/:id/citations` | `?limit` | `{ papers }` |
 | GET | `/api/papers/:id/related` | `?limit` | `{ papers }` |
-| POST | `/api/resolve` | `{ inputs: string[] (≤100) }`（DOI / arXiv ID・URL / OpenAlex ID / PubMed ID / タイトル。行頭の `-` `1.` `[3]` は無視） | `{ items: [{ input, kind, ok, paper?, error? }] }`（DOI は OpenAlex → Crossref、arXiv は OpenAlex → arXiv API、タイトルは完全一致のうち被引用数最大） |
+| POST | `/api/resolve` | `{ inputs: string[] (≤100, 各 1000 字まで) }`（DOI / arXiv ID・URL / OpenAlex ID / PubMed ID / 参考文献の文 / タイトル。行頭の `-` `1.` `[3]` は無視） | `{ items: [{ input, kind, ok, paper?, confidence?, error? }] }`（DOI は OpenAlex → Crossref、arXiv は OpenAlex → arXiv API、タイトルは完全一致のうち被引用数最大、参考文献は 13.2） |
 | POST | `/api/papers/expand` | `{ paper, kind: 'references' \| 'citations' \| 'related', limit? }` | `{ kind, papers, total, warnings }` |
 | POST | `/api/llm/summarize` | `{ paper, lang }` | SSE |
 | POST | `/api/llm/related-work` | `{ papers, topic, style, lang }` | SSE |
@@ -512,8 +512,10 @@ CACHE_TTL_HOURS=72
 
 ### 13.2 参考文献リストの取り込み（A13）
 
-- 「識別子から追加」に「参考文献リスト」モードを足す。貼り付けた文を `[1]` / `1.` / 空行 / 行頭の著者名（APA）で 1 件ずつに分け、PDF のコピーで入る行の途中の改行・ハイフン区切りをつなぐ（`src/utils/referenceList.ts`）
-- `/api/resolve` に種別 `citation` を足す。DOI や arXiv ID を含む行はそれを使い、それ以外は Crossref の `query.bibliographic` で上位 3 件を取り、題名の類似度（引用文の中に題名の語がどれだけ含まれるか）と年の一致で選ぶ。見つかった DOI は OpenAlex で引き直して被引用数・参考文献などを補う
+- 「論文を追加」に「参考文献リスト」タブを足す。貼り付けた文を `[1]` / `1.` / 空行 / 行頭の著者名（APA）で 1 件ずつに分け、PDF のコピーで入る行の途中の改行・ハイフン区切りをつなぐ（`src/utils/referenceList.ts`）
+- `/api/resolve` に種別 `citation` を足す（年があり、句読点が 3 つ以上ある 30 字以上の行）。題名を推定し（引用符の中 / `(2016).` や `2016.` の後の文 / Vancouver 形式の著者の後 / 名前の列でない最長の文）、OpenAlex の題名検索 → Crossref の `query.bibliographic` → 2 つ目の推定題名の順に候補を集める（確かな一致が出たら止める）
+- 候補の判定（`server/core/citation.ts`）: 候補の題名の語の 85% 以上が参考文献に含まれ（3 語以上）、年（±1）と筆頭著者の姓がどちらも合えば high、片方なら low、どちらも合わなければ不採用。Crossref で見つかったものは DOI で OpenAlex から引き直す
+- DOI や arXiv ID を含む参考文献はその ID で引くが、記録の題名が参考文献と合わなければ次の取得元（Crossref / arXiv API）、それでもだめなら文から探す（OpenAlex の記録が別の論文の題名になっていることがある）
 - 照合の確からしさ（`confidence`: high / low）を返し、低いものは画面で確認を促す（既定で取り込みの対象から外す）
 
 ### 13.3 文献チェック（B9）

@@ -2,10 +2,11 @@ import { useId, useState } from 'react';
 import type { Paper, ResolveItem, ResolveResponse } from '../../../shared/types';
 import { apiPost } from '../../api/client';
 import { truncateAuthors } from '../../utils/helpers';
+import { splitReferences } from '../../utils/referenceList';
 import { useT } from '../../hooks/useT';
 import styles from './Sidebar.module.css';
 
-const KIND_LABEL: Record<Exclude<NonNullable<ResolveItem['kind']>, 'title'>, string> = {
+const KIND_LABEL: Record<Exclude<NonNullable<ResolveItem['kind']>, 'title' | 'citation'>, string> = {
   doi: 'DOI',
   arxiv: 'arXiv',
   openalex: 'OpenAlex',
@@ -13,11 +14,13 @@ const KIND_LABEL: Record<Exclude<NonNullable<ResolveItem['kind']>, 'title'>, str
 };
 
 interface IdentifierImportProps {
+  /** identifiers: one id or title per line; references: a pasted bibliography. */
+  mode: 'identifiers' | 'references';
   mapIds: Set<string>;
   onAdd: (papers: Paper[]) => void;
 }
 
-export function IdentifierImport({ mapIds, onAdd }: IdentifierImportProps) {
+export function IdentifierImport({ mode, mapIds, onAdd }: IdentifierImportProps) {
   const t = useT();
   const id = useId();
   const [text, setText] = useState('');
@@ -26,7 +29,7 @@ export function IdentifierImport({ mapIds, onAdd }: IdentifierImportProps) {
   const [items, setItems] = useState<ResolveItem[] | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
 
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const lines = mode === 'references' ? splitReferences(text) : text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
   const resolve = async () => {
     setLoading(true);
@@ -34,7 +37,8 @@ export function IdentifierImport({ mapIds, onAdd }: IdentifierImportProps) {
     try {
       const res = await apiPost<ResolveResponse>('/api/resolve', { inputs: lines.slice(0, 100) });
       setItems(res.items);
-      setSelected(new Set(res.items.map((it, i) => (it.ok ? i : -1)).filter((i) => i >= 0)));
+      // Uncertain matches are offered but not ticked.
+      setSelected(new Set(res.items.map((it, i) => (it.ok && it.confidence !== 'low' ? i : -1)).filter((i) => i >= 0)));
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -61,19 +65,24 @@ export function IdentifierImport({ mapIds, onAdd }: IdentifierImportProps) {
   return (
     <div className={styles.importPanel}>
       <label className={styles.importLabel} htmlFor={id}>
-        {t('import.label')}
+        {mode === 'references' ? t('import.refLabel') : t('import.label')}
       </label>
       <textarea
         id={id}
         className={styles.importInput}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder={'10.1145/3313831.3376358\nhttps://arxiv.org/abs/1706.03762\nDeep Residual Learning for Image Recognition'}
+        placeholder={
+          mode === 'references'
+            ? '[1] A. Vaswani et al., “Attention is all you need,” in Proc. NeurIPS, 2017.\n[2] He, K., Zhang, X., Ren, S., & Sun, J. (2016). Deep residual learning for image recognition. In CVPR.'
+            : '10.1145/3313831.3376358\nhttps://arxiv.org/abs/1706.03762\nDeep Residual Learning for Image Recognition'
+        }
         spellCheck={false}
       />
       <button type="button" className={styles.importBtn} onClick={resolve} disabled={loading || lines.length === 0}>
         {loading ? t('import.resolving') : lines.length ? t('import.resolveN', { n: lines.length }) : t('import.resolve')}
       </button>
+      {mode === 'references' && lines.length > 0 && !items && <div className={styles.importNote}>{t('import.split', { n: lines.length })}</div>}
       {lines.length > 100 && <div className={styles.importNote}>{t('import.tooMany')}</div>}
       {error && <div className={styles.importError}>{error}</div>}
 
@@ -95,9 +104,15 @@ export function IdentifierImport({ mapIds, onAdd }: IdentifierImportProps) {
                         {it.paper.title}
                       </span>
                       <span className={styles.importMeta}>
-                        {it.kind && (it.kind === 'title' ? t('import.kind.title') : KIND_LABEL[it.kind])} · {truncateAuthors(it.paper.authors, 2)}
+                        {it.kind && (it.kind === 'title' ? t('import.kind.title') : it.kind === 'citation' ? t('import.kind.citation') : KIND_LABEL[it.kind])} · {truncateAuthors(it.paper.authors, 2)}
                         {mapIds.has(it.paper.id) && ` · ${t('import.inMap')}`}
+                        {it.confidence === 'low' && (
+                          <span className={styles.importCheck} title={t('import.checkTitle')}>
+                            {t('import.check')}
+                          </span>
+                        )}
                       </span>
+                      {mode === 'references' && <span className={styles.importSource}>{it.input}</span>}
                     </span>
                   </label>
                 ) : (
