@@ -69,6 +69,10 @@ export interface HistoryEntry {
   at: string;
   resultCount: number;
   pinned?: boolean;
+  /** Keys (id, doi:, openalex:) of results already seen, for new-paper alerts. */
+  seen?: string[];
+  /** Last time this saved search was checked for new papers. */
+  checkedAt?: string;
 }
 
 export interface ViewRequest {
@@ -103,6 +107,7 @@ export type MindMapAction =
   | { type: 'IMPORT_GRAPH'; payload: { nodes: MapNode[]; edges: PaperEdge[] } }
   | { type: 'ADD_HISTORY'; payload: HistoryEntry }
   | { type: 'PIN_HISTORY'; payload: string }
+  | { type: 'UPDATE_HISTORY'; payload: { id: string; patch: Partial<Pick<HistoryEntry, 'seen' | 'checkedAt'>> } }
   | { type: 'REMOVE_HISTORY'; payload: string }
   | { type: 'SET_ASPECTS'; payload: string[] }
   | { type: 'RENAME_ASPECT'; payload: { from: string; to: string } }
