@@ -21,4 +21,12 @@ describe('settings', () => {
     s.setItem('rmm:v1:settings', JSON.stringify({ limitPerSource: 999, aiLanguage: 'fr', useLlm: 'yes' }));
     expect(loadSettings(s)).toEqual(DEFAULT_SETTINGS);
   });
+
+  it('picks the UI language from the browser on first visit', () => {
+    expect(loadSettings(null, ['en-US', 'ja']).uiLanguage).toBe('en');
+    expect(loadSettings(null, ['fr-FR', 'ja-JP']).uiLanguage).toBe('ja');
+    const s = memory();
+    saveSettings(s, { ...DEFAULT_SETTINGS, uiLanguage: 'ja' });
+    expect(loadSettings(s, ['en-US']).uiLanguage).toBe('ja');
+  });
 });

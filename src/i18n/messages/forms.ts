@@ -1,0 +1,37 @@
+import type { Entry } from '../format';
+
+/** Manual paper form and identifier import. */
+export const forms = {
+  'form.title': ['題名 *', 'Title *'],
+  'form.titlePlaceholder': ['論文の題名', 'Paper title'],
+  'form.authors': ['著者 *', 'Authors *'],
+  'form.authorsPlaceholder': ['著者 1, 著者 2, ...', 'Author 1, Author 2, ...'],
+  'form.affiliation': ['所属', 'Affiliation'],
+  'form.affiliationPlaceholder': ['大学・組織', 'University or Organization'],
+  'form.year': ['年 *', 'Year *'],
+  'form.venue': ['掲載先 *', 'Venue *'],
+  'form.venuePlaceholder': ['会議名・論文誌名', 'Conference or Journal name'],
+  'form.abstract': ['抄録 *', 'Abstract *'],
+  'form.abstractPlaceholder': ['論文の抄録', 'Paper abstract'],
+  'form.challenges': ['課題', 'Challenges'],
+  'form.challengesPlaceholder': ['分かっている課題や限界', 'Known challenges or limitations'],
+  'form.futureWork': ['今後の課題', 'Future Work'],
+  'form.futureWorkPlaceholder': ['提案されている今後の方向性', 'Proposed future directions'],
+  'form.references': ['参考文献（{n} 件選択）', 'References ({n} selected)'],
+  'form.noReferences': ['参照できる他の論文がありません', 'No other papers to reference'],
+  'form.thumbnail': ['サムネイル URL', 'Thumbnail URL'],
+  'form.cancel': ['キャンセル', 'Cancel'],
+  'form.update': ['更新', 'Update'],
+  'form.add': ['論文を追加', 'Add Paper'],
+
+  'import.label': ['DOI・arXiv ID・URL・PubMed ID・タイトルを 1 行に 1 件', 'One DOI, arXiv ID, URL, PubMed ID or title per line'],
+  'import.resolving': ['照会中…', 'Resolving…'],
+  'import.resolve': ['照会', 'Resolve'],
+  'import.resolveN': ['{n} 件を照会', 'Resolve {n}'],
+  'import.tooMany': ['一度に照会できるのは 100 行までです', 'Up to 100 lines at a time'],
+  'import.found': ['{n} 件見つかりました', '{n} found'],
+  'import.notFound': [' · {n} 件見つかりません', ' · {n} not found'],
+  'import.kind.title': ['題名', 'Title'],
+  'import.inMap': ['マップにあり', 'in map'],
+  'import.add': ['{n} 件をマップに追加', 'Add {n} to map'],
+} as const satisfies Record<string, Entry>;
