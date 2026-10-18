@@ -18,6 +18,8 @@ import { exportMapImage } from './utils/exportImage';
 import { useMindMapStore } from './hooks/useMindMapStore';
 import { loadInitialProject, useProjects } from './hooks/useProjects';
 import { useSearch, useVagueSearch } from './hooks/useSearch';
+import { useAlerts } from './hooks/useAlerts';
+import { seenKeys } from './store/alerts';
 import { createProject } from './store/projects';
 import { sampleNodes } from './data/sampleData';
 import type { Paper } from './types';
@@ -41,6 +43,8 @@ export default function App() {
   const projects = useProjects(initialProject, state, dispatch);
   const search = useSearch();
   const vague = useVagueSearch();
+  const alerts = useAlerts(projects.activeProject.id, state.history, dispatch);
+  const alertCount = Object.values(alerts.found).reduce((n, list) => n + list.length, 0);
   const mapIds = useMemo(() => new Set(state.nodes.map((n) => n.id)), [state.nodes]);
   const allPapers = getAllPapers();
   const knownTags = useMemo(() => tagCounts(allPapers.map((p) => p.tags)).map(([t]) => t), [allPapers]);
@@ -80,10 +84,17 @@ export default function App() {
   });
 
   const recordHistory = useCallback(
-    (kind: 'query' | 'vague', text: string, resultCount: number) =>
+    (kind: 'query' | 'vague', text: string, results: Paper[]) =>
       dispatch({
         type: 'ADD_HISTORY',
-        payload: { id: crypto.randomUUID(), kind, text, at: new Date().toISOString(), resultCount },
+        payload: {
+          id: crypto.randomUUID(),
+          kind,
+          text,
+          at: new Date().toISOString(),
+          resultCount: results.length,
+          seen: seenKeys(results),
+        },
       }),
     [dispatch],
   );
@@ -260,16 +271,17 @@ export default function App() {
             search={search.state}
             onSearch={async (req) => {
               const res = await search.run(req);
-              if (res) recordHistory('query', req.query, res.results.length);
+              if (res) recordHistory('query', req.query, res.results);
             }}
             vague={vague.state}
             onVague={async (req) => {
               const res = await vague.run(req);
-              if (res) recordHistory('vague', req.description, res.results.length);
+              if (res) recordHistory('vague', req.description, res.results);
             }}
             history={state.history}
             onPinHistory={(id) => dispatch({ type: 'PIN_HISTORY', payload: id })}
             onRemoveHistory={(id) => dispatch({ type: 'REMOVE_HISTORY', payload: id })}
+            alerts={alerts}
             mapIds={mapIds}
             mapPapers={allPapers}
             recommendIds={recommendIds}
@@ -320,6 +332,7 @@ export default function App() {
           onAddPaper={handleAddPaper}
           onToggleSearch={handleToggleSearch}
           searchOpen={state.sidebarMode === 'search'}
+          searchBadge={alertCount}
           onToggleLibrary={handleToggleLibrary}
           libraryOpen={state.sidebarMode === 'library'}
           onToggleWrite={handleToggleWrite}

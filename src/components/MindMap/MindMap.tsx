@@ -48,6 +48,8 @@ interface MindMapProps {
   onAddPaper: () => void;
   onToggleSearch: () => void;
   searchOpen: boolean;
+  /** New papers found in saved searches (shown on the Search button). */
+  searchBadge: number;
   onToggleLibrary: () => void;
   libraryOpen: boolean;
   onToggleWrite: () => void;
@@ -67,6 +69,7 @@ export function MindMap({
   onAddPaper,
   onToggleSearch,
   searchOpen,
+  searchBadge,
   onToggleLibrary,
   libraryOpen,
   onToggleWrite,
@@ -328,6 +331,7 @@ export function MindMap({
                   onAddPaper={onAddPaper}
                   onToggleSearch={onToggleSearch}
                   searchOpen={searchOpen}
+                  searchBadge={searchBadge}
                   onToggleLibrary={onToggleLibrary}
                   libraryOpen={libraryOpen}
                 onToggleWrite={onToggleWrite}

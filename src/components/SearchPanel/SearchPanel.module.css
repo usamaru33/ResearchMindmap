@@ -689,3 +689,23 @@
   color: var(--color-text-muted);
   white-space: nowrap;
 }
+
+.alertBadge {
+  padding: 0 6px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-danger);
+  border: none;
+  border-radius: 999px;
+}
+
+.alertResults {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  list-style: none;
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+}

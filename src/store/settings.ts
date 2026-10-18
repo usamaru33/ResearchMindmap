@@ -13,6 +13,8 @@ export interface Settings {
   aiLanguage: 'ja' | 'en';
   /** Language of the interface itself. */
   uiLanguage: Lang;
+  /** Check saved searches for new papers when a project opens. */
+  autoCheckAlerts: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -22,6 +24,7 @@ export const DEFAULT_SETTINGS: Settings = {
   useLlm: true,
   aiLanguage: 'ja',
   uiLanguage: 'ja',
+  autoCheckAlerts: true,
 };
 
 const KEY = 'rmm:v1:settings';
@@ -42,6 +45,7 @@ export function loadSettings(storage: KeyValueStorage | null, languages?: readon
     vagueLimit: VAGUE_LIMITS.includes(raw.vagueLimit as number) ? (raw.vagueLimit as number) : DEFAULT_SETTINGS.vagueLimit,
     useLlm: typeof raw.useLlm === 'boolean' ? raw.useLlm : DEFAULT_SETTINGS.useLlm,
     aiLanguage: raw.aiLanguage === 'en' ? 'en' : 'ja',
+    autoCheckAlerts: typeof raw.autoCheckAlerts === 'boolean' ? raw.autoCheckAlerts : DEFAULT_SETTINGS.autoCheckAlerts,
     // First visit: follow the browser.
     uiLanguage: raw.uiLanguage === 'en' || raw.uiLanguage === 'ja' ? raw.uiLanguage : detectLang(languages),
   };
