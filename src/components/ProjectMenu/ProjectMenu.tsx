@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { ProjectSummary } from '../../store/projects';
 import type { ExportFormat } from '../../utils/bibliography';
+import { useT } from '../../hooks/useT';
 import styles from './ProjectMenu.module.css';
 
 interface ProjectMenuProps {
@@ -43,6 +44,7 @@ export function ProjectMenu({
   onExportImage,
   extra,
 }: ProjectMenuProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -56,7 +58,7 @@ export function ProjectMenu({
     if (!file) return;
     try {
       const n = await onImportBibliography(file);
-      setBibNote(n > 0 ? `${n} 件の論文を追加しました` : '論文を読み取れませんでした（BibTeX か RIS を選んでください）');
+      setBibNote(n > 0 ? t('project.bibAdded', { n }) : t('project.bibNone'));
     } catch (err) {
       setBibNote((err as Error).message);
     }
@@ -90,7 +92,7 @@ export function ProjectMenu({
   };
 
   const handleDelete = () => {
-    if (window.confirm(`「${activeName}」を削除します。元に戻せません。よろしいですか？`)) {
+    if (window.confirm(t('project.confirmDelete', { name: activeName }))) {
       onDelete();
       setOpen(false);
     }
@@ -119,7 +121,7 @@ export function ProjectMenu({
       {open && (
         <div className={styles.menu} role="menu">
           <label className={styles.nameField}>
-            <span className={styles.sectionLabel}>Project name</span>
+            <span className={styles.sectionLabel}>{t('project.name')}</span>
             <input
               key={activeId}
               className={styles.nameInput}
@@ -129,7 +131,7 @@ export function ProjectMenu({
             />
           </label>
 
-          <div className={styles.sectionLabel}>Projects</div>
+          <div className={styles.sectionLabel}>{t('project.list')}</div>
           <ul className={styles.list}>
             {projects.map((p) => (
               <li key={p.id}>
@@ -142,7 +144,7 @@ export function ProjectMenu({
                 >
                   <span className={styles.itemName}>{p.name}</span>
                   <span className={styles.itemMeta}>
-                    {p.paperCount} papers · {formatDate(p.updatedAt)}
+                    {t('project.meta', { n: p.paperCount, date: formatDate(p.updatedAt) })}
                   </span>
                 </button>
               </li>
@@ -157,31 +159,31 @@ export function ProjectMenu({
                 setOpen(false);
               }}
             >
-              + New project
+              {t('project.new')}
             </button>
             <button className={styles.action} onClick={onExport}>
-              Export JSON
+              {t('project.exportJson')}
             </button>
             <button className={styles.action} onClick={() => fileRef.current?.click()}>
-              Import JSON
+              {t('project.importJson')}
             </button>
             <button className={`${styles.action} ${styles.danger}`} onClick={handleDelete}>
-              Delete
+              {t('project.delete')}
             </button>
           </div>
-          <div className={styles.sectionLabel}>References</div>
+          <div className={styles.sectionLabel}>{t('project.references')}</div>
           <div className={styles.actions3}>
             {(['bib', 'ris', 'csv'] as const).map((f) => (
               <button key={f} className={styles.action} onClick={() => onExportBibliography(f)}>
-                Export .{f}
+                {t('project.export', { ext: f })}
               </button>
             ))}
             <button className={`${styles.action} ${styles.wide}`} onClick={() => bibRef.current?.click()}>
-              Import .bib / .ris
+              {t('project.importBib')}
             </button>
           </div>
           {bibNote && <div className={styles.note}>{bibNote}</div>}
-          <div className={styles.sectionLabel}>Image</div>
+          <div className={styles.sectionLabel}>{t('project.image')}</div>
           <div className={styles.actions}>
             {(['png', 'svg'] as const).map((f) => (
               <button
@@ -196,7 +198,7 @@ export function ProjectMenu({
                   }
                 }}
               >
-                Export .{f}
+                {t('project.export', { ext: f })}
               </button>
             ))}
           </div>

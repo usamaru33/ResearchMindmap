@@ -3,11 +3,13 @@ import { formatQuery, parseQuery } from '../../../shared/query';
 import type { SearchRequest, SourceName, SourceStatus } from '../../../shared/types';
 import type { SearchState } from '../../hooks/useSearch';
 import { useSettings } from '../../hooks/settingsContext';
+import { localizedReason } from '../../i18n/localized';
 import { SOURCE_LIMIT_OPTIONS } from '../../store/settings';
 import { QueryInput } from './QueryInput';
 import { Elapsed, ResultsSection, type BuildMapHandler } from './ResultsSection';
 import { SourceReports } from './SearchResults';
 import { EMPTY_CHIPS, PUBLISHER_CHIPS, combineQuery, type FilterChips } from './searchFilters';
+import { useT } from '../../hooks/useT';
 import styles from './SearchPanel.module.css';
 
 interface QuerySearchProps {
@@ -24,6 +26,7 @@ interface QuerySearchProps {
 export function QuerySearch({ search, onSearch, sources, healthError, mapIds, onBuildMap, text, onTextChange }: QuerySearchProps) {
   const [chips, setChips] = useState<FilterChips>(EMPTY_CHIPS);
   const { settings } = useSettings();
+  const t = useT();
   // Until the user touches a control here, follow the saved defaults.
   const [excludedOverride, setExcluded] = useState<Set<SourceName> | null>(null);
   const [limitOverride, setLimitPerSource] = useState<number | null>(null);
@@ -65,24 +68,24 @@ export function QuerySearch({ search, onSearch, sources, healthError, mapIds, on
         {chipError && <div className={styles.queryError}>{chipError}</div>}
 
         <div className={styles.field}>
-          <span className={styles.label}>Filters</span>
+          <span className={styles.label}>{t('query.filters')}</span>
           <div className={styles.chipRow}>
             <input
               className={`${styles.input} ${styles.yearInput}`}
               inputMode="numeric"
-              placeholder="From"
+              placeholder={t('query.from')}
               value={chips.yearFrom}
               onChange={(e) => setChips({ ...chips, yearFrom: e.target.value.replace(/\D/g, '').slice(0, 4) })}
-              aria-label="Year from"
+              aria-label={t('query.yearFrom')}
             />
             <span className={styles.muted}>–</span>
             <input
               className={`${styles.input} ${styles.yearInput}`}
               inputMode="numeric"
-              placeholder="To"
+              placeholder={t('query.to')}
               value={chips.yearTo}
               onChange={(e) => setChips({ ...chips, yearTo: e.target.value.replace(/\D/g, '').slice(0, 4) })}
-              aria-label="Year to"
+              aria-label={t('query.yearTo')}
             />
             <label className={`${styles.chip} ${chips.openAccess ? styles.chipOn : ''}`}>
               <input
@@ -90,7 +93,7 @@ export function QuerySearch({ search, onSearch, sources, healthError, mapIds, on
                 checked={chips.openAccess}
                 onChange={(e) => setChips({ ...chips, openAccess: e.target.checked })}
               />
-              Open access
+              {t('query.openAccess')}
             </label>
           </div>
           <div className={styles.chipRow}>
@@ -105,9 +108,9 @@ export function QuerySearch({ search, onSearch, sources, healthError, mapIds, on
 
         <div className={styles.field}>
           <div className={styles.labelRow}>
-            <span className={styles.label}>Databases</span>
+            <span className={styles.label}>{t('query.databases')}</span>
             <label className={styles.inlineSelect}>
-              per source
+              {t('query.perSource')}
               <select value={limitPerSource} onChange={(e) => setLimitPerSource(Number(e.target.value))}>
                 {SOURCE_LIMIT_OPTIONS.map((n) => (
                   <option key={n} value={n}>
@@ -123,7 +126,7 @@ export function QuerySearch({ search, onSearch, sources, healthError, mapIds, on
               <label
                 key={s.name}
                 className={`${styles.chip} ${s.enabled && !excluded.has(s.name) ? styles.chipOn : ''} ${!s.enabled ? styles.chipDisabled : ''}`}
-                title={s.reason}
+                title={localizedReason(s, t.lang)}
               >
                 <input
                   type="checkbox"
@@ -152,10 +155,10 @@ export function QuerySearch({ search, onSearch, sources, healthError, mapIds, on
         <button type="submit" className={styles.searchBtn} disabled={!canSearch}>
           {loading ? (
             <>
-              Searching… <Elapsed since={search.startedAt} />
+              {t('query.searching')} <Elapsed since={search.startedAt} />
             </>
           ) : (
-            'Search'
+            t('query.search')
           )}
         </button>
       </form>
@@ -165,8 +168,7 @@ export function QuerySearch({ search, onSearch, sources, healthError, mapIds, on
         {response && search.status === 'done' && (
           <>
             <div className={styles.summary}>
-              {response.results.length} results from {response.candidates} candidates in{' '}
-              {(response.tookMs / 1000).toFixed(1)}s
+              {t('query.summary', { n: response.results.length, candidates: response.candidates, secs: (response.tookMs / 1000).toFixed(1) })}
             </div>
             {response.warnings.map((w, i) => (
               <div key={i} className={styles.queryWarning}>

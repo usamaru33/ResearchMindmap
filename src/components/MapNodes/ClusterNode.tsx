@@ -2,12 +2,14 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { Handle, Position, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
 import type { ClusterNodeData } from '../../types';
 import { useMapActions } from '../MindMap/mapActionsContext';
+import { useT } from '../../hooks/useT';
 import styles from './MapNodes.module.css';
 
 function ClusterNodeComponent({ id, data, selected }: NodeProps) {
   const d = data as unknown as ClusterNodeData;
   const left = d.side === 'left';
   const { renameCluster } = useMapActions();
+  const t = useT();
   const [editing, setEditing] = useState(false);
   const updateNodeInternals = useUpdateNodeInternals();
   const prevSide = useRef(d.side);
@@ -27,7 +29,7 @@ function ClusterNodeComponent({ id, data, selected }: NodeProps) {
       className={`${styles.cluster} ${selected ? styles.selected : ''}`}
       style={{ borderColor: d.color, ['--accent' as string]: d.color }}
       onDoubleClick={() => setEditing(true)}
-      title="ダブルクリックで名前を変更"
+      title={t('map.renameCluster')}
     >
       <Handle type="target" position={left ? Position.Right : Position.Left} className={styles.hiddenHandle} />
       <span className={styles.clusterDot} style={{ background: d.color }} />
@@ -36,7 +38,7 @@ function ClusterNodeComponent({ id, data, selected }: NodeProps) {
           className={`${styles.clusterInput} nodrag`}
           defaultValue={d.label}
           autoFocus
-          aria-label="Cluster name"
+          aria-label={t('map.clusterName')}
           onBlur={(e) => commit(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') commit((e.target as HTMLInputElement).value);

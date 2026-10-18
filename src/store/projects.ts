@@ -1,3 +1,4 @@
+import { tr } from '../i18n/current';
 import type { HistoryEntry, LayoutDirection, MapNode, PaperEdge } from '../types';
 
 export const PROJECT_SCHEMA_VERSION = 1;
@@ -141,15 +142,15 @@ export function parseProjectFile(text: string, now = new Date().toISOString()): 
   try {
     raw = JSON.parse(text);
   } catch {
-    throw new ProjectImportError('JSON として読み込めません');
+    throw new ProjectImportError(tr('error.notJson'));
   }
   const p = raw as Partial<Project>;
   if (!p || typeof p !== 'object' || !Array.isArray(p.nodes) || !Array.isArray(p.edges)) {
-    throw new ProjectImportError('Research Mind Map のプロジェクトファイルではありません');
+    throw new ProjectImportError(tr('error.notProject'));
   }
   for (const node of p.nodes) {
     if (!node || typeof node.id !== 'string' || !node.data || !node.position) {
-      throw new ProjectImportError('ノードの形式が正しくありません');
+      throw new ProjectImportError(tr('error.badNodes'));
     }
   }
   return migrateProject({

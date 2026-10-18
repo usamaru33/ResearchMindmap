@@ -1,10 +1,11 @@
 import type { ReadingStatus } from '../../shared/types';
+import type { MessageKey } from '../i18n';
 
-export const STATUS_OPTIONS: Array<{ value: ReadingStatus; label: string; color: string }> = [
-  { value: 'unread', label: 'To read', color: '#94a3b8' },
-  { value: 'reading', label: 'Reading', color: '#f59e0b' },
-  { value: 'read', label: 'Read', color: '#10b981' },
-  { value: 'skipped', label: 'Skipped', color: '#ef4444' },
+export const STATUS_OPTIONS: Array<{ value: ReadingStatus; label: MessageKey; color: string }> = [
+  { value: 'unread', label: 'status.unread', color: '#94a3b8' },
+  { value: 'reading', label: 'status.reading', color: '#f59e0b' },
+  { value: 'read', label: 'status.read', color: '#10b981' },
+  { value: 'skipped', label: 'status.skipped', color: '#ef4444' },
 ];
 
 export function statusInfo(status: ReadingStatus | undefined) {

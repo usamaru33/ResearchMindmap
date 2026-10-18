@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import type { ParseResult } from '../../../shared/query';
+import { useT } from '../../hooks/useT';
 import styles from './SearchPanel.module.css';
 
 interface QueryInputProps {
@@ -35,6 +36,7 @@ function ErrorPreview({ text, start, end }: { text: string; start: number; end: 
 }
 
 export function QueryInput({ value, parse, canonical, onChange, onSubmit }: QueryInputProps) {
+  const t = useT();
   const [showHelp, setShowHelp] = useState(false);
   const id = useId();
   const errors = parse && !parse.ok ? parse.errors : [];
@@ -44,10 +46,10 @@ export function QueryInput({ value, parse, canonical, onChange, onSubmit }: Quer
     <div className={styles.field}>
       <div className={styles.labelRow}>
         <label className={styles.label} htmlFor={id}>
-          Query
+          {t('query.label')}
         </label>
         <button type="button" className={styles.linkBtn} onClick={() => setShowHelp((v) => !v)}>
-          {showHelp ? 'Hide syntax' : 'Syntax help'}
+          {showHelp ? t('query.hideSyntax') : t('query.syntaxHelp')}
         </button>
       </div>
       <textarea
@@ -80,8 +82,8 @@ export function QueryInput({ value, parse, canonical, onChange, onSubmit }: Quer
           </div>
         ))}
         {canonical && !errors.length && (
-          <div className={styles.canonical} title="Normalized query sent to every database">
-            <span className={styles.canonicalLabel}>Parsed as</span> <code>{canonical}</code>
+          <div className={styles.canonical} title={t('query.parsedTitle')}>
+            <span className={styles.canonicalLabel}>{t('query.parsedAs')}</span> <code>{canonical}</code>
           </div>
         )}
       </div>
@@ -89,8 +91,7 @@ export function QueryInput({ value, parse, canonical, onChange, onSubmit }: Quer
       {showHelp && (
         <div className={styles.help}>
           <p>
-            ACM DL / IEEE Xplore / Scopus / Web of Science / PubMed の書き方をそのまま使えます。
-            <kbd>Ctrl</kbd>+<kbd>Enter</kbd> で検索。
+            {t('query.helpIntro')} <kbd>Ctrl</kbd>+<kbd>Enter</kbd> {t('query.helpRun')}
           </p>
           <table>
             <tbody>
@@ -98,33 +99,31 @@ export function QueryInput({ value, parse, canonical, onChange, onSubmit }: Quer
                 <td>
                   <code>"exact phrase"</code>
                 </td>
-                <td>フレーズ</td>
+                <td>{t('query.help.phrase')}</td>
               </tr>
               <tr>
                 <td>
                   <code>AND OR NOT ( )</code>
                 </td>
-                <td>論理演算（大文字）。<code>-word</code> も NOT</td>
+                <td>{t('query.help.boolean')}</td>
               </tr>
               <tr>
                 <td>
                   <code>title: abstract: tiab: author: venue: keyword:</code>
                 </td>
-                <td>
-                  フィールド（<code>TI=</code> <code>"Document Title":</code> <code>[tiab]</code> 等も可）
-                </td>
+                <td>{t('query.help.fields')}</td>
               </tr>
               <tr>
                 <td>
                   <code>year:2019..2024 publisher:acm oa:true</code>
                 </td>
-                <td>絞り込み（最上位の AND にのみ）</td>
+                <td>{t('query.help.filters')}</td>
               </tr>
               <tr>
                 <td>
                   <code>robot*</code>
                 </td>
-                <td>前方一致</td>
+                <td>{t('query.help.wildcard')}</td>
               </tr>
             </tbody>
           </table>

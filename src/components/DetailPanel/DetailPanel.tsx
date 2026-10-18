@@ -5,6 +5,7 @@ import { ReadingSection } from './ReadingSection';
 import { CiteSection } from './CiteSection';
 import { SummarySection } from './SummarySection';
 import { getYearColor } from '../../utils/helpers';
+import { useT } from '../../hooks/useT';
 import styles from './DetailPanel.module.css';
 
 interface DetailPanelProps {
@@ -34,6 +35,7 @@ export function DetailPanel({
   knownTags,
   onUpdateMeta,
 }: DetailPanelProps) {
+  const t = useT();
   const isOpen = paper !== null;
 
   return (
@@ -42,7 +44,7 @@ export function DetailPanel({
         <>
           <div className={styles.header}>
             <span className={styles.headerTitle}>{paper.title}</span>
-            <button className={styles.closeBtn} onClick={onClose}>
+            <button className={styles.closeBtn} onClick={onClose} aria-label={t('common.close')}>
               &times;
             </button>
           </div>
@@ -77,7 +79,7 @@ export function DetailPanel({
             />
 
             <div className={styles.section}>
-              <div className={styles.sectionLabel}>Authors</div>
+              <div className={styles.sectionLabel}>{t('detail.authors')}</div>
               <div>
                 {paper.authors.map((author, i) => (
                   <div key={i} className={styles.authorItem}>
@@ -88,25 +90,25 @@ export function DetailPanel({
             </div>
 
             <div className={styles.section}>
-              <div className={styles.sectionLabel}>Affiliation</div>
+              <div className={styles.sectionLabel}>{t('detail.affiliation')}</div>
               <div className={styles.belongsText}>{paper.belongs}</div>
             </div>
 
             <div className={styles.section}>
-              <div className={styles.sectionLabel}>Abstract</div>
+              <div className={styles.sectionLabel}>{t('detail.abstract')}</div>
               <div className={styles.abstractText}>{paper.abstract}</div>
             </div>
 
             {paper.challenges && (
               <div className={styles.section}>
-                <div className={styles.sectionLabel}>Challenges</div>
+                <div className={styles.sectionLabel}>{t('detail.challenges')}</div>
                 <div className={styles.futureWorkText}>{paper.challenges}</div>
               </div>
             )}
 
             {paper.futureWork && (
               <div className={styles.section}>
-                <div className={styles.sectionLabel}>Future Work</div>
+                <div className={styles.sectionLabel}>{t('detail.futureWork')}</div>
                 <div className={styles.futureWorkText}>{paper.futureWork}</div>
               </div>
             )}
@@ -130,7 +132,7 @@ export function DetailPanel({
 
             <div className={styles.section}>
               <div className={styles.sectionLabel}>
-                References
+                {t('detail.references')}
                 {references.length > 0 && (
                   <span className={styles.citedByCount}>{references.length}</span>
                 )}
@@ -150,13 +152,13 @@ export function DetailPanel({
                   ))}
                 </ul>
               ) : (
-                <div className={styles.emptyNote}>No references</div>
+                <div className={styles.emptyNote}>{t('detail.noReferences')}</div>
               )}
             </div>
 
             <div className={styles.section}>
               <div className={styles.sectionLabel}>
-                Cited by
+                {t('detail.citedBy')}
                 {citedBy.length > 0 && (
                   <span className={styles.citedByCount}>{citedBy.length}</span>
                 )}
@@ -176,7 +178,7 @@ export function DetailPanel({
                   ))}
                 </ul>
               ) : (
-                <div className={styles.emptyNote}>Not cited by any paper</div>
+                <div className={styles.emptyNote}>{t('detail.notCited')}</div>
               )}
             </div>
           </div>
@@ -186,13 +188,13 @@ export function DetailPanel({
               className={styles.editBtn}
               onClick={() => onEdit(paper.id)}
             >
-              Edit
+              {t('detail.edit')}
             </button>
             <button
               className={styles.deleteBtn}
               onClick={() => onDelete(paper.id)}
             >
-              Delete
+              {t('detail.delete')}
             </button>
           </div>
         </>

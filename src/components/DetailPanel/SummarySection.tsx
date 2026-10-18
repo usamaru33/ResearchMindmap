@@ -3,6 +3,7 @@ import { useApiHealth } from '../../hooks/useApiHealth';
 import { useSettings } from '../../hooks/settingsContext';
 import { useStream } from '../../hooks/useStream';
 import { MiniMarkdown } from '../common/MiniMarkdown';
+import { useT } from '../../hooks/useT';
 import styles from './DetailPanel.module.css';
 
 interface SummarySectionProps {
@@ -13,6 +14,7 @@ interface SummarySectionProps {
 export function SummarySection({ paper, onAppendNotes }: SummarySectionProps) {
   const health = useApiHealth();
   const { settings } = useSettings();
+  const t = useT();
   const llmEnabled = health.status === 'ok' && health.health.llm.enabled && settings.useLlm;
   const summary = useStream('/api/llm/summarize');
   const translation = useStream('/api/llm/translate');
@@ -26,15 +28,15 @@ export function SummarySection({ paper, onAppendNotes }: SummarySectionProps) {
         <div className={styles.aiHeader}>
           <span>{label}</span>
           {s.status === 'done' && (
-            <span className={s.mode === 'llm' ? styles.aiBadge : styles.aiBadgeMuted}>{s.mode === 'llm' ? 'LLM' : '抜き出し（LLM なし）'}</span>
+            <span className={s.mode === 'llm' ? styles.aiBadge : styles.aiBadgeMuted}>{s.mode === 'llm' ? t('ai.llm') : t('ai.extractive')}</span>
           )}
-          {s.status === 'streaming' && <span className={styles.aiBadgeMuted}>生成中…</span>}
+          {s.status === 'streaming' && <span className={styles.aiBadgeMuted}>{t('ai.generating')}</span>}
         </div>
         {s.text && <MiniMarkdown text={s.text} className={styles.aiText} />}
         {s.status === 'error' && <div className={styles.errorNote}>{s.message}</div>}
         {s.status === 'done' && (
           <button type="button" className={styles.refLink} onClick={() => onAppendNotes(`【${label}】\n${s.text}`)}>
-            メモに追加
+            {t('ai.appendNotes')}
           </button>
         )}
       </div>
@@ -43,24 +45,24 @@ export function SummarySection({ paper, onAppendNotes }: SummarySectionProps) {
 
   return (
     <div className={styles.section}>
-      <div className={styles.sectionLabel}>AI assist</div>
+      <div className={styles.sectionLabel}>{t('ai.title')}</div>
       <div className={styles.expandButtons}>
         <button type="button" className={styles.expandBtn} disabled={busy || !paper.abstract} onClick={() => summary.run(body)}>
-          要約
+          {t('ai.summarize')}
         </button>
         <button
           type="button"
           className={styles.expandBtn}
           disabled={busy || !paper.abstract || !llmEnabled}
-          title={llmEnabled ? '抄録を日本語に翻訳' : 'ANTHROPIC_API_KEY が必要です'}
+          title={llmEnabled ? t('ai.translateTitle', { lang: t(`ai.lang.${settings.aiLanguage}`) }) : t('ai.needsKey')}
           onClick={() => translation.run(body)}
         >
-          抄録を翻訳
+          {t('ai.translate')}
         </button>
       </div>
-      {!paper.abstract && <div className={styles.emptyNote}>抄録がないため使えません</div>}
-      {result(summary.state, '要約')}
-      {result(translation.state, '翻訳')}
+      {!paper.abstract && <div className={styles.emptyNote}>{t('ai.noAbstract')}</div>}
+      {result(summary.state, t('ai.summary'))}
+      {result(translation.state, t('ai.translation'))}
     </div>
   );
 }

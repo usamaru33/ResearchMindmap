@@ -4,6 +4,7 @@ import type { VagueState } from '../../hooks/useSearch';
 import { useSettings } from '../../hooks/settingsContext';
 import { VAGUE_LIMIT_OPTIONS } from '../../store/settings';
 import { Elapsed, ResultsSection, type BuildMapHandler } from './ResultsSection';
+import { useT } from '../../hooks/useT';
 import styles from './SearchPanel.module.css';
 
 interface VagueSearchProps {
@@ -38,6 +39,7 @@ export function VagueSearch({
 }: VagueSearchProps) {
   const id = useId();
   const { settings } = useSettings();
+  const t = useT();
   const [useLlmOverride, setUseLlm] = useState<boolean | null>(null);
   const useLlm = useLlmOverride ?? settings.useLlm;
   const [yearFrom, setYearFrom] = useState('');
@@ -74,7 +76,7 @@ export function VagueSearch({
       >
         <div className={styles.field}>
           <label className={styles.label} htmlFor={id}>
-            どんな研究？
+            {t('vague.label')}
           </label>
           <textarea
             id={id}
@@ -87,7 +89,7 @@ export function VagueSearch({
                 submit();
               }
             }}
-            placeholder="探したい研究を、思いつくままに書いてください（日本語・英語どちらでも）"
+            placeholder={t('vague.placeholder')}
           />
           {!description && (
             <div className={styles.examples}>
@@ -100,33 +102,33 @@ export function VagueSearch({
           )}
           {!llmActive && hasJapanese(description) && (
             <div className={styles.queryWarning}>
-              LLM なしでは日本語の説明をうまく扱えません。英語で書くか、ANTHROPIC_API_KEY を設定すると精度が上がります。
+              {t('vague.japaneseWarning')}
             </div>
           )}
         </div>
 
         <div className={styles.field}>
-          <span className={styles.label}>Options</span>
+          <span className={styles.label}>{t('vague.options')}</span>
           <div className={styles.chipRow}>
             <input
               className={`${styles.input} ${styles.yearInput}`}
               inputMode="numeric"
-              placeholder="From"
+              placeholder={t('query.from')}
               value={yearFrom}
               onChange={(e) => setYearFrom(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              aria-label="Year from"
+              aria-label={t('query.yearFrom')}
             />
             <span className={styles.muted}>–</span>
             <input
               className={`${styles.input} ${styles.yearInput}`}
               inputMode="numeric"
-              placeholder="To"
+              placeholder={t('query.to')}
               value={yearTo}
               onChange={(e) => setYearTo(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              aria-label="Year to"
+              aria-label={t('query.yearTo')}
             />
             <label className={styles.inlineSelect}>
-              results
+              {t('vague.results')}
               <select value={limit} onChange={(e) => setLimit(Number(e.target.value))}>
                 {VAGUE_LIMIT_OPTIONS.map((n) => (
                   <option key={n} value={n}>
@@ -138,20 +140,20 @@ export function VagueSearch({
           </div>
           <label
             className={`${styles.chip} ${llmActive ? styles.chipOn : ''} ${!llmEnabled ? styles.chipDisabled : ''}`}
-            title={llmEnabled ? 'Claude でクエリを展開し、関連度を判定します' : 'ANTHROPIC_API_KEY が未設定です'}
+            title={llmEnabled ? t('vague.llmTitle') : t('vague.llmMissing')}
           >
             <input type="checkbox" disabled={!llmEnabled} checked={llmActive} onChange={(e) => setUseLlm(e.target.checked)} />
-            Use LLM（クエリ展開・関連度判定）
+            {t('vague.useLlm')}
           </label>
         </div>
 
         <button type="submit" className={styles.searchBtn} disabled={!canSearch}>
           {loading ? (
             <>
-              Searching… <Elapsed since={search.startedAt} />
+              {t('query.searching')} <Elapsed since={search.startedAt} />
             </>
           ) : (
-            'なんとなく検索'
+            t('vague.search')
           )}
         </button>
       </form>
@@ -161,10 +163,9 @@ export function VagueSearch({
         {response && search.status === 'done' && (
           <>
             <div className={styles.summary}>
-              {response.results.length} results from {response.candidates} candidates in{' '}
-              {(response.tookMs / 1000).toFixed(1)}s{' '}
+              {t('query.summary', { n: response.results.length, candidates: response.candidates, secs: (response.tookMs / 1000).toFixed(1) })}{' '}
               <span className={response.mode === 'llm' ? styles.modeLlm : styles.modeFallback}>
-                {response.mode === 'llm' ? 'LLM' : 'LLM なし'}
+                {response.mode === 'llm' ? t('vague.modeLlm') : t('vague.modeFallback')}
               </span>
             </div>
             {response.warnings.map((w, i) => (
@@ -174,7 +175,7 @@ export function VagueSearch({
             ))}
             {response.englishSummary && (
               <div className={styles.interpretation}>
-                <span className={styles.label}>Interpreted as</span>
+                <span className={styles.label}>{t('vague.interpreted')}</span>
                 <p>{response.englishSummary}</p>
                 {response.concepts.length > 0 && (
                   <div className={styles.chipRow}>
@@ -189,13 +190,13 @@ export function VagueSearch({
             )}
             {response.expandedQueries.length > 0 && (
               <div className={styles.field}>
-                <span className={styles.label}>Generated queries — 絞り込みはクエリ検索で</span>
+                <span className={styles.label}>{t('vague.generated')}</span>
                 <ul className={styles.generatedQueries}>
                   {response.expandedQueries.map((q) => (
                     <li key={q}>
                       <code>{q}</code>
                       <button type="button" className={styles.linkBtn} onClick={() => onUseQuery(q)}>
-                        Use
+                        {t('vague.use')}
                       </button>
                     </li>
                   ))}
@@ -207,7 +208,7 @@ export function VagueSearch({
                 <li key={i} className={styles.report} title={s.error ?? s.query}>
                   <span className={`${styles.reportDot} ${styles[s.error ? 'report_error' : 'report_ok']}`} aria-hidden />
                   <span className={styles.reportName}>{s.label}</span>
-                  <span className={styles.reportCount}>{s.error ? <span className={styles.errorText}>error</span> : s.count}</span>
+                  <span className={styles.reportCount}>{s.error ? <span className={styles.errorText}>{t('report.error')}</span> : s.count}</span>
                   {(s.error || s.query) && <span className={styles.reportNote}>{s.error ?? s.query}</span>}
                 </li>
               ))}

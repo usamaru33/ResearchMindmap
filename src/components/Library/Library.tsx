@@ -4,6 +4,8 @@ import { EMPTY_FILTERS, filterPapers, sortPapers, type LibraryFilters, type Sort
 import { getYearColor, truncateAuthors } from '../../utils/helpers';
 import { STATUS_OPTIONS, normalizeTag, statusInfo } from '../../utils/reading';
 import { exportPapers } from '../../utils/bibliography';
+import { useT } from '../../hooks/useT';
+import type { MessageKey } from '../../i18n';
 import styles from './Library.module.css';
 
 interface LibraryProps {
@@ -16,15 +18,16 @@ interface LibraryProps {
   onDraft: (ids: string[]) => void;
 }
 
-const COLUMNS: Array<{ key: SortKey; label: string; className?: string }> = [
-  { key: 'year', label: 'Year', className: styles.colYear },
-  { key: 'title', label: 'Title' },
-  { key: 'citations', label: 'Cites', className: styles.colNum },
-  { key: 'status', label: 'Status', className: styles.colStatus },
+const COLUMNS: Array<{ key: SortKey; label: MessageKey | '★'; className?: string }> = [
+  { key: 'year', label: 'library.col.year', className: styles.colYear },
+  { key: 'title', label: 'library.col.title' },
+  { key: 'citations', label: 'library.col.citations', className: styles.colNum },
+  { key: 'status', label: 'library.col.status', className: styles.colStatus },
   { key: 'rating', label: '★', className: styles.colNum },
 ];
 
 export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDelete, onDraft }: LibraryProps) {
+  const t = useT();
   const [filters, setFilters] = useState<LibraryFilters>(EMPTY_FILTERS);
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'added', dir: 'desc' });
   const [checked, setChecked] = useState<Set<string>>(new Set());
@@ -53,7 +56,7 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
     setBulkTag('');
   };
   const remove = () => {
-    if (window.confirm(`${visibleChecked.length} 件の論文をマップから削除します。よろしいですか？`)) {
+    if (window.confirm(t('library.confirmDelete', { n: visibleChecked.length }))) {
       onDelete(visibleChecked);
       setChecked(new Set());
     }
@@ -66,41 +69,41 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
           className={styles.search}
           type="search"
           value={filters.text}
-          placeholder="Filter by title, author, venue, tag, notes…"
-          aria-label="Filter papers"
+          placeholder={t('library.filter')}
+          aria-label={t('library.filterLabel')}
           onChange={(e) => setFilters({ ...filters, text: e.target.value })}
         />
         <select
           className={styles.select}
           value={filters.status}
-          aria-label="Status filter"
+          aria-label={t('library.statusFilter')}
           onChange={(e) => setFilters({ ...filters, status: e.target.value as LibraryFilters['status'] })}
         >
-          <option value="all">All statuses</option>
+          <option value="all">{t('library.allStatuses')}</option>
           {STATUS_OPTIONS.map((s) => (
             <option key={s.value} value={s.value}>
-              {s.label}
+              {t(s.label)}
             </option>
           ))}
         </select>
         <select
           className={styles.select}
           value={filters.tag ?? ''}
-          aria-label="Tag filter"
+          aria-label={t('library.tagFilter')}
           onChange={(e) => setFilters({ ...filters, tag: e.target.value || null })}
         >
-          <option value="">All tags</option>
-          {knownTags.map((t) => (
-            <option key={t} value={t}>
-              {t}
+          <option value="">{t('library.allTags')}</option>
+          {knownTags.map((tag) => (
+            <option key={tag} value={tag}>
+              {tag}
             </option>
           ))}
         </select>
       </div>
 
       <div className={styles.summary}>
-        {rows.length} / {papers.length} papers
-        {visibleChecked.length > 0 && ` · ${visibleChecked.length} selected`}
+        {t('library.count', { shown: rows.length, total: papers.length })}
+        {visibleChecked.length > 0 && t('library.selected', { n: visibleChecked.length })}
       </div>
 
       {visibleChecked.length > 0 && (
@@ -108,35 +111,35 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
           {STATUS_OPTIONS.map((s) => (
             <button key={s.value} type="button" className={styles.bulkBtn} onClick={() => setStatus(s.value)}>
               <span className={styles.dot} style={{ background: s.color }} />
-              {s.label}
+              {t(s.label)}
             </button>
           ))}
           <input
             className={styles.bulkTag}
             value={bulkTag}
             list="library-tags"
-            placeholder="+ tag"
-            aria-label="Tag selected papers"
+            placeholder={t('reading.tagPlaceholder')}
+            aria-label={t('library.tagSelected')}
             onChange={(e) => setBulkTag(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addTag()}
           />
           <datalist id="library-tags">
-            {knownTags.map((t) => (
-              <option key={t} value={t} />
+            {knownTags.map((tag) => (
+              <option key={tag} value={tag} />
             ))}
           </datalist>
           <button type="button" className={styles.bulkBtn} onClick={() => onDraft(visibleChecked)}>
-            Draft related work
+            {t('library.draft')}
           </button>
           <button
             type="button"
             className={styles.bulkBtn}
             onClick={() => exportPapers(papers.filter((p) => visibleChecked.includes(p.id)), 'bib', 'selected')}
           >
-            Export .bib
+            {t('library.exportBib')}
           </button>
           <button type="button" className={`${styles.bulkBtn} ${styles.danger}`} onClick={remove}>
-            Delete
+            {t('library.delete')}
           </button>
         </div>
       )}
@@ -147,7 +150,7 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
             <th className={styles.colCheck}>
               <input
                 type="checkbox"
-                aria-label="Select all"
+                aria-label={t('library.selectAll')}
                 checked={allChecked}
                 onChange={() => setChecked(allChecked ? new Set() : new Set(rows.map((p) => p.id)))}
               />
@@ -155,7 +158,7 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
             {COLUMNS.map((c) => (
               <th key={c.key} className={c.className} aria-sort={sort.key === c.key ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
                 <button type="button" className={styles.sortBtn} onClick={() => toggleSort(c.key)}>
-                  {c.label}
+                  {c.label === '★' ? c.label : t(c.label)}
                   {sort.key === c.key && <span aria-hidden>{sort.dir === 'asc' ? ' ▲' : ' ▼'}</span>}
                 </button>
               </th>
@@ -168,7 +171,7 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
             return (
               <tr key={p.id} className={`${styles.row} ${p.id === selectedId ? styles.rowSelected : ''}`} onClick={() => onFocus(p.id)}>
                 <td className={styles.colCheck} onClick={(e) => e.stopPropagation()}>
-                  <input type="checkbox" checked={checked.has(p.id)} onChange={() => toggle(p.id)} aria-label={`Select ${p.title}`} />
+                  <input type="checkbox" checked={checked.has(p.id)} onChange={() => toggle(p.id)} aria-label={t('expand.select', { title: p.title })} />
                 </td>
                 <td className={styles.colYear}>
                   <span className={styles.year} style={{ background: getYearColor(p.year) }}>
@@ -183,9 +186,9 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
                   </div>
                   {p.tags && p.tags.length > 0 && (
                     <div className={styles.tags}>
-                      {p.tags.map((t) => (
-                        <span key={t} className={styles.tag}>
-                          {t}
+                      {p.tags.map((tag) => (
+                        <span key={tag} className={styles.tag}>
+                          {tag}
                         </span>
                       ))}
                     </div>
@@ -195,7 +198,7 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
                 <td className={styles.colStatus}>
                   <span className={styles.status} style={{ color: status?.color }}>
                     <span className={styles.dot} style={{ background: status?.color }} />
-                    {status?.label}
+                    {status && t(status.label)}
                   </span>
                 </td>
                 <td className={styles.colNum}>{p.rating ? p.rating : ''}</td>
@@ -204,7 +207,7 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
           })}
         </tbody>
       </table>
-      {rows.length === 0 && <div className={styles.empty}>No papers match the filters.</div>}
+      {rows.length === 0 && <div className={styles.empty}>{t('library.empty')}</div>}
     </div>
   );
 }

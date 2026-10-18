@@ -1,3 +1,4 @@
+import { tr } from '../i18n/current';
 import type { ApiError, HealthResponse } from '../../shared/types';
 
 export class ApiClientError extends Error {
@@ -20,7 +21,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
       headers: { 'content-type': 'application/json', ...init?.headers },
     });
   } catch {
-    throw new ApiClientError(0, 'network', 'API サーバーに接続できません（npm run dev:server で起動してください）');
+    throw new ApiClientError(0, 'network', tr('error.network'));
   }
   const text = await res.text();
   const body = text ? JSON.parse(text) : null;

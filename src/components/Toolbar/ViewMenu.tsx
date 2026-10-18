@@ -1,15 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApiHealth } from '../../hooks/useApiHealth';
+import { useT } from '../../hooks/useT';
 import type { ColorMode } from '../MindMap/mapViewContext';
 import styles from './Toolbar.module.css';
 
-const MODES: Array<{ value: ColorMode; label: string }> = [
-  { value: 'year', label: 'Year' },
-  { value: 'cluster', label: 'Cluster' },
-  { value: 'status', label: 'Reading status' },
-  { value: 'source', label: 'Source' },
-  { value: 'screening', label: 'Screening' },
-];
+const MODES: ColorMode[] = ['year', 'cluster', 'status', 'source', 'screening'];
 
 interface ViewMenuProps {
   colorMode: ColorMode;
@@ -39,6 +34,7 @@ export function ViewMenu({
   const [naming, setNaming] = useState(false);
   const [namingNote, setNamingNote] = useState<string | null>(null);
   const health = useApiHealth();
+  const t = useT();
   const llmEnabled = health.status === 'ok' && health.health.llm.enabled;
   const ref = useRef<HTMLDivElement>(null);
 
@@ -59,40 +55,40 @@ export function ViewMenu({
         aria-haspopup="dialog"
         aria-expanded={open}
       >
-        View ▾
+        {t('view.button')}
       </button>
       {open && (
-        <div className={styles.viewPopover} role="dialog" aria-label="View options">
+        <div className={styles.viewPopover} role="dialog" aria-label={t('view.options')}>
           <label className={styles.viewLabel}>
-            Find in map
+            {t('view.find')}
             <input
               className={styles.viewInput}
               type="search"
               value={filter}
-              placeholder="title, author, tag…"
+              placeholder={t('view.findPlaceholder')}
               onChange={(e) => onFilter(e.target.value)}
               autoFocus
             />
           </label>
-          {matchCount !== null && <div className={styles.viewHint}>{matchCount} matching papers highlighted</div>}
-          <div className={styles.viewLabel}>Color by</div>
-          <div className={styles.viewModes} role="radiogroup" aria-label="Color by">
+          {matchCount !== null && <div className={styles.viewHint}>{t('view.matches', { n: matchCount })}</div>}
+          <div className={styles.viewLabel}>{t('view.colorBy')}</div>
+          <div className={styles.viewModes} role="radiogroup" aria-label={t('view.colorBy')}>
             {MODES.map((m) => (
               <button
-                key={m.value}
+                key={m}
                 type="button"
                 role="radio"
-                aria-checked={colorMode === m.value}
-                className={`${styles.viewMode} ${colorMode === m.value ? styles.viewModeOn : ''}`}
-                onClick={() => onColorMode(m.value)}
+                aria-checked={colorMode === m}
+                className={`${styles.viewMode} ${colorMode === m ? styles.viewModeOn : ''}`}
+                onClick={() => onColorMode(m)}
               >
-                {m.label}
+                {t(`view.mode.${m}`)}
               </button>
             ))}
           </div>
           <label className={styles.viewCheck}>
             <input type="checkbox" checked={sizeByCitations} onChange={(e) => onSizeByCitations(e.target.checked)} />
-            Size by citation count
+            {t('view.sizeByCitations')}
           </label>
           {clusterCount > 0 && (
             <>
@@ -100,16 +96,16 @@ export function ViewMenu({
                 type="button"
                 className={styles.viewMode}
                 disabled={!llmEnabled || naming}
-                title={llmEnabled ? 'クラスタ内の論文から名前を付け直します' : 'ANTHROPIC_API_KEY が必要です（ダブルクリックで手動変更できます）'}
+                title={llmEnabled ? t('view.nameTitle') : t('view.nameNeedsKey')}
                 onClick={async () => {
                   setNaming(true);
                   setNamingNote(await onNameClusters());
                   setNaming(false);
                 }}
               >
-                {naming ? 'Naming…' : 'Name clusters with AI'}
+                {naming ? t('view.naming') : t('view.name')}
               </button>
-              <div className={styles.viewHint}>{namingNote ?? 'クラスタ名はダブルクリックでも変更できます'}</div>
+              <div className={styles.viewHint}>{namingNote ?? t('view.nameHint')}</div>
             </>
           )}
         </div>

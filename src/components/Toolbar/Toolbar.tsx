@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import type { LayoutDirection } from '../../types';
 import { useApiHealth } from '../../hooks/useApiHealth';
+import { localizedReason } from '../../i18n/localized';
+import { useT } from '../../hooks/useT';
 import styles from './Toolbar.module.css';
 
 interface ToolbarProps {
@@ -49,19 +51,20 @@ export function Toolbar({
   onToggleTimeline,
 }: ToolbarProps) {
   const apiHealth = useApiHealth();
+  const t = useT();
   const apiTitle =
     apiHealth.status === 'ok'
       ? `API v${apiHealth.health.version}`
       : apiHealth.status === 'error'
         ? apiHealth.message
-        : 'Connecting…';
+        : t('toolbar.connecting');
   const llmOn = apiHealth.status === 'ok' && apiHealth.health.llm.enabled;
   const llmTitle =
     apiHealth.status === 'ok'
       ? llmOn
-        ? `LLM: ${apiHealth.health.llm.model}`
-        : `LLM off: ${apiHealth.health.llm.reason ?? ''}`
-      : 'LLM status unknown';
+        ? t('toolbar.llmOn', { model: apiHealth.health.llm.model ?? '' })
+        : t('toolbar.llmOff', { reason: localizedReason(apiHealth.health.llm, t.lang) ?? '' })
+      : t('toolbar.llmUnknown');
 
   return (
     <div className={styles.toolbar}>
@@ -70,69 +73,69 @@ export function Toolbar({
         onClick={onToggleSearch}
         aria-pressed={searchOpen}
       >
-        Search
+        {t('toolbar.search')}
       </button>
       <button
         className={`${styles.btn} ${libraryOpen ? styles.btnActive : ''}`}
         onClick={onToggleLibrary}
         aria-pressed={libraryOpen}
       >
-        Library
+        {t('toolbar.library')}
       </button>
       <button
         className={`${styles.btn} ${writeOpen ? styles.btnActive : ''}`}
         onClick={onToggleWrite}
         aria-pressed={writeOpen}
-        title="Draft a related work section from the map"
+        title={t('toolbar.writeTitle')}
       >
-        Write
+        {t('toolbar.write')}
       </button>
       <button
         className={`${styles.btn} ${compareOpen ? styles.btnActive : ''}`}
         onClick={onToggleCompare}
         aria-pressed={compareOpen}
-        title="Literature comparison table"
+        title={t('toolbar.compareTitle')}
       >
-        Compare
+        {t('toolbar.compare')}
       </button>
       <button
         className={`${styles.btn} ${screenOpen ? styles.btnActive : ''}`}
         onClick={onToggleScreen}
         aria-pressed={screenOpen}
-        title="Systematic review screening"
+        title={t('toolbar.screenTitle')}
       >
-        Screen
+        {t('toolbar.screen')}
       </button>
       <button className={styles.btn} onClick={onAddPaper}>
-        + Add Paper
+        {t('toolbar.addPaper')}
       </button>
       <div className={styles.separator} />
       <button className={styles.btn} onClick={onAutoLayout}>
-        Auto Layout
+        {t('toolbar.autoLayout')}
       </button>
       <button className={styles.btn} onClick={onToggleDirection}>
-        {layoutDirection === 'LR' ? 'Left→Right' : 'Top→Bottom'}
+        {layoutDirection === 'LR' ? t('toolbar.leftRight') : t('toolbar.topBottom')}
       </button>
       <div className={styles.separator} />
       <button
         className={`${styles.btn} ${timelineOn ? styles.btnActive : ''}`}
         onClick={onToggleTimeline}
         aria-pressed={timelineOn}
-        title="Arrange papers by year"
+        title={t('toolbar.timelineTitle')}
       >
-        Timeline
+        {t('toolbar.timeline')}
       </button>
       {viewMenu}
       <button
         className={`${styles.btn} ${showCitations ? '' : styles.btnOff}`}
         onClick={onToggleCitations}
         aria-pressed={showCitations}
-        title="Show or hide citation arrows"
+        title={t('toolbar.citationsTitle')}
       >
-        Citations
+        {t('toolbar.citations')}
       </button>
       <button className={styles.btn} onClick={onFitView}>
-        Fit View
+        {t('toolbar.fitView')}
       </button>
       <div className={styles.separator} />
       <span className={styles.status} title={apiTitle}>

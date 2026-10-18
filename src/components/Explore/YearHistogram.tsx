@@ -1,3 +1,4 @@
+import { useT } from '../../hooks/useT';
 import styles from './Explore.module.css';
 
 interface YearHistogramProps {
@@ -8,6 +9,7 @@ interface YearHistogramProps {
 
 /** Publications per year as a compact bar chart, with gaps for silent years. */
 export function YearHistogram({ byYear, onPickYear }: YearHistogramProps) {
+  const t = useT();
   if (byYear.length === 0) return null;
   const first = byYear[0].year;
   const last = byYear[byYear.length - 1].year;
@@ -18,7 +20,7 @@ export function YearHistogram({ byYear, onPickYear }: YearHistogramProps) {
   const peak = byYear.reduce((a, b) => (b.count > a.count ? b : a));
 
   return (
-    <figure className={styles.histogram} aria-label="Publications per year">
+    <figure className={styles.histogram} aria-label={t('hist.label')}>
       <div className={styles.bars}>
         {years.map((y) => {
           const c = counts.get(y) ?? 0;
@@ -28,8 +30,8 @@ export function YearHistogram({ byYear, onPickYear }: YearHistogramProps) {
               type="button"
               className={styles.bar}
               style={{ height: `${Math.max(c ? 6 : 0, (c / max) * 100)}%` }}
-              title={`${y}: ${c} 件`}
-              aria-label={`${y}: ${c} 件`}
+              title={t('hist.bar', { year: y, n: c })}
+              aria-label={t('hist.bar', { year: y, n: c })}
               disabled={!onPickYear || c === 0}
               onClick={() => onPickYear?.(y)}
             />
@@ -38,9 +40,7 @@ export function YearHistogram({ byYear, onPickYear }: YearHistogramProps) {
       </div>
       <figcaption className={styles.histCaption}>
         <span>{first}</span>
-        <span>
-          計 {total} 件・最多 {peak.year} 年（{peak.count} 件）
-        </span>
+        <span>{t('hist.caption', { total, year: peak.year, n: peak.count })}</span>
         <span>{last}</span>
       </figcaption>
     </figure>

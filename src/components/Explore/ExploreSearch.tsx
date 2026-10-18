@@ -15,6 +15,7 @@ import { Elapsed, ResultsSection, type BuildMapHandler } from '../SearchPanel/Re
 import { CoauthorNetwork } from './CoauthorNetwork';
 import { YearHistogram } from './YearHistogram';
 import panel from '../SearchPanel/SearchPanel.module.css';
+import { useT } from '../../hooks/useT';
 import styles from './Explore.module.css';
 
 interface ExploreSearchProps {
@@ -24,10 +25,10 @@ interface ExploreSearchProps {
 }
 
 const LIMITS = [25, 50, 100, 200];
-const KIND_LABEL: Record<ExploreKind, string> = { author: '著者', venue: '会議・ジャーナル' };
 const compact = (n: number) => (n >= 10000 ? `${(n / 1000).toFixed(0)}k` : n.toLocaleString());
 
 export function ExploreSearch({ mapIds, mapPapers, onBuildMap }: ExploreSearchProps) {
+  const t = useT();
   const [kind, setKind] = useState<ExploreKind>('author');
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<ExploreEntity | null>(null);
@@ -84,12 +85,12 @@ export function ExploreSearch({ mapIds, mapPapers, onBuildMap }: ExploreSearchPr
         }}
       >
         <div className={panel.field}>
-          <span className={panel.label}>探す対象</span>
-          <div className={panel.chipRow} role="radiogroup" aria-label="Explore kind">
+          <span className={panel.label}>{t('explore.target')}</span>
+          <div className={panel.chipRow} role="radiogroup" aria-label={t('explore.kindLabel')}>
             {(['author', 'venue'] as const).map((k) => (
               <label key={k} className={`${panel.chip} ${kind === k ? panel.chipOn : ''}`}>
                 <input type="radio" name="explore-kind" checked={kind === k} onChange={() => setKind(k)} />
-                {KIND_LABEL[k]}
+                {t(`explore.kind.${k}`)}
               </label>
             ))}
           </div>
@@ -98,31 +99,31 @@ export function ExploreSearch({ mapIds, mapPapers, onBuildMap }: ExploreSearchPr
           className={panel.input}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={kind === 'author' ? '例: Yann LeCun、Fei-Fei Li' : '例: CHI Conference、IEEE VR、Nature'}
-          aria-label={kind === 'author' ? 'Author name' : 'Venue name'}
+          placeholder={kind === 'author' ? t('explore.authorPlaceholder') : t('explore.venuePlaceholder')}
+          aria-label={kind === 'author' ? t('explore.authorName') : t('explore.venueName')}
         />
         <button type="submit" className={panel.searchBtn} disabled={query.trim().length < 2 || candidates.state.status === 'loading'}>
-          {candidates.state.status === 'loading' ? '検索中…' : `${KIND_LABEL[kind]}を探す`}
+          {candidates.state.status === 'loading' ? t('explore.searching') : t(`explore.find.${kind}`)}
         </button>
       </form>
 
       {candidates.state.status === 'error' && <div className={panel.queryError}>{candidates.state.message}</div>}
       {candidates.state.status === 'done' && !selected && (
         <div className={styles.candidates}>
-          {candidates.state.response.entities.length === 0 && <p className={panel.empty}>見つかりませんでした</p>}
+          {candidates.state.response.entities.length === 0 && <p className={panel.empty}>{t('explore.none')}</p>}
           {candidates.state.response.entities.map((e) => (
             <button key={e.id} type="button" className={styles.candidate} onClick={() => load(e)}>
               <span className={styles.candidateName}>{e.name}</span>
               {e.detail && <span className={styles.candidateDetail}>{e.detail}</span>}
               <span className={styles.candidateStats}>
-                {compact(e.worksCount)} 件・被引用 {compact(e.citedByCount)}
+                {t('explore.stats', { works: compact(e.worksCount), cites: compact(e.citedByCount) })}
                 {e.hIndex !== undefined && `・h ${e.hIndex}`}
               </span>
               {e.topics.length > 0 && <span className={styles.candidateTopics}>{e.topics.join(' / ')}</span>}
             </button>
           ))}
           {candidates.state.response.entities.length > 1 && (
-            <p className={panel.muted}>同名の別人や表記ゆれが分かれていることがあります。所属や分野で選んでください。</p>
+            <p className={panel.muted}>{t('explore.homonyms')}</p>
           )}
         </div>
       )}
@@ -137,13 +138,13 @@ export function ExploreSearch({ mapIds, mapPapers, onBuildMap }: ExploreSearchPr
               </div>
             </div>
             <button type="button" className={panel.linkBtn} onClick={() => setSelected(null)}>
-              候補に戻る
+              {t('explore.back')}
             </button>
           </div>
 
           <div className={panel.chipRow}>
             <label className={panel.inlineSelect}>
-              並び
+              {t('explore.sort')}
               <select
                 value={sort}
                 onChange={(e) => {
@@ -152,12 +153,12 @@ export function ExploreSearch({ mapIds, mapPapers, onBuildMap }: ExploreSearchPr
                   load(selected, { sort: next });
                 }}
               >
-                <option value="cited">被引用数順</option>
-                <option value="recent">新しい順</option>
+                <option value="cited">{t('explore.sort.cited')}</option>
+                <option value="recent">{t('explore.sort.recent')}</option>
               </select>
             </label>
             <label className={panel.inlineSelect}>
-              件数
+              {t('explore.limit')}
               <select
                 value={limit}
                 onChange={(e) => {
@@ -176,28 +177,28 @@ export function ExploreSearch({ mapIds, mapPapers, onBuildMap }: ExploreSearchPr
             <input
               className={`${panel.input} ${panel.yearInput}`}
               inputMode="numeric"
-              placeholder="From"
+              placeholder={t('query.from')}
               value={yearFrom}
               onChange={(e) => setYearFrom(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              aria-label="Explore year from"
+              aria-label={t('explore.yearFrom')}
             />
             <span className={panel.muted}>–</span>
             <input
               className={`${panel.input} ${panel.yearInput}`}
               inputMode="numeric"
-              placeholder="To"
+              placeholder={t('query.to')}
               value={yearTo}
               onChange={(e) => setYearTo(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              aria-label="Explore year to"
+              aria-label={t('explore.yearTo')}
             />
             <button type="button" className={panel.linkBtn} onClick={() => load(selected)}>
-              適用
+              {t('explore.apply')}
             </button>
           </div>
 
           {works.state.status === 'loading' && (
             <p className={panel.muted}>
-              論文を取得中… <Elapsed since={works.state.startedAt} />
+              {t('explore.loading')} <Elapsed since={works.state.startedAt} />
             </p>
           )}
           {works.state.status === 'error' && <div className={panel.queryError}>{works.state.message}</div>}
@@ -205,7 +206,7 @@ export function ExploreSearch({ mapIds, mapPapers, onBuildMap }: ExploreSearchPr
           {response && (
             <>
               <section className={styles.block}>
-                <h4 className={panel.label}>年ごとの論文数</h4>
+                <h4 className={panel.label}>{t('explore.perYear')}</h4>
                 <YearHistogram
                   byYear={response.byYear}
                   onPickYear={(y) => {
@@ -218,13 +219,13 @@ export function ExploreSearch({ mapIds, mapPapers, onBuildMap }: ExploreSearchPr
 
               {flow.length > 1 && (
                 <section className={styles.block}>
-                  <h4 className={panel.label}>研究の流れ（この一覧 {papers.length} 件から）</h4>
+                  <h4 className={panel.label}>{t('explore.flow', { n: papers.length })}</h4>
                   <ol className={styles.flow}>
                     {flow.map((f) => (
                       <li key={f.from}>
                         <span className={styles.flowYears}>
                           {f.from === f.to ? f.from : `${f.from}–${f.to}`}
-                          <small>{f.count} 件</small>
+                          <small>{t('explore.flowCount', { n: f.count })}</small>
                         </span>
                         <span className={styles.flowTopics}>{f.topics.map((t) => t.name).join(' / ') || '—'}</span>
                       </li>
@@ -235,7 +236,7 @@ export function ExploreSearch({ mapIds, mapPapers, onBuildMap }: ExploreSearchPr
 
               {coauthors.length > 0 && (
                 <section className={styles.block}>
-                  <h4 className={panel.label}>よく組む共著者</h4>
+                  <h4 className={panel.label}>{t('explore.coauthors')}</h4>
                   <div className={panel.chipRow}>
                     {coauthors.map((c) => (
                       <button key={c.name} type="button" className={styles.coauthor} onClick={() => exploreAuthor(c.name)}>
@@ -248,12 +249,12 @@ export function ExploreSearch({ mapIds, mapPapers, onBuildMap }: ExploreSearchPr
 
               <section className={styles.block}>
                 <div className={panel.labelRow}>
-                  <h4 className={panel.label}>共著ネットワーク</h4>
-                  <div className={styles.scope} role="radiogroup" aria-label="Network scope">
+                  <h4 className={panel.label}>{t('explore.network')}</h4>
+                  <div className={styles.scope} role="radiogroup" aria-label={t('explore.networkScope')}>
                     {(['list', 'map'] as const).map((s) => (
                       <label key={s} className={`${panel.chip} ${networkScope === s ? panel.chipOn : ''}`}>
                         <input type="radio" name="network-scope" checked={networkScope === s} onChange={() => setNetworkScope(s)} />
-                        {s === 'list' ? 'この一覧' : 'マップ全体'}
+                        {t(`explore.scope.${s}`)}
                       </label>
                     ))}
                   </div>
@@ -266,7 +267,7 @@ export function ExploreSearch({ mapIds, mapPapers, onBuildMap }: ExploreSearchPr
               </section>
 
               <div className={panel.summary}>
-                {response.total.toLocaleString()} 件中 {papers.length} 件を表示
+                {t('explore.shown', { total: response.total.toLocaleString(), n: papers.length })}
               </div>
               <ResultsSection results={papers} mapIds={mapIds} query={listQuery} mode="query" onBuildMap={onBuildMap} />
             </>
@@ -276,7 +277,7 @@ export function ExploreSearch({ mapIds, mapPapers, onBuildMap }: ExploreSearchPr
 
       {!selected && candidates.state.status === 'idle' && mapPapers.length > 1 && (
         <section className={styles.block}>
-          <h4 className={panel.label}>このマップの共著ネットワーク</h4>
+          <h4 className={panel.label}>{t('explore.mapNetwork')}</h4>
           <CoauthorNetwork papers={mapPapers} onPickAuthor={exploreAuthor} />
         </section>
       )}

@@ -8,6 +8,7 @@ import { VagueSearch } from './VagueSearch';
 import { SearchHistory } from './SearchHistory';
 import type { HistoryEntry, Paper } from '../../types';
 import { ExploreSearch } from '../Explore/ExploreSearch';
+import { useT } from '../../hooks/useT';
 import styles from './SearchPanel.module.css';
 
 export type { BuildMapHandler, BuildMode, BuildTarget } from './ResultsSection';
@@ -41,6 +42,7 @@ export function SearchPanel({
   onRemoveHistory,
 }: SearchPanelProps) {
   const health = useApiHealth();
+  const t = useT();
   const [tab, setTab] = useState<Tab>('query');
   const [queryText, setQueryText] = useState('');
   const [description, setDescription] = useState('');
@@ -72,7 +74,7 @@ export function SearchPanel({
           className={`${styles.tab} ${tab === 'query' ? styles.tabActive : ''}`}
           onClick={() => setTab('query')}
         >
-          クエリ検索
+          {t('search.tab.query')}
         </button>
         <button
           type="button"
@@ -81,7 +83,7 @@ export function SearchPanel({
           className={`${styles.tab} ${tab === 'vague' ? styles.tabActive : ''}`}
           onClick={() => setTab('vague')}
         >
-          なんとなく検索
+          {t('search.tab.vague')}
         </button>
         <button
           type="button"
@@ -90,7 +92,7 @@ export function SearchPanel({
           className={`${styles.tab} ${tab === 'explore' ? styles.tabActive : ''}`}
           onClick={() => setTab('explore')}
         >
-          著者・会議
+          {t('search.tab.explore')}
         </button>
       </div>
 

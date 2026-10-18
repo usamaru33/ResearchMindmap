@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Paper } from '../../../shared/types';
 import { SearchResults } from './SearchResults';
+import { useT } from '../../hooks/useT';
 import styles from './SearchPanel.module.css';
 
 export type BuildTarget = 'new' | 'current';
@@ -27,6 +28,7 @@ interface ResultsSectionProps {
 }
 
 export function ResultsSection({ results, reasons, mapIds, query, mode, onBuildMap }: ResultsSectionProps) {
+  const t = useT();
   const [target, setTarget] = useState<BuildTarget>('new');
   const [building, setBuilding] = useState(false);
   const [buildError, setBuildError] = useState<string | null>(null);
@@ -59,10 +61,10 @@ export function ResultsSection({ results, reasons, mapIds, query, mode, onBuildM
   return (
     <>
       <div className={styles.buildBar}>
-        <div className={styles.buildTargets} role="radiogroup" aria-label="Where to build">
+        <div className={styles.buildTargets} role="radiogroup" aria-label={t('results.where')}>
           <label className={`${styles.chip} ${target === 'new' ? styles.chipOn : ''}`}>
             <input type="radio" name={`build-target-${mode}`} checked={target === 'new'} onChange={() => setTarget('new')} />
-            New project
+            {t('results.newProject')}
           </label>
           <label className={`${styles.chip} ${target === 'current' ? styles.chipOn : ''}`}>
             <input
@@ -71,11 +73,11 @@ export function ResultsSection({ results, reasons, mapIds, query, mode, onBuildM
               checked={target === 'current'}
               onChange={() => setTarget('current')}
             />
-            Add to this map
+            {t('results.addToMap')}
           </label>
         </div>
         <button type="button" className={styles.searchBtn} onClick={build} disabled={building || selected.size === 0}>
-          {building ? 'Building map…' : `Build mind map (${selected.size})`}
+          {building ? t('results.building') : t('results.build', { n: selected.size })}
         </button>
         {buildError && <div className={styles.queryError}>{buildError}</div>}
       </div>

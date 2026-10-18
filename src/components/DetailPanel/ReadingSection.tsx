@@ -1,6 +1,8 @@
 import { useId, useState } from 'react';
 import type { Paper } from '../../types';
 import { STATUS_OPTIONS, normalizeTag } from '../../utils/reading';
+import { useT } from '../../hooks/useT';
+import type { MessageKey } from '../../i18n';
 import styles from './DetailPanel.module.css';
 
 interface ReadingSectionProps {
@@ -10,18 +12,19 @@ interface ReadingSectionProps {
   onChange: (patch: Partial<Paper>) => void;
 }
 
-function links(paper: Paper): Array<{ label: string; href: string }> {
+function links(paper: Paper, pageLabel: string): Array<{ label: string; href: string }> {
   const out: Array<{ label: string; href: string }> = [];
   if (paper.pdfUrl) out.push({ label: 'PDF', href: paper.pdfUrl });
   if (paper.ids?.doi) out.push({ label: 'DOI', href: `https://doi.org/${paper.ids.doi}` });
   if (paper.ids?.arxiv) out.push({ label: 'arXiv', href: `https://arxiv.org/abs/${paper.ids.arxiv}` });
   if (paper.ids?.pmid) out.push({ label: 'PubMed', href: `https://pubmed.ncbi.nlm.nih.gov/${paper.ids.pmid}/` });
-  if (paper.url && !out.some((l) => l.href === paper.url)) out.push({ label: 'Page', href: paper.url });
+  if (paper.url && !out.some((l) => l.href === paper.url)) out.push({ label: pageLabel, href: paper.url });
   if (paper.ids?.openalex) out.push({ label: 'OpenAlex', href: `https://openalex.org/${paper.ids.openalex}` });
   return out;
 }
 
 export function ReadingSection({ paper, knownTags, onChange }: ReadingSectionProps) {
+  const t = useT();
   const listId = useId();
   const [tagInput, setTagInput] = useState('');
   // Notes are edited locally and saved on blur, so typing does not churn the store.
@@ -39,7 +42,7 @@ export function ReadingSection({ paper, knownTags, onChange }: ReadingSectionPro
     if (notes !== (paper.notes ?? '')) onChange({ notes });
   };
 
-  const paperLinks = links(paper);
+  const paperLinks = links(paper, t('reading.page'));
 
   return (
     <>
@@ -54,8 +57,8 @@ export function ReadingSection({ paper, knownTags, onChange }: ReadingSectionPro
       )}
 
       <div className={styles.section}>
-        <div className={styles.sectionLabel}>Reading</div>
-        <div className={styles.statusRow} role="radiogroup" aria-label="Reading status">
+        <div className={styles.sectionLabel}>{t('reading.title')}</div>
+        <div className={styles.statusRow} role="radiogroup" aria-label={t('reading.status')}>
           {STATUS_OPTIONS.map((s) => {
             const active = (paper.status ?? 'unread') === s.value;
             return (
@@ -69,19 +72,19 @@ export function ReadingSection({ paper, knownTags, onChange }: ReadingSectionPro
                 onClick={() => onChange({ status: s.value })}
               >
                 <span className={styles.statusDot} style={{ background: s.color }} />
-                {s.label}
+                {t(s.label as MessageKey)}
               </button>
             );
           })}
         </div>
-        <div className={styles.stars} role="radiogroup" aria-label="Rating">
+        <div className={styles.stars} role="radiogroup" aria-label={t('reading.rating')}>
           {[1, 2, 3, 4, 5].map((n) => (
             <button
               key={n}
               type="button"
               role="radio"
               aria-checked={rating === n}
-              aria-label={`${n} star${n > 1 ? 's' : ''}`}
+              aria-label={t('reading.stars', { n })}
               className={`${styles.star} ${n <= rating ? styles.starOn : ''}`}
               // Clicking the current rating clears it.
               onClick={() => onChange({ rating: rating === n ? 0 : n })}
@@ -93,16 +96,16 @@ export function ReadingSection({ paper, knownTags, onChange }: ReadingSectionPro
       </div>
 
       <div className={styles.section}>
-        <div className={styles.sectionLabel}>Tags</div>
+        <div className={styles.sectionLabel}>{t('reading.tags')}</div>
         <div className={styles.tagRow}>
-          {tags.map((t) => (
-            <span key={t} className={styles.tag}>
-              {t}
+          {tags.map((tag) => (
+            <span key={tag} className={styles.tag}>
+              {tag}
               <button
                 type="button"
                 className={styles.tagRemove}
-                aria-label={`Remove tag ${t}`}
-                onClick={() => onChange({ tags: tags.filter((x) => x !== t) })}
+                aria-label={t('reading.removeTag', { tag })}
+                onClick={() => onChange({ tags: tags.filter((x) => x !== tag) })}
               >
                 ×
               </button>
@@ -112,8 +115,8 @@ export function ReadingSection({ paper, knownTags, onChange }: ReadingSectionPro
             className={styles.tagInput}
             value={tagInput}
             list={listId}
-            placeholder="+ tag"
-            aria-label="Add tag"
+            placeholder={t('reading.tagPlaceholder')}
+            aria-label={t('reading.addTag')}
             onChange={(e) => setTagInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ',') {
@@ -126,22 +129,22 @@ export function ReadingSection({ paper, knownTags, onChange }: ReadingSectionPro
             onBlur={() => tagInput && addTag(tagInput)}
           />
           <datalist id={listId}>
-            {knownTags.filter((t) => !tags.includes(t)).map((t) => (
-              <option key={t} value={t} />
+            {knownTags.filter((k) => !tags.includes(k)).map((k) => (
+              <option key={k} value={k} />
             ))}
           </datalist>
         </div>
       </div>
 
       <div className={styles.section}>
-        <div className={styles.sectionLabel}>Notes</div>
+        <div className={styles.sectionLabel}>{t('reading.notes')}</div>
         <textarea
           className={styles.notes}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           onBlur={saveNotes}
-          placeholder="要点、使えそうな手法、疑問点など"
-          aria-label="Notes"
+          placeholder={t('reading.notesPlaceholder')}
+          aria-label={t('reading.notes')}
         />
       </div>
     </>

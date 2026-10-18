@@ -2,12 +2,14 @@ import { useState } from 'react';
 import type { ExpandKind, ExpandResponse, Paper } from '../../../shared/types';
 import { apiPost } from '../../api/client';
 import { getYearColor, truncateAuthors } from '../../utils/helpers';
+import { useT } from '../../hooks/useT';
+import type { MessageKey } from '../../i18n';
 import styles from './DetailPanel.module.css';
 
-const KINDS: Array<{ kind: ExpandKind; label: string; hint: string }> = [
-  { kind: 'references', label: 'References', hint: 'この論文が引用している論文（過去へ）' },
-  { kind: 'citations', label: 'Cited by', hint: 'この論文を引用している論文（未来へ）' },
-  { kind: 'related', label: 'Related', hint: 'OpenAlex が近いと判断した論文' },
+const KINDS: Array<{ kind: ExpandKind; label: MessageKey; hint: MessageKey }> = [
+  { kind: 'references', label: 'expand.references', hint: 'expand.referencesHint' },
+  { kind: 'citations', label: 'expand.citations', hint: 'expand.citationsHint' },
+  { kind: 'related', label: 'expand.related', hint: 'expand.relatedHint' },
 ];
 const PRESELECT = 8;
 
@@ -20,6 +22,7 @@ interface ExpandSectionProps {
 }
 
 export function ExpandSection({ paper, mapIds, onAdd }: ExpandSectionProps) {
+  const t = useT();
   const [loading, setLoading] = useState<ExpandKind | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
@@ -57,7 +60,7 @@ export function ExpandSection({ paper, mapIds, onAdd }: ExpandSectionProps) {
 
   return (
     <div className={styles.section}>
-      <div className={styles.sectionLabel}>Explore</div>
+      <div className={styles.sectionLabel}>{t('expand.title')}</div>
       <div className={styles.expandButtons}>
         {KINDS.map((k) => (
           <button
@@ -66,9 +69,9 @@ export function ExpandSection({ paper, mapIds, onAdd }: ExpandSectionProps) {
             className={`${styles.expandBtn} ${loaded?.kind === k.kind ? styles.expandBtnActive : ''}`}
             onClick={() => load(k.kind)}
             disabled={loading !== null}
-            title={k.hint}
+            title={t(k.hint)}
           >
-            {loading === k.kind ? 'Loading…' : k.label}
+            {loading === k.kind ? t('expand.loading') : t(k.label)}
           </button>
         ))}
       </div>
@@ -77,12 +80,14 @@ export function ExpandSection({ paper, mapIds, onAdd }: ExpandSectionProps) {
         <div className={styles.expandList}>
           <div className={styles.expandHeader}>
             <span>
-              {loaded.response.papers.length}
-              {loaded.response.total > loaded.response.papers.length && ` / ${loaded.response.total}`} papers ·{' '}
-              {loaded.selected.size} selected
+              {loaded.response.total > loaded.response.papers.length
+                ? t('expand.countOf', { shown: loaded.response.papers.length, total: loaded.response.total })
+                : t('expand.count', { shown: loaded.response.papers.length })}
+              {' · '}
+              {t('expand.selected', { n: loaded.selected.size })}
             </span>
             <button type="button" className={styles.refLink} onClick={() => setLoaded(null)}>
-              Close
+              {t('expand.close')}
             </button>
           </div>
           {loaded.response.warnings.map((w) => (
@@ -99,7 +104,7 @@ export function ExpandSection({ paper, mapIds, onAdd }: ExpandSectionProps) {
                     type="checkbox"
                     checked={loaded.selected.has(p.id)}
                     onChange={() => toggle(p.id)}
-                    aria-label={`Select ${p.title}`}
+                    aria-label={t('expand.select', { title: p.title })}
                   />
                   <div>
                     <div className={styles.expandTitle}>
@@ -110,8 +115,8 @@ export function ExpandSection({ paper, mapIds, onAdd }: ExpandSectionProps) {
                     </div>
                     <div className={styles.expandMeta}>
                       {truncateAuthors(p.authors, 2)}
-                      {p.citationCount !== undefined && ` · ${p.citationCount.toLocaleString()} cites`}
-                      {inMap && ' · in map'}
+                      {p.citationCount !== undefined && ` · ${t('expand.cites', { n: p.citationCount.toLocaleString() })}`}
+                      {inMap && ` · ${t('expand.inMap')}`}
                     </div>
                   </div>
                 </li>
@@ -120,7 +125,7 @@ export function ExpandSection({ paper, mapIds, onAdd }: ExpandSectionProps) {
           </ul>
           {loaded.response.papers.length > 0 && (
             <button type="button" className={styles.editBtn} onClick={add} disabled={loaded.selected.size === 0}>
-              Add {loaded.selected.size} to map
+              {t('expand.add', { n: loaded.selected.size })}
             </button>
           )}
         </div>

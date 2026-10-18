@@ -2,14 +2,14 @@ import { useId, useState } from 'react';
 import type { Paper, ResolveItem, ResolveResponse } from '../../../shared/types';
 import { apiPost } from '../../api/client';
 import { truncateAuthors } from '../../utils/helpers';
+import { useT } from '../../hooks/useT';
 import styles from './Sidebar.module.css';
 
-const KIND_LABEL: Record<NonNullable<ResolveItem['kind']>, string> = {
+const KIND_LABEL: Record<Exclude<NonNullable<ResolveItem['kind']>, 'title'>, string> = {
   doi: 'DOI',
   arxiv: 'arXiv',
   openalex: 'OpenAlex',
   pmid: 'PubMed',
-  title: 'Title',
 };
 
 interface IdentifierImportProps {
@@ -18,6 +18,7 @@ interface IdentifierImportProps {
 }
 
 export function IdentifierImport({ mapIds, onAdd }: IdentifierImportProps) {
+  const t = useT();
   const id = useId();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -60,7 +61,7 @@ export function IdentifierImport({ mapIds, onAdd }: IdentifierImportProps) {
   return (
     <div className={styles.importPanel}>
       <label className={styles.importLabel} htmlFor={id}>
-        DOI・arXiv ID・URL・PubMed ID・タイトルを 1 行に 1 件
+        {t('import.label')}
       </label>
       <textarea
         id={id}
@@ -71,15 +72,16 @@ export function IdentifierImport({ mapIds, onAdd }: IdentifierImportProps) {
         spellCheck={false}
       />
       <button type="button" className={styles.importBtn} onClick={resolve} disabled={loading || lines.length === 0}>
-        {loading ? 'Resolving…' : `Resolve ${lines.length || ''}`.trim()}
+        {loading ? t('import.resolving') : lines.length ? t('import.resolveN', { n: lines.length }) : t('import.resolve')}
       </button>
-      {lines.length > 100 && <div className={styles.importNote}>一度に解決できるのは 100 行までです</div>}
+      {lines.length > 100 && <div className={styles.importNote}>{t('import.tooMany')}</div>}
       {error && <div className={styles.importError}>{error}</div>}
 
       {items && (
         <>
           <div className={styles.importNote}>
-            {items.length - failed} found{failed > 0 && ` · ${failed} not found`}
+            {t('import.found', { n: items.length - failed })}
+            {failed > 0 && t('import.notFound', { n: failed })}
           </div>
           <ul className={styles.importList}>
             {items.map((it, i) => (
@@ -93,8 +95,8 @@ export function IdentifierImport({ mapIds, onAdd }: IdentifierImportProps) {
                         {it.paper.title}
                       </span>
                       <span className={styles.importMeta}>
-                        {it.kind && KIND_LABEL[it.kind]} · {truncateAuthors(it.paper.authors, 2)}
-                        {mapIds.has(it.paper.id) && ' · in map'}
+                        {it.kind && (it.kind === 'title' ? t('import.kind.title') : KIND_LABEL[it.kind])} · {truncateAuthors(it.paper.authors, 2)}
+                        {mapIds.has(it.paper.id) && ` · ${t('import.inMap')}`}
                       </span>
                     </span>
                   </label>
@@ -108,7 +110,7 @@ export function IdentifierImport({ mapIds, onAdd }: IdentifierImportProps) {
             ))}
           </ul>
           <button type="button" className={styles.importBtn} onClick={add} disabled={selected.size === 0}>
-            Add {selected.size} to map
+            {t('import.add', { n: selected.size })}
           </button>
         </>
       )}

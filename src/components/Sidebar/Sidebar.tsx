@@ -2,6 +2,8 @@ import { Suspense, useState, type ReactNode } from 'react';
 import type { Paper, SidebarMode } from '../../types';
 import { PaperForm } from '../PaperForm/PaperForm';
 import { IdentifierImport } from './IdentifierImport';
+import { useT } from '../../hooks/useT';
+import type { MessageKey } from '../../i18n';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -20,18 +22,18 @@ interface SidebarProps {
   onAddPapers: (papers: Paper[]) => void;
 }
 
-const TITLES: Record<SidebarMode, string> = {
-  closed: '',
-  search: 'Search papers',
-  library: 'Library',
-  write: 'Draft related work',
-  compare: 'Comparison table',
-  screen: 'Screening',
-  add: 'Add Paper',
-  edit: 'Edit Paper',
+const TITLES: Record<Exclude<SidebarMode, 'closed'>, MessageKey> = {
+  search: 'sidebar.search',
+  library: 'sidebar.library',
+  write: 'sidebar.write',
+  compare: 'sidebar.compare',
+  screen: 'sidebar.screen',
+  add: 'sidebar.add',
+  edit: 'sidebar.edit',
 };
 
 export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, searchPanel, libraryPanel, writingPanel, comparePanel, screeningPanel, mapIds, onAddPapers }: SidebarProps) {
+  const t = useT();
   const [addTab, setAddTab] = useState<'identifiers' | 'manual'>('identifiers');
   const isOpen = mode !== 'closed';
   const isForm = mode === 'add' || mode === 'edit';
@@ -42,14 +44,14 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
       aria-hidden={!isOpen}
     >
       <div className={styles.header}>
-        <span className={styles.headerTitle}>{TITLES[mode]}</span>
-        <button className={styles.closeBtn} onClick={onClose}>
+        <span className={styles.headerTitle}>{mode === 'closed' ? '' : t(TITLES[mode])}</span>
+        <button className={styles.closeBtn} onClick={onClose} aria-label={t('sidebar.close')}>
           &times;
         </button>
       </div>
       <div className={styles.body}>
         <div hidden={mode !== 'search'}>{searchPanel}</div>
-        <Suspense fallback={<div className={styles.loading}>Loading…</div>}>
+        <Suspense fallback={<div className={styles.loading}>{t('sidebar.loading')}</div>}>
           {mode === 'library' && libraryPanel}
           {mode === 'write' && writingPanel}
           {mode === 'compare' && comparePanel}
@@ -64,7 +66,7 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
               className={`${styles.addTab} ${addTab === 'identifiers' ? styles.addTabActive : ''}`}
               onClick={() => setAddTab('identifiers')}
             >
-              From identifiers
+              {t('sidebar.fromIds')}
             </button>
             <button
               type="button"
@@ -73,7 +75,7 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
               className={`${styles.addTab} ${addTab === 'manual' ? styles.addTabActive : ''}`}
               onClick={() => setAddTab('manual')}
             >
-              Manual
+              {t('sidebar.manual')}
             </button>
           </div>
         )}

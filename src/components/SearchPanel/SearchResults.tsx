@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Paper, SourceReport } from '../../../shared/types';
 import { getYearColor, truncateAuthors } from '../../utils/helpers';
+import { useT } from '../../hooks/useT';
 import styles from './SearchPanel.module.css';
 
 const SOURCE_SHORT: Record<string, string> = {
@@ -14,6 +15,7 @@ const SOURCE_SHORT: Record<string, string> = {
 };
 
 export function SourceReports({ reports }: { reports: SourceReport[] }) {
+  const t = useT();
   return (
     <ul className={styles.reports}>
       {reports.map((r) => (
@@ -25,12 +27,12 @@ export function SourceReports({ reports }: { reports: SourceReport[] }) {
               <>
                 {r.kept ?? r.count}
                 <span className={styles.muted}>/{r.count}</span>
-                {r.total !== undefined && <span className={styles.muted}> of {r.total.toLocaleString()}</span>}
+                {r.total !== undefined && <span className={styles.muted}>{t('report.of', { n: r.total.toLocaleString() })}</span>}
               </>
             ) : r.status === 'skipped' ? (
-              <span className={styles.muted}>off</span>
+              <span className={styles.muted}>{t('report.off')}</span>
             ) : (
-              <span className={styles.errorText}>error</span>
+              <span className={styles.errorText}>{t('report.error')}</span>
             )}
           </span>
           {(r.warnings.length > 0 || r.error) && (
@@ -51,6 +53,7 @@ interface ResultItemProps {
 }
 
 function ResultItem({ paper, reason, checked, inMap, onToggle }: ResultItemProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const link = paper.url ?? (paper.ids?.doi ? `https://doi.org/${paper.ids.doi}` : undefined);
   return (
@@ -60,7 +63,7 @@ function ResultItem({ paper, reason, checked, inMap, onToggle }: ResultItemProps
         className={styles.resultCheck}
         checked={checked}
         onChange={onToggle}
-        aria-label={`Select ${paper.title}`}
+        aria-label={t('results.select', { title: paper.title })}
       />
       <div className={styles.resultBody}>
         <div className={styles.resultTitleRow}>
@@ -82,21 +85,21 @@ function ResultItem({ paper, reason, checked, inMap, onToggle }: ResultItemProps
               {SOURCE_SHORT[s] ?? s}
             </span>
           ))}
-          {paper.citationCount !== undefined && <span className={styles.metaTag}>{paper.citationCount.toLocaleString()} cites</span>}
+          {paper.citationCount !== undefined && <span className={styles.metaTag}>{t('results.cites', { n: paper.citationCount.toLocaleString() })}</span>}
           {paper.pdfUrl && <span className={styles.metaTag}>PDF</span>}
-          {inMap && <span className={styles.inMapTag}>in map</span>}
+          {inMap && <span className={styles.inMapTag}>{t('results.inMap')}</span>}
           {paper.relevance !== undefined && (
-            <span className={styles.relevance} title={`Relevance ${paper.relevance}`}>
+            <span className={styles.relevance} title={t('results.relevance', { n: paper.relevance })}>
               <span style={{ width: `${Math.round(paper.relevance * 100)}%` }} />
             </span>
           )}
         </div>
         {open && (
           <div className={styles.resultDetail}>
-            {paper.abstract ? <p>{paper.abstract}</p> : <p className={styles.muted}>No abstract available.</p>}
+            {paper.abstract ? <p>{paper.abstract}</p> : <p className={styles.muted}>{t('results.noAbstract')}</p>}
             {link && (
               <a href={link} target="_blank" rel="noreferrer">
-                Open ↗
+                {t('results.open')}
               </a>
             )}
           </div>
@@ -116,21 +119,22 @@ interface SearchResultsProps {
 }
 
 export function SearchResults({ results, reasons, selected, mapIds, onToggle, onSelectAll }: SearchResultsProps) {
+  const t = useT();
   if (results.length === 0) {
-    return <div className={styles.empty}>No results. Try fewer terms, OR alternatives, or removing filters.</div>;
+    return <div className={styles.empty}>{t('results.empty')}</div>;
   }
   return (
     <div>
       <div className={styles.resultsHeader}>
         <span>
-          {results.length} results · {selected.size} selected
+          {t('results.count', { n: results.length, selected: selected.size })}
         </span>
         <span className={styles.resultsActions}>
           <button type="button" className={styles.linkBtn} onClick={() => onSelectAll(true)}>
-            All
+            {t('results.all')}
           </button>
           <button type="button" className={styles.linkBtn} onClick={() => onSelectAll(false)}>
-            None
+            {t('results.none')}
           </button>
         </span>
       </div>
