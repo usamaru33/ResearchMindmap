@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { isPaperNode, type MindMapState, type Paper } from '../types';
-import { buildCitationEdges, createPaperNode, initMindMapState, mindMapReducer } from './mindMapReducer';
+import { buildCitationEdges, createPaperNode, initMindMapState, mergeImportedPaper, mindMapReducer } from './mindMapReducer';
 
 function paper(id: string, references: string[] = []): Paper {
   return {
@@ -312,5 +312,25 @@ describe('search history', () => {
     expect(s.history).toHaveLength(1);
     expect(s.history[0].seen).toEqual(['c', 'a', 'b']);
     expect(s.history[0].checkedAt).toBe('2026-10-18');
+  });
+});
+
+describe('mergeImportedPaper', () => {
+  const existing: Paper = { ...paper('arxiv:1810.04805'), title: 'BERT: Pre-training of Deep Bidirectional Transformers', authors: ['Jacob Devlin'], venue: 'NAACL', ids: { arxiv: '1810.04805' } };
+
+  it('refreshes metadata when the record is the same work', () => {
+    const incoming: Paper = { ...existing, title: 'BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding', venue: 'NAACL-HLT', citationCount: 9 };
+    expect(mergeImportedPaper(existing, incoming)).toMatchObject({ venue: 'NAACL-HLT', citationCount: 9 });
+  });
+
+  it('only fills gaps from a record whose title disagrees', () => {
+    const wrong: Paper = { ...paper('arxiv:1810.04805'), title: 'AI-Assisted Pipeline for Dynamic Generation of Content', authors: ['Someone'], venue: 'LIPIcs', abstract: 'Unrelated.', ids: { arxiv: '1810.04805', openalex: 'W1' } };
+    expect(mergeImportedPaper(existing, wrong)).toMatchObject({
+      title: existing.title,
+      authors: ['Jacob Devlin'],
+      venue: 'NAACL',
+      abstract: 'Unrelated.',
+      ids: { arxiv: '1810.04805', openalex: 'W1' },
+    });
   });
 });

@@ -1,5 +1,6 @@
 import { MarkerType } from '@xyflow/react';
 import { isPaperNode, type MindMapState, type MindMapAction, type MapNode, type MapSnapshot, type PaperNode, type PaperEdge, type Paper } from '../types';
+import { titleSimilarity } from '../../shared/ids';
 import { matchExisting } from './identity';
 import { mergeSeen } from './alerts';
 import { mergePaperRecords } from './libraryCheck';
@@ -78,9 +79,21 @@ function updatePaper(node: MapNode, patch: (paper: Paper) => Paper): MapNode {
 // Fields the user owns; a re-import must not overwrite them.
 const USER_FIELDS = ['challenges', 'futureWork', 'thumbnailUrl', 'status', 'tags', 'notes', 'rating', 'screening', 'comparison', 'citeKey', 'addedAt'] as const;
 
-/** Refresh an existing paper with newly fetched metadata, keeping user edits and links. */
+/**
+ * Refresh an existing paper with newly fetched metadata, keeping user edits and links.
+ * When the titles disagree, the incoming record is probably a catalogue error filed under
+ * the same id: it only fills fields the existing paper lacks.
+ */
 export function mergeImportedPaper(existing: Paper, incoming: Paper): Paper {
+  const suspect = !!existing.title && !!incoming.title && titleSimilarity(existing.title, incoming.title) < 0.5;
   const merged: Paper = { ...existing, ...incoming };
+  if (suspect) {
+    Object.assign(merged, existing, { ids: { ...incoming.ids, ...existing.ids } });
+    for (const [key, value] of Object.entries(existing) as Array<[keyof Paper, unknown]>) {
+      const empty = value === '' || value === 0 || (Array.isArray(value) && value.length === 0);
+      if (empty && incoming[key] !== undefined) (merged as unknown as Record<string, unknown>)[key] = incoming[key];
+    }
+  }
   for (const key of USER_FIELDS) {
     const value = existing[key];
     if (value !== undefined && value !== '') (merged as unknown as Record<string, unknown>)[key] = value;

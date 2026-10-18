@@ -69,6 +69,16 @@ describe('resolveIdentifier', () => {
     expect(r.paper?.ids).toMatchObject({ arxiv: '1706.03762', doi: '10.65215/odd' });
   });
 
+  it('prefers arXiv when OpenAlex files the arXiv DOI under another title', async () => {
+    const feed = '<feed xmlns="http://www.w3.org/2005/Atom"><entry><id>http://arxiv.org/abs/1810.04805v2</id><title>BERT: Pre-training of Deep Bidirectional Transformers</title><published>2018-10-11T00:00:00Z</published><author><name>Jacob Devlin</name></author><summary>x</summary></entry></feed>';
+    const { http: h } = http([
+      [/works\/doi:10\.48550\/arxiv\.1810\.04805/, 200, { id: 'https://openalex.org/W2896457183', doi: 'https://doi.org/10.4230/lipics.x', title: 'AI-Assisted Pipeline for Dynamic Generation' }],
+      [/export\.arxiv\.org/, 200, feed],
+    ]);
+    const r = await resolveIdentifier('https://arxiv.org/abs/1810.04805', { http: h });
+    expect(r.paper?.title).toBe('BERT: Pre-training of Deep Bidirectional Transformers');
+  });
+
   it('picks the most cited exact-title match', async () => {
     const work = (id: string, title: string, cites: number) => ({ id: `https://openalex.org/${id}`, title, cited_by_count: cites, publication_year: 2017 });
     const { http: h } = http([
