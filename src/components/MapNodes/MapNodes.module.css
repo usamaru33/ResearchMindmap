@@ -98,3 +98,81 @@
   border-radius: 4px;
   outline: none;
 }
+
+.note {
+  position: relative;
+  width: 220px;
+  min-height: 60px;
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: #1f2937;
+  border: 1px solid;
+  border-radius: 4px 4px 14px 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  cursor: grab;
+}
+
+.noteText {
+  overflow-wrap: anywhere;
+}
+
+.noteText p {
+  margin: 0 0 4px;
+}
+
+.noteText ul {
+  padding-left: 1.1em;
+}
+
+.noteInput {
+  width: 100%;
+  min-height: 80px;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: vertical;
+}
+
+.noteHandle {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border: 1px solid #fff;
+  opacity: 0;
+}
+
+.note:hover .noteHandle,
+.note.selected .noteHandle {
+  opacity: 1;
+}
+
+.noteColors {
+  position: absolute;
+  bottom: -26px;
+  left: 0;
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+}
+
+.noteColors button {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 2px solid;
+  border-radius: 50%;
+}
+
+.noteColors button[aria-pressed='true'] {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 1px;
+}

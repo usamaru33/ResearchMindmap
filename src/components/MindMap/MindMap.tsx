@@ -19,6 +19,8 @@ import type { UndoAction } from '../../store/undo';
 import { PaperNode as PaperNodeComponent } from '../PaperNode/PaperNode';
 import { ClusterNode } from '../MapNodes/ClusterNode';
 import { QueryRootNode } from '../MapNodes/QueryRootNode';
+import { NoteNode } from '../MapNodes/NoteNode';
+import { NOTE_STYLE } from '../MapNodes/noteColors';
 import { Toolbar } from '../Toolbar/Toolbar';
 import { useAutoLayout } from '../../hooks/useAutoLayout';
 import { useSettings } from '../../hooks/settingsContext';
@@ -37,7 +39,7 @@ import { EMPTY_FILTERS, filterPapers } from '../../store/library';
 import { isCitationEdge } from '../../store/mindMapReducer';
 import styles from './MindMap.module.css';
 
-const nodeTypes = { paper: PaperNodeComponent, query: QueryRootNode, cluster: ClusterNode };
+const nodeTypes = { paper: PaperNodeComponent, query: QueryRootNode, cluster: ClusterNode, note: NoteNode };
 
 interface MindMapProps {
   nodes: MapNode[];
@@ -88,7 +90,7 @@ export function MindMap({
   filter,
   onFilter,
 }: MindMapProps) {
-  const { fitView } = useReactFlow();
+  const { fitView, screenToFlowPosition } = useReactFlow();
   const { applyLayout } = useAutoLayout();
   const { settings } = useSettings();
   const t = useT();
@@ -116,7 +118,11 @@ export function MindMap({
   );
 
   const actions: MapActions = useMemo(
-    () => ({ renameCluster: (id, label) => dispatch({ type: 'RENAME_CLUSTERS', payload: { [id]: label } }) }),
+    () => ({
+      renameCluster: (id, label) => dispatch({ type: 'RENAME_CLUSTERS', payload: { [id]: label } }),
+      updateNote: (id, patch) => dispatch({ type: 'UPDATE_NOTE', payload: { id, patch } }),
+      removeNote: (id, discard) => dispatch(discard ? { type: 'DISCARD_NOTE', payload: id } : { type: 'DELETE_PAPERS', payload: [id] }),
+    }),
     [dispatch],
   );
   const clusterCount = useMemo(() => nodes.filter((n) => n.type === 'cluster').length, [nodes]);
@@ -240,9 +246,27 @@ export function MindMap({
     [dispatch],
   );
 
-  const onPaneClick = useCallback(() => {
-    dispatch({ type: 'SELECT_NODE', payload: null });
-  }, [dispatch]);
+  const addNoteAt = useCallback(
+    (clientX: number, clientY: number) => {
+      const p = screenToFlowPosition({ x: clientX, y: clientY });
+      dispatch({ type: 'ADD_NOTE', payload: { id: `note-${generateId()}`, position: { x: p.x - 110, y: p.y - 30 } } });
+    },
+    [dispatch, screenToFlowPosition],
+  );
+
+  // A double-click on the empty canvas places a note there (instead of zooming in).
+  const onPaneClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.detail === 2) addNoteAt(e.clientX, e.clientY);
+      else dispatch({ type: 'SELECT_NODE', payload: null });
+    },
+    [dispatch, addNoteAt],
+  );
+
+  const handleAddNote = useCallback(() => {
+    const pane = document.querySelector('.react-flow')?.getBoundingClientRect();
+    addNoteAt(pane ? pane.left + pane.width / 2 : window.innerWidth / 2, pane ? pane.top + pane.height / 2 : window.innerHeight / 2);
+  }, [addNoteAt]);
 
   const handleToggleTimeline = useCallback(() => {
     if (timeline) {
@@ -284,6 +308,7 @@ export function MindMap({
   const minimapNodeColor = useCallback((node: MapNode) => {
     if (node.type === 'query') return '#1a1a2e';
     if (node.type === 'cluster') return node.data.color;
+    if (node.type === 'note') return NOTE_STYLE[node.data.color]?.border ?? '#eab308';
     return getYearColor(node.data.paper.year);
   }, []);
 
@@ -302,6 +327,7 @@ export function MindMap({
           // One undo step per drag, taken before the first move.
           onNodeDragStart={() => dispatch({ type: 'CHECKPOINT' })}
               onPaneClick={onPaneClick}
+              zoomOnDoubleClick={false}
               nodeTypes={nodeTypes}
               fitView
               fitViewOptions={{ padding: 0.3 }}
@@ -350,6 +376,7 @@ export function MindMap({
               screenOpen={screenOpen}
               onToggleAnalyze={onToggleAnalyze}
               analyzeOpen={analyzeOpen}
+              onAddNote={handleAddNote}
                   onFitView={handleFitView}
                   onToggleDirection={handleToggleDirection}
                   showCitations={showCitations}
