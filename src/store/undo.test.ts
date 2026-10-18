@@ -74,3 +74,21 @@ describe('automatic layouts', () => {
     expect(s.past).toHaveLength(1);
   });
 });
+
+describe('undo and notes', () => {
+  it('never brings back an empty draft note', () => {
+    const base = initMindMapState({ nodes: [], edges: [], layoutDirection: 'LR' });
+    const reduce = withUndo(mindMapReducer);
+    let s = initUndoState(base);
+    s = reduce(s, { type: 'ADD_NOTE', payload: { id: 'n1', position: { x: 0, y: 0 } } });
+    expect(s.past).toHaveLength(0);
+    s = reduce(s, { type: 'UPDATE_NOTE', payload: { id: 'n1', patch: { text: 'idea' } } });
+    s = reduce(s, { type: 'UNDO' });
+    expect(s.present.nodes).toEqual([]);
+    s = reduce(s, { type: 'REDO' });
+    expect(s.present.nodes.map((n) => n.data)).toEqual([{ text: 'idea', color: 'yellow' }]);
+    s = reduce(s, { type: 'ADD_NOTE', payload: { id: 'n2', position: { x: 0, y: 0 } } });
+    s = reduce(s, { type: 'DISCARD_NOTE', payload: 'n2' });
+    expect(s.past).toHaveLength(1);
+  });
+});

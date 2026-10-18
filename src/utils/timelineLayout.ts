@@ -42,7 +42,8 @@ export function timelineLayout(nodes: MapNode[]): TimelineResult {
       })
       .forEach((n, i) => positions.set(n.id, { x: colX.get(year)!, y: i * ROW_HEIGHT }));
   }
-  const others = nodes.filter((n) => !isPaperNode(n));
+  // Roots and clusters are stacked at the side; notes stay where they are.
+  const others = nodes.filter((n) => !isPaperNode(n) && n.type !== 'note');
   others.forEach((n, i) => positions.set(n.id, { x: -LABEL_GAP, y: i * 90 }));
 
   return {

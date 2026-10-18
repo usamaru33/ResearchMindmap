@@ -36,7 +36,18 @@ export interface ClusterNodeData extends Record<string, unknown> {
 
 export type ClusterNode = Node<ClusterNodeData, 'cluster'>;
 
-export type MapNode = PaperNode | QueryRootNode | ClusterNode;
+export const NOTE_COLORS = ['yellow', 'pink', 'green', 'blue', 'gray'] as const;
+export type NoteColor = (typeof NOTE_COLORS)[number];
+
+/** A free-form sticky note placed by the user. */
+export interface NoteNodeData extends Record<string, unknown> {
+  text: string;
+  color: NoteColor;
+}
+
+export type NoteNode = Node<NoteNodeData, 'note'>;
+
+export type MapNode = PaperNode | QueryRootNode | ClusterNode | NoteNode;
 
 export interface PaperEdgeData extends Record<string, unknown> {
   relationship: string;
@@ -117,6 +128,10 @@ export type MindMapAction =
   | { type: 'ADD_PAPERS'; payload: { papers: Paper[]; center: { x: number; y: number } } }
   | { type: 'MERGE_PAPERS'; payload: { keepId: string; mergeIds: string[] } }
   | { type: 'RENAME_TAG'; payload: { from: string; to: string | null } }
+  | { type: 'ADD_NOTE'; payload: { id: string; position: { x: number; y: number }; color?: NoteColor } }
+  | { type: 'UPDATE_NOTE'; payload: { id: string; patch: Partial<NoteNodeData> } }
+  /** Drop a note left empty (not an undo step). */
+  | { type: 'DISCARD_NOTE'; payload: string }
   | { type: 'ADD_LINKED_PAPERS'; payload: { anchorId: string; papers: Paper[]; kind: ExpandKind } }
   | { type: 'REQUEST_VIEW'; payload: ViewRequest['kind'] };
 

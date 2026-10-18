@@ -347,3 +347,19 @@ describe('RENAME_TAG', () => {
     expect(tagsOf(removed)).toEqual([['haptics'], undefined, []]);
   });
 });
+
+describe('notes', () => {
+  it('adds, edits, connects and deletes a note without touching papers', () => {
+    let s = stateOf([paper('a')]);
+    s = mindMapReducer(s, { type: 'ADD_NOTE', payload: { id: 'note-1', position: { x: 5, y: 6 } } });
+    expect(s.nodes[1]).toMatchObject({ id: 'note-1', type: 'note', position: { x: 5, y: 6 }, data: { text: '', color: 'yellow' } });
+    expect(s.selectedNodeId).toBe('note-1');
+    s = mindMapReducer(s, { type: 'UPDATE_NOTE', payload: { id: 'note-1', patch: { text: 'Why?', color: 'pink' } } });
+    expect(s.nodes[1].data).toEqual({ text: 'Why?', color: 'pink' });
+    s = mindMapReducer(s, { type: 'ADD_CONNECTION', payload: { id: 'e-1', source: 'note-1', target: 'a', relationship: 'asks' } });
+    expect(s.edges.map((e) => e.id)).toContain('e-1');
+    s = mindMapReducer(s, { type: 'DELETE_PAPERS', payload: ['note-1'] });
+    expect(s.nodes.map((n) => n.id)).toEqual(['a']);
+    expect(s.edges).toEqual([]);
+  });
+});

@@ -41,3 +41,20 @@ describe('paperRoles', () => {
     expect(roles.has('mid')).toBe(false);
   });
 });
+
+describe('layouts and notes', () => {
+  it('leave notes where the user put them', async () => {
+    const { getLayoutedElements } = await import('./layout');
+    const paperNode = (id: string, year: number) => ({ id, type: 'paper' as const, position: { x: 0, y: 0 }, data: { paper: { ...makePaperLike(id), year }, isExpanded: false } });
+    const note = { id: 'note-1', type: 'note' as const, position: { x: 999, y: -42 }, data: { text: 'x', color: 'yellow' as const } };
+    const nodes = [paperNode('a', 2017), note, paperNode('b', 2019)];
+    const laid = getLayoutedElements(nodes, [], 'LR').nodes;
+    expect(laid.map((n) => n.id)).toEqual(['a', 'note-1', 'b']);
+    expect(laid[1].position).toEqual({ x: 999, y: -42 });
+    expect(timelineLayout(nodes).nodes[1].position).toEqual({ x: 999, y: -42 });
+  });
+});
+
+function makePaperLike(id: string) {
+  return { id, title: id, authors: [], belongs: '', year: 0, venue: '', abstract: '', challenges: '', futureWork: '', references: [] };
+}
