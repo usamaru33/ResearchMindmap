@@ -364,6 +364,8 @@ RQL → parse → AST
 | POST | `/api/papers/recommend` | `{ seeds: [{ id, ids }], exclude: openalexId[], limit? }` | `{ papers, reasons: {id: {cocited, citing, related}}, seeds, candidates }` |
 | POST | `/api/explore/search` | `{ kind: 'author' \| 'venue', query }` | `{ entities: ExploreEntity[] }` |
 | POST | `/api/explore/works` | `{ kind, id, limit?, sort?: 'cited' \| 'recent', yearMin?, yearMax? }` | `{ papers, total, byYear }` |
+| POST | `/api/papers/check` | `{ papers: [{ id, title, year, type?, ids? }] (≤300) }` | `{ retracted: id[], published: { [id]: Paper }, checked, warnings }` |
+| POST | `/api/trends` | `{ queries: string[] (1–5), yearMin?, yearMax?, share?(既定 true) }` | `{ series: [{ query, byYear, total, warnings, error? }], all?: byYear }` |
 
 ### 8.1 設定（`.env`）
 
@@ -496,3 +498,57 @@ CACHE_TTL_HOURS=72
 | DBLP のボット対策 | 取得失敗 | ベストエフォート扱い（既定で無効、設定で有効化） |
 | LLM キーなし | なんとなく検索の精度低下、執筆支援が使えない | 埋め込み検索（OpenAlex）と BM25 で代替。執筆支援はテンプレート出力に退避 |
 | 外部 API の仕様変更 | アダプタ破損 | fixture テスト、アダプタを 1 ファイルずつに分離 |
+
+---
+
+## 13. 追加機能（M5）
+
+### 13.1 原稿の引用チェック（D7）
+
+- 執筆パネルのタブ「引用チェック」。原稿（LaTeX / Markdown）を貼るか `.tex` / `.md` を読み込む。原稿は保存しない（画面を閉じると消える）
+- 読み取る引用: `\cite{a,b}` 系（`\citep` `\citet` `\parencite` `\textcite` `\autocite` `\nocite` など、`*` と `[前][後]` の引数つきも）、Pandoc の `[@a; @b, p. 3]` と `@a`。`%` 以降の LaTeX コメントは読まない
+- 引用キーは、BibTeX から取り込んだ論文は元のキー（`Paper.citeKey`）、それ以外は D1 と同じ規則（`vaswani2017attention`）。元のキーと重ならないように生成する
+- 結果: 引用した論文と回数（最初に出る行）、マップにないキー（似たキーの候補つき）、マップにあるが引用していない論文。引用した論文だけの `.bib` を出せる（キーは原稿と同じ）
+
+### 13.2 参考文献リストの取り込み（A13）
+
+- 「識別子から追加」に「参考文献リスト」モードを足す。貼り付けた文を `[1]` / `1.` / 空行 / 行頭の著者名（APA）で 1 件ずつに分け、PDF のコピーで入る行の途中の改行・ハイフン区切りをつなぐ（`src/utils/referenceList.ts`）
+- `/api/resolve` に種別 `citation` を足す。DOI や arXiv ID を含む行はそれを使い、それ以外は Crossref の `query.bibliographic` で上位 3 件を取り、題名の類似度（引用文の中に題名の語がどれだけ含まれるか）と年の一致で選ぶ。見つかった DOI は OpenAlex で引き直して被引用数・参考文献などを補う
+- 照合の確からしさ（`confidence`: high / low）を返し、低いものは画面で確認を促す（既定で取り込みの対象から外す）
+
+### 13.3 文献チェック（B9）
+
+| 項目 | 判定 | 対処 |
+|---|---|---|
+| 撤回 | OpenAlex の `is_retracted`（DOI / OpenAlex ID で 50 件ずつ） | タグ「retracted」を付ける / 削除 |
+| 公開版のあるプレプリント | 種類が preprint か arXiv だけの論文を、題名（類似度 0.9 以上）・年（同じか後）で検索し、preprint 以外のもの | 公開版の書誌（DOI・掲載先・年・種類）に置き換える。メモ・タグ・評価などは残す |
+| 重複 | マップ内で DOI・arXiv ID・正規化題名が一致する別ノード | 1 つに統合（`MERGE_PAPERS`） |
+| 書誌の欠け | 年・著者・掲載先・抄録・DOI のない論文 | 詳細パネルで編集 |
+
+- サーバー側（撤回・公開版）は `/api/papers/check`。公開版の検索は 1 回 30 件まで。失敗しても他の項目は出す
+- `MERGE_PAPERS { keepId, mergeIds }`: 残す論文に書誌（空の欄・ID・タグの和・長いメモ）を足し、消す論文を指す `references` と手動エッジを残す論文へ付け替え、自己参照と重複エッジを除く。元に戻せる
+
+### 13.4 タグの管理（B10）
+
+- ライブラリの「タグの管理」で、タグごとの件数と、名前の変更・既存タグへの統合（同じ名前に変えると統合）・削除をする。`RENAME_TAG { from, to | null }` は 1 回の操作として元に戻せる
+
+### 13.5 分析パネル（C9, C10）
+
+- Toolbar に「分析」を足し、タブ「このマップ」と「研究動向」を持つ
+- このマップ: 論文数・読了率・OA の割合・被引用数の中央値、年ごとの件数、掲載先・著者（8.2 と同じ同一視）・タグ・出版社の上位、読書状況・スクリーニングの内訳、被引用数の上位。項目を押すとマップのフィルタ（C3）にその語を入れる
+- 研究動向: 最大 5 つの RQL クエリについて、OpenAlex の `group_by=publication_year` で年ごとの件数を取る（クエリの OpenAlex 向けコンパイルを使い、取得後の絞り込みはできないので近似であることを警告で示す）。全論文の年ごとの件数も取り、割合（‰）で比べられる。SVG の折れ線、CSV 出力。1 つのクエリが失敗しても他は出す
+
+### 13.6 文献ノートの書き出し（D8）
+
+- プロジェクトメニューの書き出しに「文献ノート (.md)」。論文ごとに見出し・書誌・引用キー・読書状況・評価・タグ・比較表の値・メモ・抄録を並べる
+- Obsidian 向け: 論文ごとに YAML front matter（title, authors, year, citekey, tags, status）を持つ節に分け、引用関係を `[[引用キー]]` のリンクで書く。1 ファイルにまとめ、区切り行で分ける（zip は使わない）
+
+### 13.7 コマンドパレット（E9）
+
+- Ctrl+K（Mac は ⌘K）で開く。操作（パネルを開く・配置・書き出し・設定など）と、マップの論文（題名・著者・年）を一緒に絞り込む。↑↓ で選び Enter で実行、論文は選ぶとマップでその位置へ移動する
+- 照合は語ごとの部分一致（大文字小文字・全角半角を無視）。操作は表示言語の名前と英語名の両方で引ける
+
+### 13.8 マップの注釈（E10）
+
+- ノード種別 `note`（`{ text, color }`）を足す。Toolbar の「付箋」かキャンバスのダブルクリックで置き、その場で編集する（Markdown の一部を表示）。色は 5 色
+- 論文・クラスタと手動エッジでつなげる。自動配置では動かさない（置いた位置のまま）。保存・JSON 書き出し・画像出力・元に戻すの対象。ライブラリ・統計・書き出しの対象外
