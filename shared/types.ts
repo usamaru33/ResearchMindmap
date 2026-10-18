@@ -279,3 +279,23 @@ export interface ExploreWorksResponse {
   /** Publication count per year across all works, oldest first. */
   byYear: Array<{ year: number; count: number }>;
 }
+
+/** How a recommended paper connects to the seed papers (counts of seeds). */
+export interface RecommendReason {
+  /** Seeds that cite it. */
+  cocited: number;
+  /** Seeds it cites. */
+  citing: number;
+  /** Seeds OpenAlex lists it as related to. */
+  related: number;
+}
+
+export interface RecommendResponse {
+  papers: Paper[];
+  /** By paper id. */
+  reasons: Record<string, RecommendReason>;
+  /** Seeds found in OpenAlex. */
+  seeds: number;
+  /** Candidates considered before ranking. */
+  candidates: number;
+}
