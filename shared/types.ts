@@ -67,6 +67,8 @@ export interface Paper {
   screening?: Screening;
   /** Comparison-table cells, by aspect name. */
   comparison?: Record<string, string>;
+  /** Citation key kept from an imported BibTeX entry, so existing drafts still match. */
+  citeKey?: string;
   addedAt?: string;
 }
 

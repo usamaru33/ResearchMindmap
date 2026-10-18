@@ -66,7 +66,7 @@ export const chrome = {
 
   'sidebar.search': ['論文を探す', 'Search papers'],
   'sidebar.library': ['ライブラリ', 'Library'],
-  'sidebar.write': ['関連研究の下書き', 'Draft related work'],
+  'sidebar.write': ['執筆支援', 'Writing'],
   'sidebar.compare': ['比較表', 'Comparison table'],
   'sidebar.screen': ['スクリーニング', 'Screening'],
   'sidebar.add': ['論文を追加', 'Add Paper'],

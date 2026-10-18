@@ -74,7 +74,7 @@ function updatePaper(node: MapNode, patch: (paper: Paper) => Paper): MapNode {
 }
 
 // Fields the user owns; a re-import must not overwrite them.
-const USER_FIELDS = ['challenges', 'futureWork', 'thumbnailUrl', 'status', 'tags', 'notes', 'rating', 'screening', 'comparison', 'addedAt'] as const;
+const USER_FIELDS = ['challenges', 'futureWork', 'thumbnailUrl', 'status', 'tags', 'notes', 'rating', 'screening', 'comparison', 'citeKey', 'addedAt'] as const;
 
 /** Refresh an existing paper with newly fetched metadata, keeping user edits and links. */
 export function mergeImportedPaper(existing: Paper, incoming: Paper): Paper {
