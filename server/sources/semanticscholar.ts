@@ -112,7 +112,7 @@ export const semanticScholarSource: SourceAdapter = {
   status: (config) =>
     config.semanticScholarApiKey
       ? { enabled: true }
-      : { enabled: true, reason: 'APIキーなし（混雑時は 429 で結果が返らないことがあります）' },
+      : { enabled: true, reason: 'APIキーなし（混雑時は 429 で結果が返らないことがあります）', reasonEn: 'No API key (may return 429 and no results when busy)' },
   async search(query, opts, ctx): Promise<SourceResult> {
     const req = compileSemanticScholar(query, opts);
     if (!new URL(req.url).searchParams.get('query')) {

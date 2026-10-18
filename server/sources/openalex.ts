@@ -253,7 +253,7 @@ export const openAlexSource: SourceAdapter = {
   status: (config) =>
     config.openalexApiKey
       ? { enabled: true }
-      : { enabled: true, reason: 'APIキーなし（同じ IP の利用者で共有する少ない無料枠で動作）' },
+      : { enabled: true, reason: 'APIキーなし（同じ IP の利用者で共有する少ない無料枠で動作）', reasonEn: 'No API key (runs on a small free budget shared by everyone on the same IP)' },
   async search(query, opts, ctx): Promise<SourceResult> {
     const req = compileOpenAlex(query, { limit: opts.limit, apiKey: ctx.config.openalexApiKey });
     const { data } = await ctx.http.getJson<OpenAlexList>('openalex', req.url, { signal: ctx.signal });

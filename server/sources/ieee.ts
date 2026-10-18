@@ -125,7 +125,7 @@ export const ieeeSource: SourceAdapter = {
   name: 'ieee',
   label: 'IEEE Xplore',
   status: (config) =>
-    config.ieeeApiKey ? { enabled: true } : { enabled: false, reason: 'IEEE_API_KEY が未設定（IEEE の論文は OpenAlex / Crossref から取得します）' },
+    config.ieeeApiKey ? { enabled: true } : { enabled: false, reason: 'IEEE_API_KEY が未設定（IEEE の論文は OpenAlex / Crossref から取得します）', reasonEn: 'IEEE_API_KEY is not set (IEEE papers still come through OpenAlex / Crossref)' },
   async search(query, opts, ctx): Promise<SourceResult> {
     const apiKey = ctx.config.ieeeApiKey;
     if (!apiKey) return { papers: [], warnings: ['IEEE_API_KEY が未設定です'], approximate: false };
