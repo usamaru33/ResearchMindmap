@@ -24,6 +24,7 @@ interface ToolbarProps {
   screenOpen: boolean;
   onToggleAnalyze: () => void;
   analyzeOpen: boolean;
+  onAddNote: () => void;
   showCitations: boolean;
   onToggleCitations: () => void;
   viewMenu: ReactNode;
@@ -50,6 +51,7 @@ export function Toolbar({
   screenOpen,
   onToggleAnalyze,
   analyzeOpen,
+  onAddNote,
   showCitations,
   onToggleCitations,
   viewMenu,
@@ -124,6 +126,9 @@ export function Toolbar({
       </button>
       <button className={styles.btn} onClick={onAddPaper}>
         {t('toolbar.addPaper')}
+      </button>
+      <button className={styles.btn} onClick={onAddNote} title={t('toolbar.noteTitle')}>
+        {t('toolbar.note')}
       </button>
       <div className={styles.separator} />
       <button className={styles.btn} onClick={onAutoLayout}>

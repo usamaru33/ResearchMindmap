@@ -21,6 +21,7 @@ export const SHORTCUTS: Array<{ keys: string; label: MessageKey }> = [
   { keys: 'Ctrl / ⌘ + Enter', label: 'shortcuts.run' },
   { keys: 'I / M / E', label: 'shortcuts.screen' },
   { keys: 'Ctrl / ⌘ + K', label: 'shortcuts.palette' },
+  { keys: 'Double-click', label: 'shortcuts.note' },
   { keys: '?', label: 'shortcuts.help' },
 ];
 

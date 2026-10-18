@@ -40,11 +40,23 @@ function dagreLayout(nodes: MapNode[], edges: PaperEdge[], direction: LayoutDire
   });
 }
 
+/** Notes stay where the user put them; everything else is laid out. */
 export function getLayoutedElements(
   nodes: MapNode[],
   edges: PaperEdge[],
   direction: LayoutDirection = 'LR',
 ): { nodes: MapNode[]; edges: PaperEdge[] } {
+  if (!nodes.some((n) => n.type === 'note')) return layoutAll(nodes, edges, direction);
+  const laid = layoutAll(
+    nodes.filter((n) => n.type !== 'note'),
+    edges,
+    direction,
+  );
+  const byId = new Map(laid.nodes.map((n) => [n.id, n]));
+  return { nodes: nodes.map((n) => byId.get(n.id) ?? n), edges: laid.edges };
+}
+
+function layoutAll(nodes: MapNode[], edges: PaperEdge[], direction: LayoutDirection): { nodes: MapNode[]; edges: PaperEdge[] } {
   if (!hasMindMapStructure(nodes)) {
     return { nodes: dagreLayout(nodes, edges, direction), edges };
   }

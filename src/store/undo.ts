@@ -30,6 +30,8 @@ const RECORDED = new Set<MindMapAction['type']>([
   'ADD_PAPERS',
   'MERGE_PAPERS',
   'RENAME_TAG',
+  // ADD_NOTE is not recorded: a new note is a draft until its first text (UPDATE_NOTE).
+  'UPDATE_NOTE',
   'UPDATE_PAPER_META',
   'RENAME_CLUSTERS',
   'SET_ASPECTS',
@@ -38,8 +40,12 @@ const RECORDED = new Set<MindMapAction['type']>([
   'SET_LAYOUT_DIRECTION',
 ]);
 
+/** The undoable document. Empty notes are drafts being typed, so history never brings them back. */
 function docOf(s: MindMapState): Doc {
-  return { nodes: s.nodes, edges: s.edges, aspects: s.aspects, layoutDirection: s.layoutDirection };
+  const drafts = new Set(s.nodes.filter((n) => n.type === 'note' && !n.data.text.trim()).map((n) => n.id));
+  const nodes = drafts.size ? s.nodes.filter((n) => !drafts.has(n.id)) : s.nodes;
+  const edges = drafts.size ? s.edges.filter((e) => !drafts.has(e.source) && !drafts.has(e.target)) : s.edges;
+  return { nodes, edges, aspects: s.aspects, layoutDirection: s.layoutDirection };
 }
 
 /** Restore a document; drop a selection that no longer exists. */

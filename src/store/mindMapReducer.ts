@@ -502,6 +502,23 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
     case 'MERGE_PAPERS':
       return mergePapers(state, action.payload.keepId, action.payload.mergeIds);
 
+    case 'ADD_NOTE': {
+      const { id, position, color } = action.payload;
+      const node: MapNode = { id, type: 'note', position, data: { text: '', color: color ?? 'yellow' } };
+      return { ...state, nodes: [...state.nodes, node], selectedNodeId: id };
+    }
+
+    case 'DISCARD_NOTE':
+      return deletePapers(state, [action.payload]);
+
+    case 'UPDATE_NOTE': {
+      const { id, patch } = action.payload;
+      return {
+        ...state,
+        nodes: state.nodes.map((n) => (n.id === id && n.type === 'note' ? { ...n, data: { ...n.data, ...patch } } : n)),
+      };
+    }
+
     case 'RENAME_TAG': {
       // Renaming onto an existing tag merges them; `to: null` removes the tag.
       const { from, to } = action.payload;
