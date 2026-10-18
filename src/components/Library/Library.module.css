@@ -357,3 +357,28 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
+
+.tagList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.tagList li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tagList .tag {
+  border: none;
+  font-size: var(--font-size-xs);
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.tagList .checkActions {
+  margin-left: auto;
+}

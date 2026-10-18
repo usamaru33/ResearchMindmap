@@ -334,3 +334,16 @@ describe('mergeImportedPaper', () => {
     });
   });
 });
+
+describe('RENAME_TAG', () => {
+  const tagged = (id: string, tags: string[]): Paper => ({ ...paper(id), tags });
+  const tagsOf = (s: MindMapState) => s.nodes.filter(isPaperNode).map((n) => n.data.paper.tags);
+
+  it('renames, merges into an existing tag, and removes', () => {
+    const s = initMindMapState({ nodes: [tagged('a', ['vr', 'haptics']), tagged('b', ['VR']), tagged('c', [])].map((p) => createPaperNode(p, { x: 0, y: 0 })), edges: [], layoutDirection: 'LR' });
+    const renamed = mindMapReducer(s, { type: 'RENAME_TAG', payload: { from: 'VR', to: 'vr' } });
+    expect(tagsOf(renamed)).toEqual([['vr', 'haptics'], ['vr'], []]);
+    const removed = mindMapReducer(renamed, { type: 'RENAME_TAG', payload: { from: 'vr', to: null } });
+    expect(tagsOf(removed)).toEqual([['haptics'], undefined, []]);
+  });
+});

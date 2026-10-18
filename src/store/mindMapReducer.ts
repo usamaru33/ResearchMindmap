@@ -502,6 +502,22 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
     case 'MERGE_PAPERS':
       return mergePapers(state, action.payload.keepId, action.payload.mergeIds);
 
+    case 'RENAME_TAG': {
+      // Renaming onto an existing tag merges them; `to: null` removes the tag.
+      const { from, to } = action.payload;
+      return {
+        ...state,
+        nodes: state.nodes.map((n) =>
+          isPaperNode(n) && n.data.paper.tags?.includes(from)
+            ? updatePaper(n, (p) => {
+                const tags = [...new Set(p.tags!.map((t) => (t === from ? to : t)).filter((t): t is string => !!t))];
+                return { ...p, tags: tags.length ? tags : undefined };
+              })
+            : n,
+        ),
+      };
+    }
+
     case 'ADD_LINKED_PAPERS':
       return addLinkedPapers(state, action.payload.anchorId, action.payload.papers, action.payload.kind);
 
