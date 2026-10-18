@@ -16,6 +16,7 @@ interface LibraryProps {
   onUpdate: (ids: string[], patch: (paper: Paper) => Partial<Paper>) => void;
   onDelete: (ids: string[]) => void;
   onDraft: (ids: string[]) => void;
+  onRecommend: (ids: string[]) => void;
 }
 
 const COLUMNS: Array<{ key: SortKey; label: MessageKey | '★'; className?: string }> = [
@@ -26,7 +27,7 @@ const COLUMNS: Array<{ key: SortKey; label: MessageKey | '★'; className?: stri
   { key: 'rating', label: '★', className: styles.colNum },
 ];
 
-export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDelete, onDraft }: LibraryProps) {
+export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDelete, onDraft, onRecommend }: LibraryProps) {
   const t = useT();
   const [filters, setFilters] = useState<LibraryFilters>(EMPTY_FILTERS);
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'added', dir: 'desc' });
@@ -130,6 +131,9 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
           </datalist>
           <button type="button" className={styles.bulkBtn} onClick={() => onDraft(visibleChecked)}>
             {t('library.draft')}
+          </button>
+          <button type="button" className={styles.bulkBtn} onClick={() => onRecommend(visibleChecked)}>
+            {t('library.similar')}
           </button>
           <button
             type="button"

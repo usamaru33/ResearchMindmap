@@ -6,6 +6,7 @@ import { forms } from './messages/forms';
 import { search } from './messages/search';
 import { work } from './messages/work';
 import { errors } from './messages/errors';
+import { recommend } from './messages/recommend';
 
 export { detectLang, format, type Lang } from './format';
 
@@ -17,6 +18,7 @@ export const MESSAGES = {
   ...search,
   ...work,
   ...errors,
+  ...recommend,
 } as const satisfies Record<string, Entry>;
 
 export type MessageKey = keyof typeof MESSAGES;

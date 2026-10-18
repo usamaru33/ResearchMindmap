@@ -9,7 +9,7 @@ import { UndoButtons } from './components/ProjectMenu/UndoButtons';
 import { ShortcutHelp } from './components/Shortcuts/ShortcutHelp';
 import { SettingsDialog } from './components/Settings/SettingsDialog';
 import { useShortcuts } from './hooks/useShortcuts';
-import { SearchPanel, type BuildMode, type BuildTarget } from './components/SearchPanel/SearchPanel';
+import { SearchPanel, type BuildMode, type BuildTarget, type SearchTab } from './components/SearchPanel/SearchPanel';
 import { apiPost } from './api/client';
 import { buildGraphElements } from './store/graphImport';
 import { tagCounts } from './utils/reading';
@@ -103,6 +103,16 @@ export default function App() {
   );
 
   const [draftIds, setDraftIds] = useState<string[]>([]);
+  const [recommendIds, setRecommendIds] = useState<string[]>([]);
+  const [tabRequest, setTabRequest] = useState<{ tab: SearchTab; nonce: number } | null>(null);
+  const openRecommend = useCallback(
+    (ids: string[]) => {
+      setRecommendIds(ids);
+      setTabRequest((r) => ({ tab: 'recommend', nonce: (r?.nonce ?? 0) + 1 }));
+      dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'search' });
+    },
+    [dispatch],
+  );
   const groups = useMemo(() => clusterGroups(state.nodes, state.edges), [state.nodes, state.edges]);
   const openWriting = useCallback(
     (ids: string[]) => {
@@ -214,6 +224,7 @@ export default function App() {
             }}
             onDelete={(ids) => dispatch({ type: 'DELETE_PAPERS', payload: ids })}
             onDraft={openWriting}
+            onRecommend={openRecommend}
           />
         }
         comparePanel={
@@ -261,6 +272,8 @@ export default function App() {
             onRemoveHistory={(id) => dispatch({ type: 'REMOVE_HISTORY', payload: id })}
             mapIds={mapIds}
             mapPapers={allPapers}
+            recommendIds={recommendIds}
+            tabRequest={tabRequest}
             onBuildMap={handleBuildMap}
           />
         }

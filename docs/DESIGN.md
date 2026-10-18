@@ -361,6 +361,7 @@ RQL → parse → AST
 | POST | `/api/llm/summarize` | `{ paper, lang }` | SSE |
 | POST | `/api/llm/related-work` | `{ papers, topic, style, lang }` | SSE |
 | POST | `/api/llm/gaps` | `{ papers }` | `{ gaps: [{title, evidence[], paperIds[]}] }` |
+| POST | `/api/papers/recommend` | `{ seeds: [{ id, ids }], exclude: openalexId[], limit? }` | `{ papers, reasons: {id: {cocited, citing, related}}, seeds, candidates }` |
 | POST | `/api/explore/search` | `{ kind: 'author' \| 'venue', query }` | `{ entities: ExploreEntity[] }` |
 | POST | `/api/explore/works` | `{ kind, id, limit?, sort?: 'cited' \| 'recent', yearMin?, yearMax? }` | `{ papers, total, byYear }` |
 
@@ -388,6 +389,14 @@ CACHE_TTL_HOURS=72
 - 研究の流れ: 取得した一覧を年で 4 期間ほどに分け、各期間に多い topic を並べる（`src/utils/researchFlow.ts`）
 - 共著ネットワーク: 著者を「姓 + 名の頭文字」で同一視し（`Vaswani, A.` = `Ashish Vaswani`）、論文数上位 30 人と共著関係を描く。著者が 25 人を超える論文と "et al." は数えない。配置は決定的な力学モデル（`src/utils/forceLayout.ts`）。一覧かマップ全体を対象に選べ、ノードをクリックするとその人を探す
 - 結果は通常の検索結果と同じくマップにでき、ルートは `author:"名前"` / `venue:"名前"` になる
+
+### 8.2.1 おすすめ（A8）
+
+- もとにする論文（マップ全体か、ライブラリで選んだ論文。DOI・arXiv ID・OpenAlex ID があるもののうち、評価・読書状況・被引用数の高い最大 100 件）の `referenced_works` と `related_works` を OpenAlex から 50 件ずつまとめて取る
+- 後ろ向き: もとの論文の何件が引用しているか（共引用）。前向き: `cites:` の OR フィルタで被引用数の多い 100 件を取り、それぞれがもとの論文を何件引用しているか。関連: OpenAlex の related_works に何件で挙がるか（重み 0.5）
+- 合計で順位付けし、もとの論文が 3 件以上なら 1.5 未満（1 件とだけつながる候補）を落とす。前向きの取得に失敗しても残りで返す
+- マップにある論文は、サーバーでは OpenAlex ID で、画面では DOI・arXiv ID・題名の一致（`matchExisting`）でも除く
+- 理由（「もとの論文 3 件が引用」など）を結果に添え、既定で「このマップに追加」にする
 
 ### 8.3 画面の設定（ブラウザ）
 
