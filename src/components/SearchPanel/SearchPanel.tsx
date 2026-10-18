@@ -7,6 +7,7 @@ import type { BuildMapHandler } from './ResultsSection';
 import { VagueSearch } from './VagueSearch';
 import { SearchHistory } from './SearchHistory';
 import type { HistoryEntry, Paper } from '../../types';
+import type { AlertsState } from '../../hooks/useAlerts';
 import { ExploreSearch } from '../Explore/ExploreSearch';
 import { RecommendSearch } from './RecommendSearch';
 import { useT } from '../../hooks/useT';
@@ -33,6 +34,7 @@ interface SearchPanelProps {
   history: HistoryEntry[];
   onPinHistory: (id: string) => void;
   onRemoveHistory: (id: string) => void;
+  alerts: AlertsState;
 }
 
 export function SearchPanel({
@@ -48,6 +50,7 @@ export function SearchPanel({
   history,
   onPinHistory,
   onRemoveHistory,
+  alerts,
 }: SearchPanelProps) {
   const health = useApiHealth();
   const t = useT();
@@ -118,7 +121,16 @@ export function SearchPanel({
         </button>
       </div>
 
-      <SearchHistory entries={history} onUse={applyEntry} onRerun={rerun} onPin={onPinHistory} onRemove={onRemoveHistory} />
+      <SearchHistory
+        entries={history}
+        onUse={applyEntry}
+        onRerun={rerun}
+        onPin={onPinHistory}
+        onRemove={onRemoveHistory}
+        alerts={alerts}
+        mapIds={mapIds}
+        onBuildMap={onBuildMap}
+      />
 
       {/* Both tabs stay mounted so switching keeps their input and results. */}
       <div hidden={tab !== 'query'} className={styles.panel}>

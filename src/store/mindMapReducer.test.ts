@@ -303,4 +303,14 @@ describe('search history', () => {
     expect(s.history.some((h) => h.id === 'p')).toBe(true);
     expect(s.history[0].id).toBe('e59');
   });
+
+  it('keeps seen results and check times across reruns', () => {
+    let s = stateOf([]);
+    s = mindMapReducer(s, { type: 'ADD_HISTORY', payload: { ...entry('1', 'vr'), seen: ['a', 'b'] } });
+    s = mindMapReducer(s, { type: 'UPDATE_HISTORY', payload: { id: '1', patch: { checkedAt: '2026-10-18' } } });
+    s = mindMapReducer(s, { type: 'ADD_HISTORY', payload: { ...entry('2', 'vr'), seen: ['c', 'a'] } });
+    expect(s.history).toHaveLength(1);
+    expect(s.history[0].seen).toEqual(['c', 'a', 'b']);
+    expect(s.history[0].checkedAt).toBe('2026-10-18');
+  });
 });

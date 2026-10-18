@@ -104,6 +104,10 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
               ))}
             </select>
           </label>
+          <label className={styles.row}>
+            <span className={styles.label}>{t('settings.autoCheck')}</span>
+            <input type="checkbox" checked={settings.autoCheckAlerts} onChange={(e) => update({ autoCheckAlerts: e.target.checked })} />
+          </label>
         </section>
 
         <section className={styles.section}>

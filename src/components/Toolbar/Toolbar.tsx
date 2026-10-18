@@ -13,6 +13,7 @@ interface ToolbarProps {
   onToggleDirection: () => void;
   onToggleSearch: () => void;
   searchOpen: boolean;
+  searchBadge: number;
   onToggleLibrary: () => void;
   libraryOpen: boolean;
   onToggleWrite: () => void;
@@ -36,6 +37,7 @@ export function Toolbar({
   onToggleDirection,
   onToggleSearch,
   searchOpen,
+  searchBadge,
   onToggleLibrary,
   libraryOpen,
   onToggleWrite,
@@ -72,8 +74,10 @@ export function Toolbar({
         className={`${styles.btn} ${searchOpen ? styles.btnActive : ''}`}
         onClick={onToggleSearch}
         aria-pressed={searchOpen}
+        title={searchBadge > 0 ? t('alerts.badge', { n: searchBadge }) : undefined}
       >
         {t('toolbar.search')}
+        {searchBadge > 0 && <span className={styles.badge}>{searchBadge}</span>}
       </button>
       <button
         className={`${styles.btn} ${libraryOpen ? styles.btnActive : ''}`}

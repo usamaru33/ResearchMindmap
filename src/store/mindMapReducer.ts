@@ -1,6 +1,7 @@
 import { MarkerType } from '@xyflow/react';
 import { isPaperNode, type MindMapState, type MindMapAction, type MapNode, type MapSnapshot, type PaperNode, type PaperEdge, type Paper } from '../types';
 import { matchExisting } from './identity';
+import { mergeSeen } from './alerts';
 import { needsLayout } from './projects';
 import { getEdgeStyle } from '../utils/helpers';
 
@@ -367,13 +368,20 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
       const unpinned = rest.filter((h) => !h.pinned);
       const trimmed = [...rest.filter((h) => h.pinned), ...unpinned.slice(0, HISTORY_LIMIT - 1)];
       const kept = state.history.filter((h) => trimmed.includes(h));
-      return { ...state, history: [{ ...e, pinned: same?.pinned }, ...kept] };
+      // Running it again means its results were seen; keep what was seen before too.
+      return { ...state, history: [{ ...e, pinned: same?.pinned, seen: mergeSeen(same?.seen, e.seen ?? []), checkedAt: same?.checkedAt }, ...kept] };
     }
 
     case 'PIN_HISTORY':
       return {
         ...state,
         history: state.history.map((h) => (h.id === action.payload ? { ...h, pinned: !h.pinned } : h)),
+      };
+
+    case 'UPDATE_HISTORY':
+      return {
+        ...state,
+        history: state.history.map((h) => (h.id === action.payload.id ? { ...h, ...action.payload.patch } : h)),
       };
 
     case 'REMOVE_HISTORY':
