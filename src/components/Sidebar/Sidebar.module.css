@@ -69,7 +69,8 @@
 
 .addTabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
   gap: 4px;
   margin-bottom: var(--space-lg);
   padding: 3px;
@@ -193,6 +194,23 @@
 .importMeta {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+}
+
+.importCheck {
+  margin-left: 4px;
+  padding: 0 5px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-warning, #b45309);
+  border: 1px solid currentColor;
+  border-radius: 4px;
+}
+
+.importSource {
+  font-size: var(--font-size-xs);
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
 }
 
 .loading {

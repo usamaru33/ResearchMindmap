@@ -74,6 +74,7 @@ export const chrome = {
   'sidebar.close': ['閉じる', 'Close'],
   'sidebar.loading': ['読み込み中…', 'Loading…'],
   'sidebar.fromIds': ['識別子から', 'From identifiers'],
+  'sidebar.fromReferences': ['参考文献リスト', 'Reference list'],
   'sidebar.manual': ['手入力', 'Manual'],
 
   'shortcuts.title': ['キーボードショートカット', 'Keyboard shortcuts'],
