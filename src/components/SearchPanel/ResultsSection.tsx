@@ -24,12 +24,14 @@ interface ResultsSectionProps {
   mapIds: Set<string>;
   query: string;
   mode: BuildMode;
+  /** Where "Build" goes by default. */
+  defaultTarget?: BuildTarget;
   onBuildMap: BuildMapHandler;
 }
 
-export function ResultsSection({ results, reasons, mapIds, query, mode, onBuildMap }: ResultsSectionProps) {
+export function ResultsSection({ results, reasons, mapIds, query, mode, defaultTarget = 'new', onBuildMap }: ResultsSectionProps) {
   const t = useT();
-  const [target, setTarget] = useState<BuildTarget>('new');
+  const [target, setTarget] = useState<BuildTarget>(defaultTarget);
   const [building, setBuilding] = useState(false);
   const [buildError, setBuildError] = useState<string | null>(null);
   const [selection, setSelection] = useState<{ for: Paper[] | null; ids: Set<string> }>({ for: null, ids: new Set() });
@@ -63,13 +65,13 @@ export function ResultsSection({ results, reasons, mapIds, query, mode, onBuildM
       <div className={styles.buildBar}>
         <div className={styles.buildTargets} role="radiogroup" aria-label={t('results.where')}>
           <label className={`${styles.chip} ${target === 'new' ? styles.chipOn : ''}`}>
-            <input type="radio" name={`build-target-${mode}`} checked={target === 'new'} onChange={() => setTarget('new')} />
+            <input type="radio" name={`build-target-${mode}-${defaultTarget}`} checked={target === 'new'} onChange={() => setTarget('new')} />
             {t('results.newProject')}
           </label>
           <label className={`${styles.chip} ${target === 'current' ? styles.chipOn : ''}`}>
             <input
               type="radio"
-              name={`build-target-${mode}`}
+              name={`build-target-${mode}-${defaultTarget}`}
               checked={target === 'current'}
               onChange={() => setTarget('current')}
             />

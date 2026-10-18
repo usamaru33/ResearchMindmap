@@ -8,12 +8,14 @@ import { VagueSearch } from './VagueSearch';
 import { SearchHistory } from './SearchHistory';
 import type { HistoryEntry, Paper } from '../../types';
 import { ExploreSearch } from '../Explore/ExploreSearch';
+import { RecommendSearch } from './RecommendSearch';
 import { useT } from '../../hooks/useT';
 import styles from './SearchPanel.module.css';
 
 export type { BuildMapHandler, BuildMode, BuildTarget } from './ResultsSection';
 
-type Tab = 'query' | 'vague' | 'explore';
+export type SearchTab = 'query' | 'vague' | 'explore' | 'recommend';
+type Tab = SearchTab;
 
 interface SearchPanelProps {
   search: SearchState;
@@ -23,6 +25,10 @@ interface SearchPanelProps {
   mapIds: Set<string>;
   /** Papers on the current map (for the co-author network). */
   mapPapers: Paper[];
+  /** Papers chosen in the library for recommendations. */
+  recommendIds: string[];
+  /** Switch to a tab from outside (a new nonce triggers the switch). */
+  tabRequest: { tab: SearchTab; nonce: number } | null;
   onBuildMap: BuildMapHandler;
   history: HistoryEntry[];
   onPinHistory: (id: string) => void;
@@ -36,6 +42,8 @@ export function SearchPanel({
   onVague,
   mapIds,
   mapPapers,
+  recommendIds,
+  tabRequest,
   onBuildMap,
   history,
   onPinHistory,
@@ -43,7 +51,12 @@ export function SearchPanel({
 }: SearchPanelProps) {
   const health = useApiHealth();
   const t = useT();
-  const [tab, setTab] = useState<Tab>('query');
+  const [tab, setTab] = useState<Tab>(tabRequest?.tab ?? 'query');
+  const [seenRequest, setSeenRequest] = useState(tabRequest?.nonce);
+  if (tabRequest && tabRequest.nonce !== seenRequest) {
+    setSeenRequest(tabRequest.nonce);
+    setTab(tabRequest.tab);
+  }
   const [queryText, setQueryText] = useState('');
   const [description, setDescription] = useState('');
 
@@ -94,6 +107,15 @@ export function SearchPanel({
         >
           {t('search.tab.explore')}
         </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'recommend'}
+          className={`${styles.tab} ${tab === 'recommend' ? styles.tabActive : ''}`}
+          onClick={() => setTab('recommend')}
+        >
+          {t('search.tab.recommend')}
+        </button>
       </div>
 
       <SearchHistory entries={history} onUse={applyEntry} onRerun={rerun} onPin={onPinHistory} onRemove={onRemoveHistory} />
@@ -128,6 +150,9 @@ export function SearchPanel({
       </div>
       <div hidden={tab !== 'explore'} className={styles.panel}>
         <ExploreSearch mapIds={mapIds} mapPapers={mapPapers} onBuildMap={onBuildMap} />
+      </div>
+      <div hidden={tab !== 'recommend'} className={styles.panel}>
+        <RecommendSearch mapPapers={mapPapers} mapIds={mapIds} selectedIds={recommendIds} onBuildMap={onBuildMap} />
       </div>
     </div>
   );
