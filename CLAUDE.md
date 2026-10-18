@@ -33,3 +33,4 @@ npm run build        # tsc -b && vite build（サーバーの型検査を含む�
 - `.env` と `.cache/` はコミットしない。APIキーはサーバー側だけで扱う
 - テストから外部 API を呼ばない（fixture を使う）
 - LLM 機能はキーなしでも動くフォールバックを必ず用意する
+- UI の文言は直書きせず `src/i18n/messages/` に日本語と英語の両方を追加し、`useT()`（React 外は `tr()`）で出す
