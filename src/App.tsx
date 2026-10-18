@@ -237,6 +237,7 @@ export default function App() {
             onDraft={openWriting}
             onRecommend={openRecommend}
             onMerge={(keepId, mergeIds) => dispatch({ type: 'MERGE_PAPERS', payload: { keepId, mergeIds } })}
+            onRenameTag={(from, to) => dispatch({ type: 'RENAME_TAG', payload: { from, to } })}
           />
         }
         comparePanel={

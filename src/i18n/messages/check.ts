@@ -4,6 +4,16 @@ import type { Entry } from '../format';
 export const check = {
   'library.tab.list': ['一覧', 'List'],
   'library.tab.check': ['文献チェック', 'Check'],
+  'library.tab.tags': ['タグ', 'Tags'],
+
+  'tags.hint': ['名前を変えると全論文のタグが変わります。既にあるタグと同じ名前にすると 1 つにまとまります。', 'Renaming changes the tag on every paper; renaming to an existing tag merges the two.'],
+  'tags.none': ['まだタグがありません。', 'No tags yet.'],
+  'tags.count': ['{n} 件', '{n} {n|paper|papers}'],
+  'tags.show': ['このタグの論文を一覧で見る', 'Show papers with this tag'],
+  'tags.rename': ['名前を変更', 'Rename'],
+  'tags.renameLabel': ['「{tag}」の新しい名前', 'New name for "{tag}"'],
+  'tags.confirmMerge': ['「{from}」を既にある「{to}」にまとめますか？', 'Merge "{from}" into the existing "{to}"?'],
+  'tags.confirmDelete': ['タグ「{tag}」を {n} 件の論文から外しますか？', 'Remove the tag "{tag}" from {n} {n|paper|papers}?'],
 
   'check.remote': ['撤回・公開版', 'Retractions & published versions'],
   'check.remoteHint': ['OpenAlex で、撤回された論文と、プレプリントの公開版（同じ題名・筆頭著者）を探します。', 'Looks up retracted papers and published versions of preprints (same title and first author) on OpenAlex.'],

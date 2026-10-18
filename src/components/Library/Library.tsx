@@ -6,6 +6,7 @@ import { STATUS_OPTIONS, normalizeTag, statusInfo } from '../../utils/reading';
 import { exportPapers } from '../../utils/bibliography';
 import { useT } from '../../hooks/useT';
 import { LibraryCheck } from './LibraryCheck';
+import { TagManager } from './TagManager';
 import type { MessageKey } from '../../i18n';
 import styles from './Library.module.css';
 
@@ -19,6 +20,7 @@ interface LibraryProps {
   onDraft: (ids: string[]) => void;
   onRecommend: (ids: string[]) => void;
   onMerge: (keepId: string, mergeIds: string[]) => void;
+  onRenameTag: (from: string, to: string | null) => void;
 }
 
 const COLUMNS: Array<{ key: SortKey; label: MessageKey | '★'; className?: string }> = [
@@ -29,9 +31,9 @@ const COLUMNS: Array<{ key: SortKey; label: MessageKey | '★'; className?: stri
   { key: 'rating', label: '★', className: styles.colNum },
 ];
 
-export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDelete, onDraft, onRecommend, onMerge }: LibraryProps) {
+export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDelete, onDraft, onRecommend, onMerge, onRenameTag }: LibraryProps) {
   const t = useT();
-  const [view, setView] = useState<'list' | 'check'>('list');
+  const [view, setView] = useState<'list' | 'tags' | 'check'>('list');
   const [filters, setFilters] = useState<LibraryFilters>(EMPTY_FILTERS);
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'added', dir: 'desc' });
   const [checked, setChecked] = useState<Set<string>>(new Set());
@@ -68,7 +70,7 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
 
   const tabs = (
     <div className={styles.tabs} role="tablist">
-      {(['list', 'check'] as const).map((v) => (
+      {(['list', 'tags', 'check'] as const).map((v) => (
         <button
           key={v}
           type="button"
@@ -77,11 +79,27 @@ export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDe
           className={`${styles.tab} ${view === v ? styles.tabActive : ''}`}
           onClick={() => setView(v)}
         >
-          {t(v === 'list' ? 'library.tab.list' : 'library.tab.check')}
+          {t(v === 'list' ? 'library.tab.list' : v === 'tags' ? 'library.tab.tags' : 'library.tab.check')}
         </button>
       ))}
     </div>
   );
+
+  if (view === 'tags') {
+    return (
+      <div className={styles.library}>
+        {tabs}
+        <TagManager
+          papers={papers}
+          onRename={onRenameTag}
+          onShow={(tag) => {
+            setFilters({ ...EMPTY_FILTERS, tag });
+            setView('list');
+          }}
+        />
+      </div>
+    );
+  }
 
   if (view === 'check') {
     return (
