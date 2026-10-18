@@ -1,7 +1,8 @@
 import { normalizeTitle } from '../../shared/ids';
 import type { Paper } from '../types';
 
-function keysOf(p: Paper): string[] {
+/** Keys that identify a work: its id, external ids, and its normalized title (when long enough). */
+export function keysOf(p: Paper): string[] {
   const keys: string[] = [`id:${p.id}`];
   const ids = p.ids ?? {};
   for (const [k, v] of Object.entries(ids)) if (v) keys.push(`${k}:${String(v).toLowerCase()}`);

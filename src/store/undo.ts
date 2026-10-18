@@ -28,6 +28,7 @@ const RECORDED = new Set<MindMapAction['type']>([
   'IMPORT_GRAPH',
   'ADD_LINKED_PAPERS',
   'ADD_PAPERS',
+  'MERGE_PAPERS',
   'UPDATE_PAPER_META',
   'RENAME_CLUSTERS',
   'SET_ASPECTS',

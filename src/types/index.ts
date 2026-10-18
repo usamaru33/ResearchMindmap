@@ -115,6 +115,7 @@ export type MindMapAction =
   | { type: 'RENAME_CLUSTERS'; payload: Record<string, string> }
   | { type: 'UPDATE_PAPER_META'; payload: { id: string; patch: Partial<Paper> } }
   | { type: 'ADD_PAPERS'; payload: { papers: Paper[]; center: { x: number; y: number } } }
+  | { type: 'MERGE_PAPERS'; payload: { keepId: string; mergeIds: string[] } }
   | { type: 'ADD_LINKED_PAPERS'; payload: { anchorId: string; papers: Paper[]; kind: ExpandKind } }
   | { type: 'REQUEST_VIEW'; payload: ViewRequest['kind'] };
 
