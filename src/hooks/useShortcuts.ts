@@ -8,6 +8,7 @@ export interface ShortcutHandlers {
   fitView: () => void;
   toggleHelp: () => void;
   closePanels: () => void;
+  openPalette: () => void;
 }
 
 export const SHORTCUTS: Array<{ keys: string; label: MessageKey }> = [
@@ -19,6 +20,7 @@ export const SHORTCUTS: Array<{ keys: string; label: MessageKey }> = [
   { keys: 'Esc', label: 'shortcuts.close' },
   { keys: 'Ctrl / ⌘ + Enter', label: 'shortcuts.run' },
   { keys: 'I / M / E', label: 'shortcuts.screen' },
+  { keys: 'Ctrl / ⌘ + K', label: 'shortcuts.palette' },
   { keys: '?', label: 'shortcuts.help' },
 ];
 
@@ -37,10 +39,16 @@ export function useShortcuts(handlers: ShortcutHandlers): void {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (isTyping(e.target)) return;
       const h = ref.current;
       const mod = e.ctrlKey || e.metaKey;
       const key = e.key.toLowerCase();
+      // The palette opens from anywhere, even while typing.
+      if (mod && !e.shiftKey && !e.altKey && key === 'k') {
+        e.preventDefault();
+        h.openPalette();
+        return;
+      }
+      if (isTyping(e.target)) return;
       if (mod && key === 'z') {
         e.preventDefault();
         if (e.shiftKey) h.redo();

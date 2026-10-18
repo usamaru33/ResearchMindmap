@@ -8,6 +8,10 @@ import { ProjectMenu } from './components/ProjectMenu/ProjectMenu';
 import { UndoButtons } from './components/ProjectMenu/UndoButtons';
 import { ShortcutHelp } from './components/Shortcuts/ShortcutHelp';
 import { SettingsDialog } from './components/Settings/SettingsDialog';
+import { CommandPalette, type PaletteCommand } from './components/CommandPalette/CommandPalette';
+import { bilingual } from './store/palette';
+import { useSettings } from './hooks/settingsContext';
+import type { MessageKey } from './i18n';
 import { useShortcuts } from './hooks/useShortcuts';
 import { SearchPanel, type BuildMode, type BuildTarget, type SearchTab } from './components/SearchPanel/SearchPanel';
 import { apiPost } from './api/client';
@@ -22,7 +26,7 @@ import { useAlerts } from './hooks/useAlerts';
 import { seenKeys } from './store/alerts';
 import { createProject } from './store/projects';
 import { sampleNodes } from './data/sampleData';
-import type { Paper } from './types';
+import type { Paper, SidebarMode } from './types';
 import type { GraphBuildResponse } from '../shared/types';
 import styles from './App.module.css';
 
@@ -53,6 +57,8 @@ export default function App() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mapFilter, setMapFilter] = useState('');
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const { settings, update: updateSettings } = useSettings();
 
   const selectedPaper = getSelectedPaper();
   // The paper form and the detail panel compete for attention; search can sit next to details.
@@ -77,8 +83,10 @@ export default function App() {
     },
     fitView: () => fitView({ padding: 0.2, duration: 300 }),
     toggleHelp: () => setHelpOpen((v) => !v),
+    openPalette: () => setPaletteOpen(true),
     closePanels: () => {
-      if (helpOpen) setHelpOpen(false);
+      if (paletteOpen) setPaletteOpen(false);
+      else if (helpOpen) setHelpOpen(false);
       else if (settingsOpen) setSettingsOpen(false);
       else if (state.sidebarMode !== 'closed') dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'closed' });
       else dispatch({ type: 'SELECT_NODE', payload: null });
@@ -122,6 +130,13 @@ export default function App() {
     (ids: string[]) => {
       setRecommendIds(ids);
       setTabRequest((r) => ({ tab: 'recommend', nonce: (r?.nonce ?? 0) + 1 }));
+      dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'search' });
+    },
+    [dispatch],
+  );
+  const openSearchTab = useCallback(
+    (tab: SearchTab) => {
+      setTabRequest((r) => ({ tab, nonce: (r?.nonce ?? 0) + 1 }));
       dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'search' });
     },
     [dispatch],
@@ -213,6 +228,48 @@ export default function App() {
     },
     [state.sidebarMode, dispatch, screenToFlowPosition],
   );
+
+  /** Everything the palette can run, named in the UI language (the other language is searchable too). */
+  function paletteCommands(): PaletteCommand[] {
+    const lang = settings.uiLanguage;
+    const panel = (mode: SidebarMode) => () => dispatch({ type: 'SET_SIDEBAR_MODE', payload: mode });
+    const name = projects.activeProject.name;
+    const defs: Array<[string, MessageKey, () => void, string?]> = [
+      ['search', 'cmd.search', () => openSearchTab('query'), '/'],
+      ['vague', 'cmd.vague', () => openSearchTab('vague')],
+      ['explore', 'cmd.explore', () => openSearchTab('explore')],
+      ['recommend', 'cmd.recommend', () => openRecommend([])],
+      ['library', 'cmd.library', panel('library')],
+      ['write', 'cmd.write', () => openWriting([])],
+      ['compare', 'cmd.compare', panel('compare')],
+      ['screen', 'cmd.screen', panel('screen')],
+      ['analyze', 'cmd.analyze', panel('analyze')],
+      ['add', 'cmd.addPaper', handleAddPaper],
+      ['layout', 'cmd.autoLayout', () => dispatch({ type: 'REQUEST_VIEW', payload: 'layout' })],
+      ['fit', 'cmd.fitView', () => fitView({ padding: 0.2, duration: 300 }), 'F'],
+      ['direction', 'cmd.direction', () => dispatch({ type: 'SET_LAYOUT_DIRECTION', payload: state.layoutDirection === 'LR' ? 'TB' : 'LR' })],
+      ['undo', 'cmd.undo', () => dispatch({ type: 'UNDO' }), 'Ctrl+Z'],
+      ['redo', 'cmd.redo', () => dispatch({ type: 'REDO' }), 'Ctrl+Shift+Z'],
+      ['bib', 'cmd.exportBib', () => exportPapers(allPapers, 'bib', name)],
+      ['ris', 'cmd.exportRis', () => exportPapers(allPapers, 'ris', name)],
+      ['csv', 'cmd.exportCsv', () => exportPapers(allPapers, 'csv', name)],
+      ['json', 'cmd.exportJson', projects.exportActive],
+      ['png', 'cmd.exportPng', () => void exportMapImage(getNodes(), 'png', name).catch(() => undefined)],
+      ['svg', 'cmd.exportSvg', () => void exportMapImage(getNodes(), 'svg', name).catch(() => undefined)],
+      ['notes', 'cmd.notesMd', () => exportNotes(allPapers, 'md', name, state.aspects)],
+      ['obsidian', 'cmd.notesObsidian', () => exportNotes(allPapers, 'obsidian', name, state.aspects)],
+      ['new', 'cmd.newProject', () => projects.createNew()],
+      ['settings', 'cmd.settings', () => setSettingsOpen(true)],
+      ['help', 'cmd.help', () => setHelpOpen(true), '?'],
+      ['language', 'cmd.language', () => updateSettings({ uiLanguage: lang === 'ja' ? 'en' : 'ja' })],
+    ];
+    if (mapFilter) defs.push(['clear-filter', 'cmd.clearFilter', () => setMapFilter('')]);
+    const commands: PaletteCommand[] = defs.map(([id, key, run, shortcut]) => ({ id, ...bilingual(key, lang), run, shortcut }));
+    for (const p of projects.projects.filter((p) => p.id !== projects.activeProject.id)) {
+      commands.push({ id: `project:${p.id}`, ...bilingual('cmd.openProject', lang, { name: p.name }), run: () => projects.switchTo(p.id) });
+    }
+    return commands;
+  }
 
   return (
     <div className={styles.app}>
@@ -381,6 +438,14 @@ export default function App() {
         }
       />
       {helpOpen && <ShortcutHelp onClose={() => setHelpOpen(false)} />}
+      {paletteOpen && (
+        <CommandPalette
+          commands={paletteCommands()}
+          papers={allPapers}
+          onFocusPaper={handleFocusPaper}
+          onClose={() => setPaletteOpen(false)}
+        />
+      )}
       {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} />}
     </div>
   );
