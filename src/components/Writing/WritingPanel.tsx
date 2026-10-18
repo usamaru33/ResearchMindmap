@@ -8,6 +8,7 @@ import { useSettings } from '../../hooks/settingsContext';
 import { useStream } from '../../hooks/useStream';
 import { downloadText, safeFileName } from '../../utils/download';
 import { MiniMarkdown } from '../common/MiniMarkdown';
+import { CitationCheck } from './CitationCheck';
 import { GapsView } from './GapsView';
 import styles from './WritingPanel.module.css';
 
@@ -21,7 +22,7 @@ interface WritingPanelProps {
 }
 
 export function WritingPanel({ papers, initialIds, groups, projectName, onFocusPaper }: WritingPanelProps) {
-  const [tab, setTab] = useState<'draft' | 'gaps'>('draft');
+  const [tab, setTab] = useState<'draft' | 'gaps' | 'cite'>('draft');
   const health = useApiHealth();
   const llmEnabled = health.status === 'ok' && health.health.llm.enabled;
   const [selected, setSelected] = useState<Set<string>>(
@@ -83,62 +84,76 @@ export function WritingPanel({ papers, initialIds, groups, projectName, onFocusP
         >
           {t('write.tab.gaps')}
         </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'cite'}
+          className={`${styles.tab} ${tab === 'cite' ? styles.tabActive : ''}`}
+          onClick={() => setTab('cite')}
+        >
+          {t('write.tab.cite')}
+        </button>
       </div>
-      <label className={styles.field}>
-        <span className={styles.label}>{t('write.topic')}</span>
-        <textarea
-          className={styles.input}
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          placeholder={t('write.topicPlaceholder')}
-        />
-      </label>
+      {tab === 'cite' && <CitationCheck papers={papers} projectName={projectName} onFocusPaper={onFocusPaper} />}
+      {tab !== 'cite' && (
+        <>
+          <label className={styles.field}>
+            <span className={styles.label}>{t('write.topic')}</span>
+            <textarea
+              className={styles.input}
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder={t('write.topicPlaceholder')}
+            />
+          </label>
 
-      <div className={styles.row}>
-        <label className={styles.inline}>
-          {t('write.language')}
-          <select value={lang} onChange={(e) => setLang(e.target.value as 'ja' | 'en')}>
-            <option value="ja">日本語</option>
-            <option value="en">English</option>
-          </select>
-        </label>
-        <label className={`${styles.inline} ${!llmEnabled ? styles.disabled : ''}`} title={llmEnabled ? '' : t('write.llmMissing')}>
-          <input type="checkbox" checked={llmEnabled && useLlm} disabled={!llmEnabled} onChange={(e) => setUseLlm(e.target.checked)} />
-          {t('write.useLlm')}
-        </label>
-      </div>
+          <div className={styles.row}>
+            <label className={styles.inline}>
+              {t('write.language')}
+              <select value={lang} onChange={(e) => setLang(e.target.value as 'ja' | 'en')}>
+                <option value="ja">日本語</option>
+                <option value="en">English</option>
+              </select>
+            </label>
+            <label className={`${styles.inline} ${!llmEnabled ? styles.disabled : ''}`} title={llmEnabled ? '' : t('write.llmMissing')}>
+              <input type="checkbox" checked={llmEnabled && useLlm} disabled={!llmEnabled} onChange={(e) => setUseLlm(e.target.checked)} />
+              {t('write.useLlm')}
+            </label>
+          </div>
 
-      <details className={styles.papers}>
-        <summary>
-          {t('write.papers', { n: chosen.length, total: papers.length })}
-          {chosen.length > 80 && t('write.first80')}
-        </summary>
-        <div className={styles.paperActions}>
-          <button type="button" className={styles.link} onClick={() => setSelected(new Set(papers.map((p) => p.id)))}>
-            {t('write.all')}
-          </button>
-          <button type="button" className={styles.link} onClick={() => setSelected(new Set())}>
-            {t('write.none')}
-          </button>
-        </div>
-        <ul>
-          {papers.map((p) => (
-            <li key={p.id}>
-              <label>
-                <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggle(p.id)} />
-                <span>
-                  {p.year || '—'} · {p.title}
-                </span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      </details>
+          <details className={styles.papers}>
+            <summary>
+              {t('write.papers', { n: chosen.length, total: papers.length })}
+              {chosen.length > 80 && t('write.first80')}
+            </summary>
+            <div className={styles.paperActions}>
+              <button type="button" className={styles.link} onClick={() => setSelected(new Set(papers.map((p) => p.id)))}>
+                {t('write.all')}
+              </button>
+              <button type="button" className={styles.link} onClick={() => setSelected(new Set())}>
+                {t('write.none')}
+              </button>
+            </div>
+            <ul>
+              {papers.map((p) => (
+                <li key={p.id}>
+                  <label>
+                    <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggle(p.id)} />
+                    <span>
+                      {p.year || '—'} · {p.title}
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </details>
 
-      {groups.length > 0 && (
-        <div className={styles.hint}>
-          {t('write.sections', { names: groups.map((g) => g.label).join(t.lang === 'ja' ? '、' : ', ') })}
-        </div>
+          {groups.length > 0 && (
+            <div className={styles.hint}>
+              {t('write.sections', { names: groups.map((g) => g.label).join(t.lang === 'ja' ? '、' : ', ') })}
+            </div>
+          )}
+        </>
       )}
 
       {tab === 'gaps' && (
