@@ -364,7 +364,7 @@ RQL → parse → AST
 | POST | `/api/papers/recommend` | `{ seeds: [{ id, ids }], exclude: openalexId[], limit? }` | `{ papers, reasons: {id: {cocited, citing, related}}, seeds, candidates }` |
 | POST | `/api/explore/search` | `{ kind: 'author' \| 'venue', query }` | `{ entities: ExploreEntity[] }` |
 | POST | `/api/explore/works` | `{ kind, id, limit?, sort?: 'cited' \| 'recent', yearMin?, yearMax? }` | `{ papers, total, byYear }` |
-| POST | `/api/papers/check` | `{ papers: [{ id, title, year, type?, ids? }] (≤300) }` | `{ retracted: id[], published: { [id]: Paper }, checked, warnings }` |
+| POST | `/api/papers/check` | `{ papers: [{ id, title, year, type?, ids? }] (≤300) }` | `{ retracted: id[], published: { [id]: Paper }, checked: { retraction, preprints, preprintTotal }, failed: ('retraction' \| 'published')[] }` |
 | POST | `/api/trends` | `{ queries: string[] (1–5), yearMin?, yearMax?, share?(既定 true) }` | `{ series: [{ query, byYear, total, warnings, error? }], all?: byYear }` |
 
 ### 8.1 設定（`.env`）
