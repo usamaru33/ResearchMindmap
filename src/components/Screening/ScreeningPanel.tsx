@@ -3,6 +3,7 @@ import type { Screening } from '../../../shared/types';
 import type { Paper } from '../../types';
 import { EXCLUSION_REASONS, prismaCounts, prismaMarkdown, screeningQueue } from '../../store/screening';
 import { truncateAuthors } from '../../utils/helpers';
+import { useT } from '../../hooks/useT';
 import styles from './ScreeningPanel.module.css';
 
 interface ScreeningPanelProps {
@@ -12,6 +13,8 @@ interface ScreeningPanelProps {
 }
 
 export function ScreeningPanel({ papers, onDecide, onFocusPaper }: ScreeningPanelProps) {
+  const t = useT();
+  const reasons = EXCLUSION_REASONS[t.lang];
   const counts = useMemo(() => prismaCounts(papers), [papers]);
   // The queue order is fixed when the panel opens so decided papers do not jump away mid-session.
   const [order] = useState(() => screeningQueue(papers).map((p) => p.id));
@@ -53,7 +56,7 @@ export function ScreeningPanel({ papers, onDecide, onFocusPaper }: ScreeningPane
 
   return (
     <div className={styles.panel}>
-      <div className={styles.progress} aria-label={`${counts.screened} of ${counts.total} screened`}>
+      <div className={styles.progress} aria-label={t('screen.progress', { n: counts.screened, total: counts.total })}>
         <div className={styles.bar}>
           <span className={styles.barInclude} style={{ width: `${(counts.included / (counts.total || 1)) * 100}%` }} />
           <span className={styles.barMaybe} style={{ width: `${(counts.maybe / (counts.total || 1)) * 100}%` }} />
@@ -61,18 +64,18 @@ export function ScreeningPanel({ papers, onDecide, onFocusPaper }: ScreeningPane
         </div>
         <div className={styles.counts}>
           <span>
-            {counts.screened}/{counts.total} screened ({pct}%)
+            {t('screen.screened', { n: counts.screened, total: counts.total, pct })}
           </span>
-          <span className={styles.inc}>Include {counts.included}</span>
-          <span className={styles.may}>Maybe {counts.maybe}</span>
-          <span className={styles.exc}>Exclude {counts.excluded}</span>
+          <span className={styles.inc}>{t('screen.include')} {counts.included}</span>
+          <span className={styles.may}>{t('screen.maybe')} {counts.maybe}</span>
+          <span className={styles.exc}>{t('screen.exclude')} {counts.excluded}</span>
         </div>
       </div>
 
       {current ? (
         <article className={styles.card}>
           <div className={styles.nav}>
-            <button type="button" className={styles.navBtn} onClick={() => setIndex((i) => Math.max(i - 1, 0))} disabled={index === 0} aria-label="Previous">
+            <button type="button" className={styles.navBtn} onClick={() => setIndex((i) => Math.max(i - 1, 0))} disabled={index === 0} aria-label={t('screen.previous')}>
               ←
             </button>
             <span>
@@ -83,13 +86,13 @@ export function ScreeningPanel({ papers, onDecide, onFocusPaper }: ScreeningPane
               className={styles.navBtn}
               onClick={() => setIndex((i) => Math.min(i + 1, queue.length - 1))}
               disabled={index >= queue.length - 1}
-              aria-label="Next"
+              aria-label={t('screen.next')}
             >
               →
             </button>
             {current.screening && (
               <span className={`${styles.decision} ${styles[`d_${current.screening.decision}`]}`}>
-                {current.screening.decision}
+                {t(`screen.${current.screening.decision}`)}
                 {current.screening.reason && `: ${current.screening.reason}`}
               </span>
             )}
@@ -98,25 +101,25 @@ export function ScreeningPanel({ papers, onDecide, onFocusPaper }: ScreeningPane
             {current.title}
           </button>
           <div className={styles.meta}>
-            {current.year || 'n.d.'} · {truncateAuthors(current.authors, 4)}
+            {current.year || t('compare.nd')} · {truncateAuthors(current.authors, 4)}
             {current.venue && ` · ${current.venue}`}
           </div>
-          <p className={styles.abstract}>{current.abstract || '（抄録なし）'}</p>
+          <p className={styles.abstract}>{current.abstract || t('screen.noAbstract')}</p>
 
           <div className={styles.actions}>
             <button type="button" className={`${styles.btn} ${styles.include}`} onClick={() => decide('include')}>
-              Include <kbd>I</kbd>
+              {t('screen.include')} <kbd>I</kbd>
             </button>
             <button type="button" className={`${styles.btn} ${styles.maybe}`} onClick={() => decide('maybe')}>
-              Maybe <kbd>M</kbd>
+              {t('screen.maybe')} <kbd>M</kbd>
             </button>
             <button type="button" className={`${styles.btn} ${styles.exclude}`} onClick={() => decide('exclude')}>
-              Exclude <kbd>E</kbd>
+              {t('screen.exclude')} <kbd>E</kbd>
             </button>
           </div>
           <div className={styles.reasons}>
-            <span>除外の理由:</span>
-            {EXCLUSION_REASONS.map((r) => (
+            <span>{t('screen.reasons')}</span>
+            {reasons.map((r) => (
               <button
                 key={r}
                 type="button"
@@ -128,25 +131,25 @@ export function ScreeningPanel({ papers, onDecide, onFocusPaper }: ScreeningPane
             ))}
             <input
               className={styles.reasonInput}
-              placeholder="その他の理由"
-              aria-label="Exclusion reason"
-              value={EXCLUSION_REASONS.includes(reason) ? '' : reason}
+              placeholder={t('screen.otherReason')}
+              aria-label={t('screen.reasonLabel')}
+              value={reasons.includes(reason) ? '' : reason}
               onChange={(e) => setReason(e.target.value)}
             />
           </div>
           {current.screening && (
             <button type="button" className={styles.link} onClick={() => onDecide(current.id, undefined)}>
-              判定を取り消す
+              {t('screen.undo')}
             </button>
           )}
         </article>
       ) : (
-        <div className={styles.empty}>論文がありません。</div>
+        <div className={styles.empty}>{t('screen.empty')}</div>
       )}
 
       <section className={styles.prisma}>
         <div className={styles.prismaHeader}>
-          <span>PRISMA summary</span>
+          <span>{t('screen.prisma')}</span>
           <button
             type="button"
             className={styles.link}
@@ -156,7 +159,7 @@ export function ScreeningPanel({ papers, onDecide, onFocusPaper }: ScreeningPane
               window.setTimeout(() => setCopied(false), 1500);
             }}
           >
-            {copied ? 'Copied ✓' : 'Copy'}
+            {copied ? t('screen.copied') : t('screen.copy')}
           </button>
         </div>
         <pre>{prismaMarkdown(counts)}</pre>

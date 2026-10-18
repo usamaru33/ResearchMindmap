@@ -1,3 +1,4 @@
+import { tr } from '../i18n/current';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MapSnapshot, MindMapState } from '../types';
 import type { UndoAction } from '../store/undo';
@@ -91,7 +92,7 @@ export function useProjects(
   const saveNow = useCallback(
     (m: ProjectMeta = meta) => {
       const ok = projectStore.save(buildProject(m));
-      setSaveError(ok ? null : 'ブラウザの保存領域に書き込めませんでした（容量不足の可能性があります）');
+      setSaveError(ok ? null : tr('error.storageFull'));
       setProjects(projectStore.list());
     },
     [buildProject, meta],
@@ -184,7 +185,7 @@ export function useProjects(
       const project = { ...parsed, name: uniqueName(parsed.name, projectStore.list().map((p) => p.name)) };
       saveNow();
       if (!projectStore.save(project)) {
-        throw new Error('ブラウザの保存領域に書き込めませんでした');
+        throw new Error(tr('error.storage'));
       }
       activate(project);
     },

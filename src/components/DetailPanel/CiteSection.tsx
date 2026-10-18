@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { toBibtex } from '../../../shared/biblio/bibtex';
 import { formatCitation, type CitationStyle } from '../../../shared/biblio/formats';
 import type { Paper } from '../../types';
+import { useT } from '../../hooks/useT';
 import styles from './DetailPanel.module.css';
 
 type Style = CitationStyle | 'bibtex';
@@ -13,6 +14,7 @@ const STYLES: Array<{ value: Style; label: string }> = [
 ];
 
 export function CiteSection({ paper }: { paper: Paper }) {
+  const t = useT();
   const [style, setStyle] = useState<Style>('apa');
   const [copied, setCopied] = useState(false);
   const text = style === 'bibtex' ? toBibtex([paper]).trim() : formatCitation(paper, style);
@@ -29,8 +31,8 @@ export function CiteSection({ paper }: { paper: Paper }) {
 
   return (
     <div className={styles.section}>
-      <div className={styles.sectionLabel}>Cite</div>
-      <div className={styles.citeStyles} role="radiogroup" aria-label="Citation style">
+      <div className={styles.sectionLabel}>{t('cite.title')}</div>
+      <div className={styles.citeStyles} role="radiogroup" aria-label={t('cite.style')}>
         {STYLES.map((s) => (
           <button
             key={s.value}
@@ -46,7 +48,7 @@ export function CiteSection({ paper }: { paper: Paper }) {
       </div>
       <pre className={styles.citeText}>{text}</pre>
       <button type="button" className={styles.editBtn} onClick={copy}>
-        {copied ? 'Copied ✓' : 'Copy'}
+        {copied ? t('cite.copied') : t('cite.copy')}
       </button>
     </div>
   );

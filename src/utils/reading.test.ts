@@ -9,7 +9,7 @@ describe('reading helpers', () => {
     expect(tagCounts([['vr', 'haptics'], ['vr'], undefined])).toEqual([['vr', 2], ['haptics', 1]]);
   });
   it('describes statuses', () => {
-    expect(statusInfo('read')?.label).toBe('Read');
+    expect(statusInfo('read')?.label).toBe('status.read');
     expect(statusInfo(undefined)).toBeUndefined();
   });
 });

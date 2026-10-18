@@ -22,6 +22,7 @@ import { QueryRootNode } from '../MapNodes/QueryRootNode';
 import { Toolbar } from '../Toolbar/Toolbar';
 import { useAutoLayout } from '../../hooks/useAutoLayout';
 import { useSettings } from '../../hooks/settingsContext';
+import { useT } from '../../hooks/useT';
 import { getYearColor, generateId, RELATIONSHIP_OPTIONS } from '../../utils/helpers';
 import { LayoutDirectionContext } from './layoutDirectionContext';
 import { MapViewContext, type ColorMode, type MapView } from './mapViewContext';
@@ -78,6 +79,7 @@ export function MindMap({
   const { fitView } = useReactFlow();
   const { applyLayout } = useAutoLayout();
   const { settings } = useSettings();
+  const t = useT();
   const [pendingConnection, setPendingConnection] = useState<Connection | null>(null);
   const [selectedRelationship, setSelectedRelationship] = useState(RELATIONSHIP_OPTIONS[0]);
   const [showCitations, setShowCitations] = useState(true);
@@ -119,15 +121,15 @@ export function MindMap({
       }))
       .filter((c) => c.titles.length > 0 && !/^(other|papers)$/i.test(c.label))
       .slice(0, 20);
-    if (clusters.length === 0) return '名前を付けるクラスタがありません';
+    if (clusters.length === 0) return t('view.noClusters');
     try {
       const res = await apiPost<ClusterNamesResponse>('/api/llm/cluster-names', { clusters, lang: settings.aiLanguage, useLlm: settings.useLlm });
       dispatch({ type: 'RENAME_CLUSTERS', payload: res.names });
-      return `${Object.keys(res.names).length} 個のクラスタ名を更新しました`;
+      return t('view.renamed', { n: Object.keys(res.names).length });
     } catch (err) {
       return (err as Error).message;
     }
-  }, [nodes, edges, papers, dispatch, settings]);
+  }, [nodes, edges, papers, dispatch, settings, t]);
 
   const visibleEdges = useMemo(
     () =>
@@ -365,7 +367,7 @@ export function MindMap({
               <>
                 <div className={styles.overlay} onClick={cancelConnection} />
                 <div className={styles.connectionDialog}>
-                  <h3>Add Connection</h3>
+                  <h3>{t('map.addConnection')}</h3>
                   <select
                     value={selectedRelationship}
                     onChange={(e) => setSelectedRelationship(e.target.value)}
@@ -378,13 +380,13 @@ export function MindMap({
                   </select>
                   <div className={styles.dialogActions}>
                     <button className={styles.dialogBtn} onClick={cancelConnection}>
-                      Cancel
+                      {t('map.cancel')}
                     </button>
                     <button
                       className={`${styles.dialogBtn} ${styles.dialogBtnPrimary}`}
                       onClick={confirmConnection}
                     >
-                      Add
+                      {t('map.add')}
                     </button>
                   </div>
                 </div>

@@ -1,3 +1,4 @@
+import { tr } from '../i18n/current';
 export interface StreamHandlers {
   onDelta: (text: string) => void;
   onDone?: (data: { text: string; [k: string]: unknown }) => void;
@@ -16,7 +17,7 @@ export async function streamPost(path: string, body: unknown, handlers: StreamHa
     });
   } catch (err) {
     if ((err as Error).name === 'AbortError') return;
-    handlers.onError?.({ code: 'network', message: 'API サーバーに接続できません' });
+    handlers.onError?.({ code: 'network', message: tr('error.networkShort') });
     return;
   }
   if (!res.ok || !res.body) {

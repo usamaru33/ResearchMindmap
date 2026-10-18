@@ -27,6 +27,6 @@ export interface SourceResult {
 export interface SourceAdapter {
   name: SourceName;
   label: string;
-  status(config: AppConfig): { enabled: boolean; reason?: string };
+  status(config: AppConfig): { enabled: boolean; reason?: string; reasonEn?: string };
   search(query: ParsedQuery, opts: SourceSearchOptions, ctx: SourceContext): Promise<SourceResult>;
 }

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { Paper } from '../../types';
 import { authorKey, coauthorGraph } from '../../store/coauthors';
 import { forceLayout } from '../../utils/forceLayout';
+import { useT } from '../../hooks/useT';
 import styles from './Explore.module.css';
 
 const W = 360;
@@ -17,6 +18,7 @@ interface CoauthorNetworkProps {
 
 /** Authors as nodes (size = papers), co-authorship as edges (width = papers together). */
 export function CoauthorNetwork({ papers, focus, maxAuthors = 30, onPickAuthor }: CoauthorNetworkProps) {
+  const t = useT();
   const [hover, setHover] = useState<string | null>(null);
   const graph = useMemo(() => coauthorGraph(papers, maxAuthors), [papers, maxAuthors]);
   const pos = useMemo(
@@ -24,7 +26,7 @@ export function CoauthorNetwork({ papers, focus, maxAuthors = 30, onPickAuthor }
     [graph],
   );
 
-  if (graph.authors.length < 2) return <p className={styles.muted}>共著関係を描けるだけの著者がいません</p>;
+  if (graph.authors.length < 2) return <p className={styles.muted}>{t('network.empty')}</p>;
 
   const focusKey = focus ? authorKey(focus) : null;
   const maxCount = graph.authors[0].paperIds.length;
@@ -38,7 +40,7 @@ export function CoauthorNetwork({ papers, focus, maxAuthors = 30, onPickAuthor }
 
   return (
     <figure className={styles.network}>
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Co-author network">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={t('network.label')}>
         {graph.edges.map((e) => {
           const a = pos.get(e.a)!;
           const b = pos.get(e.b)!;
@@ -53,7 +55,7 @@ export function CoauthorNetwork({ papers, focus, maxAuthors = 30, onPickAuthor }
               className={active ? styles.edgeActive : styles.edge}
               strokeWidth={0.6 + 2.4 * (e.weight / maxWeight)}
             >
-              <title>{`${e.weight} 本の共著`}</title>
+              <title>{t('network.edge', { n: e.weight })}</title>
             </line>
           );
         })}
@@ -71,7 +73,7 @@ export function CoauthorNetwork({ papers, focus, maxAuthors = 30, onPickAuthor }
               onMouseLeave={() => setHover(null)}
               onClick={() => onPickAuthor?.(a.name)}
               role={onPickAuthor ? 'button' : undefined}
-              aria-label={`${a.name}（${a.paperIds.length} 件）`}
+              aria-label={t('network.node', { name: a.name, n: a.paperIds.length })}
             >
               <circle r={r} className={isFocus ? styles.nodeFocus : styles.node} />
               {(labelled.has(a.key) || isFocus || a.key === hover) && (
@@ -79,14 +81,14 @@ export function CoauthorNetwork({ papers, focus, maxAuthors = 30, onPickAuthor }
                   {a.name}
                 </text>
               )}
-              <title>{`${a.name}: ${a.paperIds.length} 件`}</title>
+              <title>{t('network.node', { name: a.name, n: a.paperIds.length })}</title>
             </g>
           );
         })}
       </svg>
       <figcaption className={styles.muted}>
-        上位 {graph.authors.length} 人（{papers.length} 件の論文から）。円の大きさ = 論文数、線の太さ = 共著数
-        {onPickAuthor ? '。クリックでその人を探す' : ''}
+        {t('network.caption', { authors: graph.authors.length, papers: papers.length })}
+        {onPickAuthor ? t('network.click') : ''}
       </figcaption>
     </figure>
   );

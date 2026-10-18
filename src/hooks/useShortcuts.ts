@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import type { MessageKey } from '../i18n';
 
 export interface ShortcutHandlers {
   undo: () => void;
@@ -9,16 +10,16 @@ export interface ShortcutHandlers {
   closePanels: () => void;
 }
 
-export const SHORTCUTS: Array<{ keys: string; label: string }> = [
-  { keys: 'Ctrl / ⌘ + Z', label: '元に戻す' },
-  { keys: 'Ctrl / ⌘ + Shift + Z, Ctrl + Y', label: 'やり直す' },
-  { keys: '/', label: '検索パネルを開いてクエリ欄へ' },
-  { keys: 'F', label: '全体を表示' },
-  { keys: 'Delete / Backspace', label: '選んだ論文・エッジを削除' },
-  { keys: 'Esc', label: 'パネル・選択を閉じる' },
-  { keys: 'Ctrl / ⌘ + Enter', label: '検索欄で検索を実行' },
-  { keys: 'I / M / E', label: 'スクリーニングで採用 / 保留 / 除外' },
-  { keys: '?', label: 'このショートカット一覧' },
+export const SHORTCUTS: Array<{ keys: string; label: MessageKey }> = [
+  { keys: 'Ctrl / ⌘ + Z', label: 'shortcuts.undo' },
+  { keys: 'Ctrl / ⌘ + Shift + Z, Ctrl + Y', label: 'shortcuts.redo' },
+  { keys: '/', label: 'shortcuts.search' },
+  { keys: 'F', label: 'shortcuts.fit' },
+  { keys: 'Delete / Backspace', label: 'shortcuts.delete' },
+  { keys: 'Esc', label: 'shortcuts.close' },
+  { keys: 'Ctrl / ⌘ + Enter', label: 'shortcuts.run' },
+  { keys: 'I / M / E', label: 'shortcuts.screen' },
+  { keys: '?', label: 'shortcuts.help' },
 ];
 
 function isTyping(target: EventTarget | null): boolean {

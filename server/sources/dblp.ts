@@ -67,8 +67,8 @@ export const dblpSource: SourceAdapter = {
   label: 'dblp',
   status: (config) =>
     config.enableDblp
-      ? { enabled: true, reason: 'ボット対策で弾かれることがあります（失敗しても他のソースは続行）' }
-      : { enabled: false, reason: 'ENABLE_DBLP=true で有効化（ボット対策で弾かれることがあるため既定は無効）' },
+      ? { enabled: true, reason: 'ボット対策で弾かれることがあります（失敗しても他のソースは続行）', reasonEn: 'May be blocked by bot protection (other sources continue if it fails)' }
+      : { enabled: false, reason: 'ENABLE_DBLP=true で有効化（ボット対策で弾かれることがあるため既定は無効）', reasonEn: 'Enable with ENABLE_DBLP=true (off by default because bot protection may block it)' },
   async search(query, opts, ctx): Promise<SourceResult> {
     const req = compileDblp(query, opts);
     if (!new URL(req.url).searchParams.get('q')) return { papers: [], warnings: ['dblp は検索語が必要です'], approximate: true };

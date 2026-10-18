@@ -75,13 +75,15 @@ export interface SourceStatus {
   label: string;
   enabled: boolean;
   reason?: string;
+  /** English version of `reason`, for the English UI. */
+  reasonEn?: string;
 }
 
 export interface HealthResponse {
   ok: boolean;
   version: string;
   sources: SourceStatus[];
-  llm: { enabled: boolean; model: string | null; reason?: string };
+  llm: { enabled: boolean; model: string | null; reason?: string; reasonEn?: string };
 }
 
 export interface ApiError {

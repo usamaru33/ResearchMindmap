@@ -20,7 +20,7 @@ function llmStatus(config: AppConfig): HealthResponse['llm'] {
   const llm = getLlm(config);
   return llm
     ? { enabled: true, model: llm.model }
-    : { enabled: false, model: null, reason: 'ANTHROPIC_API_KEY が未設定（LLM なしの代替処理で動作）' };
+    : { enabled: false, model: null, reason: 'ANTHROPIC_API_KEY が未設定（LLM なしの代替処理で動作）', reasonEn: 'ANTHROPIC_API_KEY is not set (features fall back to non-LLM processing)' };
 }
 
 export function createApp(config: AppConfig, services: Services = createServices(config)) {

@@ -4,6 +4,7 @@ import { gapsToMarkdown } from '../../utils/gapsMarkdown';
 import type { Paper } from '../../types';
 import type { PaperGroup } from '../../store/groups';
 import { apiPost } from '../../api/client';
+import { useT } from '../../hooks/useT';
 import styles from './WritingPanel.module.css';
 
 interface GapsViewProps {
@@ -16,6 +17,7 @@ interface GapsViewProps {
 }
 
 export function GapsView({ papers, groups, topic, lang, useLlm, onFocusPaper }: GapsViewProps) {
+  const t = useT();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<GapsResponse | null>(null);
@@ -45,14 +47,14 @@ export function GapsView({ papers, groups, topic, lang, useLlm, onFocusPaper }: 
   return (
     <>
       <button type="button" className={styles.primary} onClick={analyze} disabled={loading || papers.length === 0}>
-        {loading ? 'Analyzing…' : useLlm ? 'Find research gaps' : 'Collect stated limitations (LLM なし)'}
+        {loading ? t('gaps.analyzing') : useLlm ? t('gaps.find') : t('gaps.collect')}
       </button>
       {error && <div className={styles.error}>{error}</div>}
       {result && (
         <div className={styles.output}>
           <div className={styles.outputHeader}>
             <span className={result.mode === 'llm' ? styles.badge : styles.badgeMuted}>
-              {result.mode === 'llm' ? `${result.gaps.length} gaps (LLM)` : '論文中の記述（LLM なし）'}
+              {result.mode === 'llm' ? t('gaps.badgeLlm', { n: result.gaps.length }) : t('gaps.badgeFallback')}
             </span>
             <span className={styles.outputActions}>
               <button
@@ -60,7 +62,7 @@ export function GapsView({ papers, groups, topic, lang, useLlm, onFocusPaper }: 
                 className={styles.link}
                 onClick={() => navigator.clipboard.writeText(gapsToMarkdown(result.gaps, titleOf)).catch(() => undefined)}
               >
-                Copy Markdown
+                {t('write.copyMd')}
               </button>
             </span>
           </div>
@@ -69,7 +71,7 @@ export function GapsView({ papers, groups, topic, lang, useLlm, onFocusPaper }: 
               {w}
             </div>
           ))}
-          {result.gaps.length === 0 && <div className={styles.hint}>課題や限界を述べた記述が見つかりませんでした。</div>}
+          {result.gaps.length === 0 && <div className={styles.hint}>{t('gaps.none')}</div>}
           {result.gaps.map((g, i) => (
             <section key={i} className={styles.gap}>
               <h4>{g.title}</h4>
@@ -86,7 +88,7 @@ export function GapsView({ papers, groups, topic, lang, useLlm, onFocusPaper }: 
               </ul>
               {g.questions.length > 0 && (
                 <div className={styles.questions}>
-                  <span>研究課題の案</span>
+                  <span>{t('gaps.questions')}</span>
                   <ul>
                     {g.questions.map((q) => (
                       <li key={q}>{q}</li>

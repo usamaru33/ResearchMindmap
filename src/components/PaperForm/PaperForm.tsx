@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Paper } from '../../types';
 import { generateId } from '../../utils/helpers';
+import { useT } from '../../hooks/useT';
 import styles from './PaperForm.module.css';
 
 interface PaperFormProps {
@@ -13,6 +14,7 @@ interface PaperFormProps {
 export function PaperForm({ paper, allPapers, onSubmit, onCancel }: PaperFormProps) {
   // Initial values come from props; the parent remounts this form (via `key`)
   // when switching papers, so no effect is needed to sync state.
+  const t = useT();
   const [title, setTitle] = useState(paper?.title ?? '');
   const [authors, setAuthors] = useState(paper?.authors.join(', ') ?? '');
   const [belongs, setBelongs] = useState(paper?.belongs ?? '');
@@ -56,39 +58,39 @@ export function PaperForm({ paper, allPapers, onSubmit, onCancel }: PaperFormPro
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <div className={styles.field}>
-        <label className={styles.label}>Title *</label>
+        <label className={styles.label}>{t('form.title')}</label>
         <input
           className={styles.input}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Paper title"
+          placeholder={t('form.titlePlaceholder')}
           required
         />
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>Authors *</label>
+        <label className={styles.label}>{t('form.authors')}</label>
         <input
           className={styles.input}
           value={authors}
           onChange={(e) => setAuthors(e.target.value)}
-          placeholder="Author 1, Author 2, ..."
+          placeholder={t('form.authorsPlaceholder')}
           required
         />
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>Affiliation</label>
+        <label className={styles.label}>{t('form.affiliation')}</label>
         <input
           className={styles.input}
           value={belongs}
           onChange={(e) => setBelongs(e.target.value)}
-          placeholder="University or Organization"
+          placeholder={t('form.affiliationPlaceholder')}
         />
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>Year *</label>
+        <label className={styles.label}>{t('form.year')}</label>
         <input
           className={`${styles.input} ${styles.yearInput}`}
           type="number"
@@ -101,50 +103,50 @@ export function PaperForm({ paper, allPapers, onSubmit, onCancel }: PaperFormPro
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>Venue *</label>
+        <label className={styles.label}>{t('form.venue')}</label>
         <input
           className={styles.input}
           value={venue}
           onChange={(e) => setVenue(e.target.value)}
-          placeholder="Conference or Journal name"
+          placeholder={t('form.venuePlaceholder')}
           required
         />
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>Abstract *</label>
+        <label className={styles.label}>{t('form.abstract')}</label>
         <textarea
           className={`${styles.input} ${styles.textarea}`}
           value={abstract_}
           onChange={(e) => setAbstract(e.target.value)}
-          placeholder="Paper abstract"
+          placeholder={t('form.abstractPlaceholder')}
           required
         />
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>Challenges</label>
+        <label className={styles.label}>{t('form.challenges')}</label>
         <textarea
           className={`${styles.input} ${styles.textarea}`}
           value={challenges}
           onChange={(e) => setChallenges(e.target.value)}
-          placeholder="Known challenges or limitations"
+          placeholder={t('form.challengesPlaceholder')}
         />
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>Future Work</label>
+        <label className={styles.label}>{t('form.futureWork')}</label>
         <textarea
           className={`${styles.input} ${styles.textarea}`}
           value={futureWork}
           onChange={(e) => setFutureWork(e.target.value)}
-          placeholder="Proposed future directions"
+          placeholder={t('form.futureWorkPlaceholder')}
         />
       </div>
 
       <div className={styles.field}>
         <label className={styles.label}>
-          References ({references.length} selected)
+          {t('form.references', { n: references.length })}
         </label>
         {refCandidates.length > 0 ? (
           <div className={styles.checkboxList}>
@@ -163,12 +165,12 @@ export function PaperForm({ paper, allPapers, onSubmit, onCancel }: PaperFormPro
             ))}
           </div>
         ) : (
-          <div className={styles.emptyRefs}>No other papers to reference</div>
+          <div className={styles.emptyRefs}>{t('form.noReferences')}</div>
         )}
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>Thumbnail URL</label>
+        <label className={styles.label}>{t('form.thumbnail')}</label>
         <input
           className={styles.input}
           value={thumbnailUrl}
@@ -179,10 +181,10 @@ export function PaperForm({ paper, allPapers, onSubmit, onCancel }: PaperFormPro
 
       <div className={styles.actions}>
         <button type="button" className={styles.cancelBtn} onClick={onCancel}>
-          Cancel
+          {t('form.cancel')}
         </button>
         <button type="submit" className={styles.submitBtn}>
-          {paper ? 'Update' : 'Add Paper'}
+          {paper ? t('form.update') : t('form.add')}
         </button>
       </div>
     </form>

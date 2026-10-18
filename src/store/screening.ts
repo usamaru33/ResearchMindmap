@@ -1,13 +1,10 @@
 import type { Paper } from '../types';
 
-export const EXCLUSION_REASONS = [
-  'テーマが違う',
-  '研究の種類が違う（レビュー・意見論文など）',
-  '対象・条件が違う',
-  '査読付きでない',
-  '全文が入手できない',
-  '重複',
-];
+/** One-click exclusion reasons, in the interface language (the chosen text is stored as is). */
+export const EXCLUSION_REASONS: Record<'ja' | 'en', string[]> = {
+  ja: ['テーマが違う', '研究の種類が違う（レビュー・意見論文など）', '対象・条件が違う', '査読付きでない', '全文が入手できない', '重複'],
+  en: ['Off topic', 'Wrong study type (review, opinion, etc.)', 'Wrong population or setting', 'Not peer reviewed', 'Full text unavailable', 'Duplicate'],
+};
 
 export interface PrismaCounts {
   total: number;

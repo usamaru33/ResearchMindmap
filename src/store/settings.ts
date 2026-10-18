@@ -1,4 +1,5 @@
 import type { SourceName } from '../../shared/types';
+import { detectLang, type Lang } from '../i18n/format';
 import type { KeyValueStorage } from './projects';
 
 export interface Settings {
@@ -10,6 +11,8 @@ export interface Settings {
   useLlm: boolean;
   /** Language of AI-written text (summaries, drafts, reasons). */
   aiLanguage: 'ja' | 'en';
+  /** Language of the interface itself. */
+  uiLanguage: Lang;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -18,6 +21,7 @@ export const DEFAULT_SETTINGS: Settings = {
   vagueLimit: 40,
   useLlm: true,
   aiLanguage: 'ja',
+  uiLanguage: 'ja',
 };
 
 const KEY = 'rmm:v1:settings';
@@ -25,7 +29,7 @@ const LIMITS = [10, 25, 50];
 const VAGUE_LIMITS = [20, 40, 60, 100];
 
 /** Read settings, ignoring anything malformed or out of range. */
-export function loadSettings(storage: KeyValueStorage | null): Settings {
+export function loadSettings(storage: KeyValueStorage | null, languages?: readonly string[]): Settings {
   let raw: Partial<Settings> = {};
   try {
     raw = JSON.parse(storage?.getItem(KEY) ?? '{}') ?? {};
@@ -38,6 +42,8 @@ export function loadSettings(storage: KeyValueStorage | null): Settings {
     vagueLimit: VAGUE_LIMITS.includes(raw.vagueLimit as number) ? (raw.vagueLimit as number) : DEFAULT_SETTINGS.vagueLimit,
     useLlm: typeof raw.useLlm === 'boolean' ? raw.useLlm : DEFAULT_SETTINGS.useLlm,
     aiLanguage: raw.aiLanguage === 'en' ? 'en' : 'ja',
+    // First visit: follow the browser.
+    uiLanguage: raw.uiLanguage === 'en' || raw.uiLanguage === 'ja' ? raw.uiLanguage : detectLang(languages),
   };
 }
 

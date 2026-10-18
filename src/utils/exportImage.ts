@@ -1,3 +1,4 @@
+import { tr } from '../i18n/current';
 import { getNodesBounds, getViewportForBounds, type Node } from '@xyflow/react';
 import { safeFileName } from './download';
 
@@ -18,7 +19,7 @@ export function imageSize(bounds: { width: number; height: number }): { width: n
  */
 export async function exportMapImage(nodes: Node[], format: ImageFormat, baseName: string): Promise<void> {
   const viewport = document.querySelector<HTMLElement>('.react-flow__viewport');
-  if (!viewport || nodes.length === 0) throw new Error('書き出すノードがありません');
+  if (!viewport || nodes.length === 0) throw new Error(tr('error.noNodes'));
   const { toPng, toSvg } = await import('html-to-image');
   const bounds = getNodesBounds(nodes);
   const { width, height } = imageSize(bounds);

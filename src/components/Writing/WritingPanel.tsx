@@ -3,6 +3,7 @@ import { toBibtex } from '../../../shared/biblio/bibtex';
 import type { Paper } from '../../types';
 import type { PaperGroup } from '../../store/groups';
 import { useApiHealth } from '../../hooks/useApiHealth';
+import { useT } from '../../hooks/useT';
 import { useSettings } from '../../hooks/settingsContext';
 import { useStream } from '../../hooks/useStream';
 import { downloadText, safeFileName } from '../../utils/download';
@@ -28,6 +29,7 @@ export function WritingPanel({ papers, initialIds, groups, projectName, onFocusP
   );
   const [topic, setTopic] = useState('');
   const { settings } = useSettings();
+  const t = useT();
   const [lang, setLang] = useState<'ja' | 'en'>(settings.aiLanguage);
   const [useLlm, setUseLlm] = useState(settings.useLlm);
   const [copied, setCopied] = useState(false);
@@ -70,7 +72,7 @@ export function WritingPanel({ papers, initialIds, groups, projectName, onFocusP
           className={`${styles.tab} ${tab === 'draft' ? styles.tabActive : ''}`}
           onClick={() => setTab('draft')}
         >
-          関連研究の下書き
+          {t('write.tab.draft')}
         </button>
         <button
           type="button"
@@ -79,44 +81,44 @@ export function WritingPanel({ papers, initialIds, groups, projectName, onFocusP
           className={`${styles.tab} ${tab === 'gaps' ? styles.tabActive : ''}`}
           onClick={() => setTab('gaps')}
         >
-          研究ギャップ
+          {t('write.tab.gaps')}
         </button>
       </div>
       <label className={styles.field}>
-        <span className={styles.label}>Your topic</span>
+        <span className={styles.label}>{t('write.topic')}</span>
         <textarea
           className={styles.input}
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
-          placeholder="例: VR におけるアバターの大きさと物体サイズ知覚の関係"
+          placeholder={t('write.topicPlaceholder')}
         />
       </label>
 
       <div className={styles.row}>
         <label className={styles.inline}>
-          Language
+          {t('write.language')}
           <select value={lang} onChange={(e) => setLang(e.target.value as 'ja' | 'en')}>
             <option value="ja">日本語</option>
             <option value="en">English</option>
           </select>
         </label>
-        <label className={`${styles.inline} ${!llmEnabled ? styles.disabled : ''}`} title={llmEnabled ? '' : 'ANTHROPIC_API_KEY が未設定（雛形を作ります）'}>
+        <label className={`${styles.inline} ${!llmEnabled ? styles.disabled : ''}`} title={llmEnabled ? '' : t('write.llmMissing')}>
           <input type="checkbox" checked={llmEnabled && useLlm} disabled={!llmEnabled} onChange={(e) => setUseLlm(e.target.checked)} />
-          Use LLM
+          {t('write.useLlm')}
         </label>
       </div>
 
       <details className={styles.papers}>
         <summary>
-          Papers: {chosen.length} / {papers.length} selected
-          {chosen.length > 80 && ' (最初の 80 件を使います)'}
+          {t('write.papers', { n: chosen.length, total: papers.length })}
+          {chosen.length > 80 && t('write.first80')}
         </summary>
         <div className={styles.paperActions}>
           <button type="button" className={styles.link} onClick={() => setSelected(new Set(papers.map((p) => p.id)))}>
-            All
+            {t('write.all')}
           </button>
           <button type="button" className={styles.link} onClick={() => setSelected(new Set())}>
-            None
+            {t('write.none')}
           </button>
         </div>
         <ul>
@@ -135,7 +137,7 @@ export function WritingPanel({ papers, initialIds, groups, projectName, onFocusP
 
       {groups.length > 0 && (
         <div className={styles.hint}>
-          マップのクラスタ（{groups.map((g) => g.label).join('、')}）ごとに節を立てます。
+          {t('write.sections', { names: groups.map((g) => g.label).join(t.lang === 'ja' ? '、' : ', ') })}
         </div>
       )}
 
@@ -153,7 +155,7 @@ export function WritingPanel({ papers, initialIds, groups, projectName, onFocusP
       {tab === 'draft' && (
         <>
           <button type="button" className={styles.primary} onClick={generate} disabled={streaming || chosen.length === 0}>
-            {streaming ? 'Writing…' : llmEnabled && useLlm ? 'Draft related work' : 'Build outline (LLM なし)'}
+            {streaming ? t('write.writing') : llmEnabled && useLlm ? t('write.draft') : t('write.outline')}
           </button>
 
           {draft.state.status === 'error' && <div className={styles.error}>{draft.state.message}</div>}
@@ -162,12 +164,12 @@ export function WritingPanel({ papers, initialIds, groups, projectName, onFocusP
               <div className={styles.outputHeader}>
                 {draft.state.status === 'done' && (
                   <span className={draft.state.mode === 'llm' ? styles.badge : styles.badgeMuted}>
-                    {draft.state.mode === 'llm' ? 'LLM draft' : '雛形（LLM なし）'}
+                    {draft.state.mode === 'llm' ? t('write.badgeLlm') : t('write.badgeOutline')}
                   </span>
                 )}
                 <span className={styles.outputActions}>
                   <button type="button" className={styles.link} onClick={copy} disabled={streaming}>
-                    {copied ? 'Copied ✓' : 'Copy Markdown'}
+                    {copied ? t('write.copied') : t('write.copyMd')}
                   </button>
                   <button
                     type="button"

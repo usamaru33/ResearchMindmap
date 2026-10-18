@@ -3,6 +3,7 @@ import { Handle, Position, useUpdateNodeInternals, type NodeProps } from '@xyflo
 import type { PaperNodeData } from '../../types';
 import { truncateAuthors } from '../../utils/helpers';
 import { statusInfo } from '../../utils/reading';
+import { useT } from '../../hooks/useT';
 import { useHandlePositions } from '../MindMap/layoutDirectionContext';
 import { accentColor, badgeColor, citationScale, useMapView } from '../MindMap/mapViewContext';
 import styles from './PaperNode.module.css';
@@ -20,6 +21,7 @@ function PaperNodeComponent({ id, data, selected }: NodeProps) {
     (view.highlight !== null && !view.highlight.has(id)) ||
     (view.colorMode === 'screening' && paper.screening?.decision === 'exclude');
   // "To read" is the default; only show a status once the user has set one.
+  const t = useT();
   const status = paper.status && paper.status !== 'unread' ? statusInfo(paper.status) : undefined;
   const directional = useHandlePositions();
   // In the mind-map layout, papers on the left side face their cluster on the right.
@@ -53,7 +55,7 @@ function PaperNodeComponent({ id, data, selected }: NodeProps) {
       >
         {role && (
           <span className={`${styles.role} ${role === 'foundation' ? styles.roleFoundation : styles.roleRecent}`}>
-            {role === 'foundation' ? '基礎論文' : '最新の発展'}
+            {role === 'foundation' ? t('map.foundation') : t('map.recent')}
           </span>
         )}
         <div className={styles.header}>
@@ -70,7 +72,7 @@ function PaperNodeComponent({ id, data, selected }: NodeProps) {
             {status && (
               <span className={styles.status} style={{ color: status.color }}>
                 <span className={styles.statusDot} style={{ background: status.color }} />
-                {status.label}
+                {t(status.label)}
               </span>
             )}
             {!!paper.rating && <span className={styles.rating}>{'★'.repeat(paper.rating)}</span>}

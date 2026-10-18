@@ -7,9 +7,9 @@ import { useSettings } from '../../hooks/settingsContext';
 import { EMPTY_FILTERS, filterPapers } from '../../store/library';
 import { comparisonCsv } from '../../utils/comparisonCsv';
 import { downloadText, safeFileName } from '../../utils/download';
+import { useT } from '../../hooks/useT';
 import styles from './ComparisonTable.module.css';
 
-const SUGGESTED = ['手法', 'データセット', '評価指標', '結果', '限界'];
 const PAPER_COL = 220;
 const ASPECT_COL = 210;
 
@@ -24,10 +24,11 @@ interface ComparisonTableProps {
 }
 
 function EditableCell({ value, onSave }: { value: string; onSave: (v: string) => void }) {
+  const t = useT();
   const [editing, setEditing] = useState(false);
   if (!editing) {
     return (
-      <button type="button" className={styles.cell} onClick={() => setEditing(true)} title="クリックで編集">
+      <button type="button" className={styles.cell} onClick={() => setEditing(true)} title={t('compare.edit')}>
         {value || <span className={styles.placeholder}>—</span>}
       </button>
     );
@@ -37,7 +38,7 @@ function EditableCell({ value, onSave }: { value: string; onSave: (v: string) =>
       className={styles.cellInput}
       defaultValue={value}
       autoFocus
-      aria-label="Cell"
+      aria-label={t('compare.cell')}
       onBlur={(e) => {
         setEditing(false);
         if (e.target.value !== value) onSave(e.target.value);
@@ -61,6 +62,8 @@ export function ComparisonTable({
 }: ComparisonTableProps) {
   const health = useApiHealth();
   const { settings } = useSettings();
+  const t = useT();
+  const SUGGESTED = t('compare.suggested').split('|');
   const llmEnabled = health.status === 'ok' && health.health.llm.enabled;
   const [newAspect, setNewAspect] = useState('');
   const [filter, setFilter] = useState('');
@@ -79,7 +82,7 @@ export function ComparisonTable({
     // Only fill empty cells; the user's edits win.
     const targets = rows.filter((p) => !p.comparison?.[aspect]?.trim()).slice(0, 60);
     if (targets.length === 0) {
-      setNote('空のセルがありません');
+      setNote(t('compare.noEmpty'));
       return;
     }
     setBusy(aspect);
@@ -93,7 +96,7 @@ export function ComparisonTable({
       });
       const filled = Object.fromEntries(Object.entries(res.values).filter(([, v]) => v));
       onSetValues(aspect, filled);
-      setNote(`「${aspect}」を ${Object.keys(filled).length} 件埋めました（${res.mode === 'llm' ? 'LLM' : '抄録から抜き出し'}）`);
+      setNote(t('compare.filled', { name: aspect, n: Object.keys(filled).length, how: res.mode === 'llm' ? t('compare.howLlm') : t('compare.howFallback') }));
     } catch (err) {
       setNote((err as Error).message);
     } finally {
@@ -107,16 +110,16 @@ export function ComparisonTable({
         <input
           className={styles.input}
           type="search"
-          placeholder="Filter papers…"
-          aria-label="Filter papers"
+          placeholder={t('compare.filter')}
+          aria-label={t('compare.filterLabel')}
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         />
         <input
           className={styles.input}
           list="aspect-suggestions"
-          placeholder="+ 観点を追加（例: 手法）"
-          aria-label="Add aspect"
+          placeholder={t('compare.addAspect')}
+          aria-label={t('compare.addAspectLabel')}
           value={newAspect}
           onChange={(e) => setNewAspect(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && addAspect(newAspect)}
@@ -132,12 +135,12 @@ export function ComparisonTable({
           onClick={() => downloadText(`${safeFileName(projectName)}-comparison.csv`, comparisonCsv(rows, aspects), 'text/csv')}
           disabled={aspects.length === 0}
         >
-          Export CSV
+          {t('compare.exportCsv')}
         </button>
       </div>
       {aspects.length === 0 && (
         <div className={styles.empty}>
-          観点（列）を追加してください。
+          {t('compare.empty')}
           <span className={styles.suggestions}>
             {SUGGESTED.map((s) => (
               <button key={s} type="button" className={styles.chip} onClick={() => addAspect(s)}>
@@ -159,31 +162,31 @@ export function ComparisonTable({
           </colgroup>
           <thead>
             <tr>
-              <th className={styles.paperCol}>Paper ({rows.length})</th>
+              <th className={styles.paperCol}>{t('compare.paper', { n: rows.length })}</th>
               {aspects.map((a) => (
                 <th key={a}>
                   <div className={styles.head}>
                     <input
                       className={styles.headInput}
                       defaultValue={a}
-                      aria-label={`Rename ${a}`}
+                      aria-label={t('compare.rename', { name: a })}
                       onBlur={(e) => e.target.value.trim() !== a && onRenameAspect(a, e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
                     />
                     <button
                       type="button"
                       className={styles.iconBtn}
-                      title={llmEnabled ? 'AI で空のセルを埋める' : '抄録から抜き出して空のセルを埋める（手法・結果・目的・限界・データ・評価のみ）'}
+                      title={llmEnabled ? t('compare.fillLlm') : t('compare.fillFallback')}
                       disabled={busy !== null}
                       onClick={() => fill(a)}
                     >
-                      {busy === a ? '…' : 'Fill'}
+                      {busy === a ? '…' : t('compare.fill')}
                     </button>
                     <button
                       type="button"
                       className={styles.iconBtn}
-                      aria-label={`Remove ${a}`}
-                      onClick={() => window.confirm(`列「${a}」を削除しますか？（セルの内容は残ります）`) && onSetAspects(aspects.filter((x) => x !== a))}
+                      aria-label={t('compare.remove', { name: a })}
+                      onClick={() => window.confirm(t('compare.confirmRemove', { name: a })) && onSetAspects(aspects.filter((x) => x !== a))}
                     >
                       ×
                     </button>
@@ -200,7 +203,7 @@ export function ComparisonTable({
                     {p.title}
                   </button>
                   <div className={styles.meta}>
-                    {p.year || 'n.d.'}
+                    {p.year || t('compare.nd')}
                     {p.venue && ` · ${p.venue}`}
                   </div>
                 </td>
