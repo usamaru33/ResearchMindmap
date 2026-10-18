@@ -6,11 +6,22 @@ import { asciiFamily, parseName } from './names';
 
 const STOP = new Set(['a', 'an', 'the', 'on', 'of', 'in', 'for', 'and', 'to', 'with', 'towards', 'toward']);
 
-/** e.g. vaswani2017attention; collisions get a, b, c… suffixes. */
+/**
+ * e.g. vaswani2017attention; collisions get a, b, c… suffixes.
+ * A key kept from an imported entry (`citeKey`) is used as is, and generated keys avoid it.
+ */
 export function citationKeys(papers: Paper[]): Map<string, string> {
   const keys = new Map<string, string>();
   const used = new Map<string, number>();
+  const taken = new Set<string>();
   for (const p of papers) {
+    if (p.citeKey && !taken.has(p.citeKey)) {
+      keys.set(p.id, p.citeKey);
+      taken.add(p.citeKey);
+    }
+  }
+  for (const p of papers) {
+    if (keys.has(p.id)) continue;
     const family = (p.authors[0] ? asciiFamily(p.authors[0]) : 'anon').toLowerCase() || 'anon';
     const word =
       p.title
@@ -20,11 +31,15 @@ export function citationKeys(papers: Paper[]): Map<string, string> {
         .split(/[^a-z0-9]+/)
         .find((w) => w && !STOP.has(w)) ?? 'untitled';
     const base = `${family}${p.year || 'nd'}${word}`;
-    const n = used.get(base) ?? 0;
+    let n = used.get(base) ?? 0;
+    const keyFor = (i: number) => (i === 0 ? base : `${base}${String.fromCharCode(96 + i)}`);
+    while (taken.has(keyFor(n))) n++;
     used.set(base, n + 1);
-    keys.set(p.id, n === 0 ? base : `${base}${String.fromCharCode(96 + n)}`);
+    taken.add(keyFor(n));
+    keys.set(p.id, keyFor(n));
   }
-  return keys;
+  // In the papers' order.
+  return new Map(papers.map((p) => [p.id, keys.get(p.id)!]));
 }
 
 const SPECIAL = /([&%$#_])/g;
@@ -72,8 +87,8 @@ export function toBibtexEntry(p: Paper, key: string): string {
   return `@${type}{${key},\n${body}\n}`;
 }
 
-export function toBibtex(papers: Paper[]): string {
-  const keys = citationKeys(papers);
+/** `keys` overrides the generated keys (e.g. to match keys computed over a larger set). */
+export function toBibtex(papers: Paper[], keys: Map<string, string> = citationKeys(papers)): string {
   return papers.map((p) => toBibtexEntry(p, keys.get(p.id)!)).join('\n\n') + '\n';
 }
 
@@ -197,5 +212,6 @@ export function bibEntryToPaper(e: BibEntry): Paper {
     url: f.url,
     publisher: publisherFromDoi(doi),
     type,
+    citeKey: e.key || undefined,
   });
 }
