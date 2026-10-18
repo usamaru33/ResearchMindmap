@@ -58,6 +58,11 @@ interface MindMapProps {
   compareOpen: boolean;
   onToggleScreen: () => void;
   screenOpen: boolean;
+  onToggleAnalyze: () => void;
+  analyzeOpen: boolean;
+  /** Text filter that highlights matching papers (owned by the app so other panels can set it). */
+  filter: string;
+  onFilter: (text: string) => void;
 }
 
 export function MindMap({
@@ -78,6 +83,10 @@ export function MindMap({
   compareOpen,
   onToggleScreen,
   screenOpen,
+  onToggleAnalyze,
+  analyzeOpen,
+  filter,
+  onFilter,
 }: MindMapProps) {
   const { fitView } = useReactFlow();
   const { applyLayout } = useAutoLayout();
@@ -88,7 +97,6 @@ export function MindMap({
   const [showCitations, setShowCitations] = useState(true);
   const [colorMode, setColorMode] = useState<ColorMode>('year');
   const [sizeByCitations, setSizeByCitations] = useState(false);
-  const [filter, setFilter] = useState('');
   const [timeline, setTimeline] = useState<TimelineResult['columns'] | null>(null);
 
   const papers = useMemo(() => nodes.filter(isPaperNode).map((n) => n.data.paper), [nodes]);
@@ -340,6 +348,8 @@ export function MindMap({
               compareOpen={compareOpen}
               onToggleScreen={onToggleScreen}
               screenOpen={screenOpen}
+              onToggleAnalyze={onToggleAnalyze}
+              analyzeOpen={analyzeOpen}
                   onFitView={handleFitView}
                   onToggleDirection={handleToggleDirection}
                   showCitations={showCitations}
@@ -357,7 +367,7 @@ export function MindMap({
                       window.setTimeout(() => dispatch({ type: 'REQUEST_VIEW', payload: 'layout' }), 120);
                     }}
                       filter={filter}
-                      onFilter={setFilter}
+                      onFilter={onFilter}
                       matchCount={highlight ? highlight.size : null}
                     clusterCount={clusterCount}
                     onNameClusters={nameClusters}

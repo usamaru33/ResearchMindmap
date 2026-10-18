@@ -22,6 +22,8 @@ interface ToolbarProps {
   compareOpen: boolean;
   onToggleScreen: () => void;
   screenOpen: boolean;
+  onToggleAnalyze: () => void;
+  analyzeOpen: boolean;
   showCitations: boolean;
   onToggleCitations: () => void;
   viewMenu: ReactNode;
@@ -46,6 +48,8 @@ export function Toolbar({
   compareOpen,
   onToggleScreen,
   screenOpen,
+  onToggleAnalyze,
+  analyzeOpen,
   showCitations,
   onToggleCitations,
   viewMenu,
@@ -109,6 +113,14 @@ export function Toolbar({
         title={t('toolbar.screenTitle')}
       >
         {t('toolbar.screen')}
+      </button>
+      <button
+        className={`${styles.btn} ${analyzeOpen ? styles.btnActive : ''}`}
+        onClick={onToggleAnalyze}
+        aria-pressed={analyzeOpen}
+        title={t('toolbar.analyzeTitle')}
+      >
+        {t('toolbar.analyze')}
       </button>
       <button className={styles.btn} onClick={onAddPaper}>
         {t('toolbar.addPaper')}

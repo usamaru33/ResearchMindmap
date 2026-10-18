@@ -18,6 +18,7 @@ interface SidebarProps {
   writingPanel: ReactNode;
   comparePanel: ReactNode;
   screeningPanel: ReactNode;
+  analysisPanel: ReactNode;
   mapIds: Set<string>;
   onAddPapers: (papers: Paper[]) => void;
 }
@@ -28,11 +29,12 @@ const TITLES: Record<Exclude<SidebarMode, 'closed'>, MessageKey> = {
   write: 'sidebar.write',
   compare: 'sidebar.compare',
   screen: 'sidebar.screen',
+  analyze: 'sidebar.analyze',
   add: 'sidebar.add',
   edit: 'sidebar.edit',
 };
 
-export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, searchPanel, libraryPanel, writingPanel, comparePanel, screeningPanel, mapIds, onAddPapers }: SidebarProps) {
+export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, searchPanel, libraryPanel, writingPanel, comparePanel, screeningPanel, analysisPanel, mapIds, onAddPapers }: SidebarProps) {
   const t = useT();
   const [addTab, setAddTab] = useState<'identifiers' | 'references' | 'manual'>('identifiers');
   const isOpen = mode !== 'closed';
@@ -40,7 +42,7 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
 
   return (
     <div
-      className={`${styles.sidebar} ${mode === 'compare' ? styles.sidebarXWide : mode === 'search' || mode === 'library' || mode === 'write' || mode === 'screen' ? styles.sidebarWide : ''} ${!isOpen ? styles.sidebarClosed : ''}`}
+      className={`${styles.sidebar} ${mode === 'compare' ? styles.sidebarXWide : mode === 'search' || mode === 'library' || mode === 'write' || mode === 'screen' || mode === 'analyze' ? styles.sidebarWide : ''} ${!isOpen ? styles.sidebarClosed : ''}`}
       aria-hidden={!isOpen}
     >
       <div className={styles.header}>
@@ -56,6 +58,7 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
           {mode === 'write' && writingPanel}
           {mode === 'compare' && comparePanel}
           {mode === 'screen' && screeningPanel}
+          {mode === 'analyze' && analysisPanel}
         </Suspense>
         {mode === 'add' && (
           <div className={styles.addTabs} role="tablist">
