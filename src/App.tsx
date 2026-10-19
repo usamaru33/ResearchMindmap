@@ -15,6 +15,7 @@ import type { MessageKey } from './i18n';
 import { useShortcuts } from './hooks/useShortcuts';
 import { SearchPanel, type BuildMode, type BuildTarget, type SearchTab } from './components/SearchPanel/SearchPanel';
 import { AddQuerySearch } from './components/SearchPanel/AddQuerySearch';
+import { LibrarySearch } from './components/SearchPanel/LibrarySearch';
 import { FeatureNav, NavToggle } from './components/Nav/FeatureNav';
 import { DEFAULT_TABS, isTabbed, loadNavOpen, saveNavOpen, type NavPanel, type PanelTabs } from './store/navigation';
 import { apiPost } from './api/client';
@@ -23,13 +24,13 @@ import { tagCounts } from './utils/reading';
 import { exportNotes, exportPapers, parseBibliography } from './utils/bibliography';
 import { exportMapImage } from './utils/exportImage';
 import { useMindMapStore } from './hooks/useMindMapStore';
-import { loadInitialProject, useProjects } from './hooks/useProjects';
+import { loadInitialProject, projectStore, useProjects } from './hooks/useProjects';
 import { useSearch, useVagueSearch } from './hooks/useSearch';
 import { useAlerts } from './hooks/useAlerts';
 import { seenKeys } from './store/alerts';
 import { createProject } from './store/projects';
 import { sampleNodes } from './data/sampleData';
-import type { Paper, SidebarMode } from './types';
+import { isPaperNode, type Paper, type SidebarMode } from './types';
 import type { GraphBuildResponse } from '../shared/types';
 import styles from './App.module.css';
 
@@ -41,6 +42,11 @@ const ComparisonTable = lazy(() =>
 );
 const ScreeningPanel = lazy(() => import('./components/Screening/ScreeningPanel').then((m) => ({ default: m.ScreeningPanel })));
 const AnalysisPanel = lazy(() => import('./components/Analysis/AnalysisPanel').then((m) => ({ default: m.AnalysisPanel })));
+
+/** A saved project's papers, for searching across projects. */
+function savedPapers(projectId: string): Paper[] {
+  return (projectStore.load(projectId)?.nodes ?? []).filter(isPaperNode).map((n) => n.data.paper);
+}
 
 function localStore(): Storage | null {
   try {
@@ -249,6 +255,7 @@ export default function App() {
       ['search', 'cmd.search', () => openSearchTab('query'), '/'],
       ['vague', 'cmd.vague', () => openSearchTab('vague')],
       ['explore', 'cmd.explore', () => openSearchTab('explore')],
+      ['mine', 'cmd.mine', () => openSearchTab('mine')],
       ['recommend', 'cmd.recommend', () => openRecommend([])],
       ['library', 'cmd.library', panel('library')],
       ['write', 'cmd.write', () => openWriting([])],
@@ -386,6 +393,22 @@ export default function App() {
             tab={tabs.search}
             onTab={(tab) => setTab('search', tab)}
             onBuildMap={handleBuildMap}
+            librarySearch={
+              <LibrarySearch
+                active={state.sidebarMode === 'search' && tabs.search === 'mine'}
+                projects={projects.projects}
+                activeId={projects.activeProject.id}
+                activeName={projects.activeProject.name}
+                currentPapers={allPapers}
+                loadPapers={savedPapers}
+                onFocus={handleFocusPaper}
+                onAdd={(papers) => {
+                  const center = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+                  dispatch({ type: 'ADD_PAPERS', payload: { papers, center } });
+                }}
+                onOpenProject={projects.switchTo}
+              />
+            }
           />
         }
       />

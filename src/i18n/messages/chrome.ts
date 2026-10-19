@@ -56,7 +56,7 @@ export const chrome = {
   'undo.help': ['ショートカット (?)', 'Shortcuts (?)'],
   'undo.settings': ['設定', 'Settings'],
 
-  'sidebar.search': ['論文を探す', 'Search papers'],
+  'sidebar.search': ['論文を検索', 'Search papers'],
   'sidebar.library': ['ライブラリ', 'Library'],
   'sidebar.write': ['執筆支援', 'Writing'],
   'sidebar.compare': ['比較表', 'Comparison table'],
