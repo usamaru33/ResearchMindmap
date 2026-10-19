@@ -156,14 +156,36 @@ author:"Hinton" NOT title:survey oa:true
 
 ## はじめかた
 
-必要なもの: Node.js 22 以上（[.nvmrc](.nvmrc)）
+使い方に合わせて 3 通りの起動方法があります。どれも http://localhost のこのマシンからだけ使えます。
+
+### A. Docker で動かす（Node.js は不要）
+
+必要なもの: [Docker](https://docs.docker.com/get-docker/)（Docker Desktop など）
 
 ```bash
 git clone <このリポジトリの URL>
 cd ResearchMindmap
+cp .env.example .env     # 任意。APIキーを使うときだけ（.env はコミットしないこと）
+docker compose up --build
+```
+
+http://localhost:8787 を開きます。止めるときは `Ctrl + C`（裏で動かすなら `docker compose up -d --build`、止めるのは `docker compose down`）。
+
+### B. Node.js で 1 コマンドで動かす
+
+必要なもの: Node.js 22 以上（[.nvmrc](.nvmrc)）
+
+```bash
 npm ci                   # package-lock.json どおりに入れる
-cp .env.example .env     # APIキーは任意（下記）。.env はコミットしないこと
-npm run dev              # http://localhost:5173 を開く（API サーバーは 127.0.0.1:8787）
+cp .env.example .env     # 任意
+npm run app              # 画面を作ってから起動。http://localhost:8787 を開く
+```
+
+### C. 開発する
+
+```bash
+npm ci
+npm run dev              # http://localhost:5173 を開く（変更がすぐ反映される。API サーバーは 127.0.0.1:8787）
 ```
 
 最初はサンプルのマップが開きます。左上の ☰ で機能メニューを開き、「論文を集める › 論文を検索」から検索してマップを作ってください。データはブラウザに保存されるので、大事なプロジェクトはプロジェクトメニューから JSON に書き出しておくと安心です。
@@ -284,6 +306,7 @@ Claude は構造化出力（`messages.parse` + zod）とストリーミング（
 
 ```bash
 npm run dev:server   # API サーバーのみ（tsx watch）
+npm start            # 本番モード（dist/ があれば API サーバーが画面も配る）
 npm test             # Vitest
 npm run lint
 npm run build        # tsc -b && vite build（サーバーの型検査を含む）
@@ -298,7 +321,8 @@ npm run build        # tsc -b && vite build（サーバーの型検査を含む�
 自分のパソコンで自分だけが使うことを前提にしています。詳しくは [SECURITY.md](SECURITY.md) を見てください。
 
 - **APIキー**は `.env`（git 管理外）に置き、サーバーだけが使います。ブラウザにも応答にも出しません
-- **API サーバー**は既定で `127.0.0.1` だけで待ち受け、ほかのマシン宛ての Host・ほかのサイトのページからの呼び出し・JSON 以外の本文を拒否します。`HOST=0.0.0.0` などでネットワークに公開すると、届く人は誰でもあなたの API キーを使えるので、認証つきのリバースプロキシの内側に置いてください
+- **API サーバー**は既定で `127.0.0.1` だけで待ち受け、ほかのマシン宛ての Host・ほかのサイトのページからの呼び出し・JSON 以外の本文を拒否します。`HOST=0.0.0.0` などでネットワークに公開すると、届く人は誰でもあなたの API キーを使えるので、認証つきのリバースプロキシの内側に置いてください。Docker でもコンテナのポートは `127.0.0.1` にだけ公開し、root ではないユーザー・読み取り専用のファイルシステムで動かします
+- **画面**には Content-Security-Policy を付け、自分のサーバー以外のスクリプトは読み込みません
 - **プロジェクト・メモ・タグ**はブラウザの localStorage だけに保存されます
 - **外部に送られるもの**: 検索クエリ・論文の識別子と題名（論文データベースへ）、Claude を使う機能では選んだ論文の書誌・抄録と入力した文（Anthropic へ）、`CROSSREF_MAILTO`（Crossref へ）
 
