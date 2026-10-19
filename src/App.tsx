@@ -266,6 +266,7 @@ export default function App() {
       ['compare', 'cmd.compare', panel('compare')],
       ['screen', 'cmd.screen', panel('screen')],
       ['analyze', 'cmd.analyze', panel('analyze')],
+      ['missing', 'cmd.missing', () => openPanel('analyze', 'missing')],
       ['add', 'cmd.addPaper', handleAddPaper],
       ['layout', 'cmd.autoLayout', () => dispatch({ type: 'REQUEST_VIEW', payload: 'layout' })],
       ['fit', 'cmd.fitView', () => fitView({ padding: 0.2, duration: 300 }), 'F'],
@@ -358,6 +359,10 @@ export default function App() {
             latestQuery={state.history.find((h) => h.kind === 'query')?.text ?? ''}
             tab={tabs.analyze}
             onTab={(tab) => setTab('analyze', tab)}
+            onAddWithLinks={(papers, links) => {
+              const center = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+              dispatch({ type: 'ADD_PAPERS_WITH_LINKS', payload: { papers, links, center } });
+            }}
           />
         }
         writingPanel={

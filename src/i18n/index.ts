@@ -13,6 +13,7 @@ import { analysis } from './messages/analysis';
 import { notes } from './messages/notes';
 import { palette } from './messages/palette';
 import { nav } from './messages/nav';
+import { missing } from './messages/missing';
 
 export { detectLang, format, type Lang } from './format';
 
@@ -31,6 +32,7 @@ export const MESSAGES = {
   ...notes,
   ...palette,
   ...nav,
+  ...missing,
 } as const satisfies Record<string, Entry>;
 
 export type MessageKey = keyof typeof MESSAGES;

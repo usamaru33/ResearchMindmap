@@ -248,6 +248,24 @@ function addPapers(state: MindMapState, papers: Paper[], center: { x: number; y:
   return { ...state, nodes, edges: rebuildEdges(nodes, state.edges), viewRequest: { kind: 'fit', seq: state.viewRequest.seq + 1 } };
 }
 
+/** `addPapers`, then record the given citations (ids of incoming papers may map onto papers already in the map). */
+function addPapersWithLinks(state: MindMapState, papers: Paper[], links: Array<[string, string]>, center: { x: number; y: number }): MindMapState {
+  const idMap = matchExisting(state.nodes.filter(isPaperNode).map((n) => n.data.paper), papers);
+  const next = addPapers(state, papers, center);
+  const ids = new Set(next.nodes.filter(isPaperNode).map((n) => n.id));
+  const refs = new Map<string, Set<string>>();
+  for (const [from, to] of links) {
+    const citing = idMap.get(from) ?? from;
+    const cited = idMap.get(to) ?? to;
+    if (citing === cited || !ids.has(citing) || !ids.has(cited)) continue;
+    if (!refs.has(citing)) refs.set(citing, new Set());
+    refs.get(citing)!.add(cited);
+  }
+  if (refs.size === 0) return next;
+  const nodes = next.nodes.map((n) => (refs.has(n.id) ? updatePaper(n, (p) => ({ ...p, references: [...new Set([...p.references, ...refs.get(n.id)!])] })) : n));
+  return { ...next, nodes, edges: rebuildEdges(nodes, next.edges) };
+}
+
 function deletePapers(state: MindMapState, ids: string[]): MindMapState {
   const removed = new Set(ids);
   if (removed.size === 0) return state;
@@ -501,6 +519,9 @@ export function mindMapReducer(state: MindMapState, action: MindMapAction): Mind
 
     case 'ADD_PAPERS':
       return addPapers(state, action.payload.papers, action.payload.center);
+
+    case 'ADD_PAPERS_WITH_LINKS':
+      return addPapersWithLinks(state, action.payload.papers, action.payload.links, action.payload.center);
 
     case 'MERGE_PAPERS':
       return mergePapers(state, action.payload.keepId, action.payload.mergeIds);

@@ -127,6 +127,8 @@ export type MindMapAction =
   | { type: 'RENAME_CLUSTERS'; payload: Record<string, string> }
   | { type: 'UPDATE_PAPER_META'; payload: { id: string; patch: Partial<Paper> } }
   | { type: 'ADD_PAPERS'; payload: { papers: Paper[]; center: { x: number; y: number } } }
+  /** Add papers and the citations that tie them to the map: each link is [citing id, cited id]. */
+  | { type: 'ADD_PAPERS_WITH_LINKS'; payload: { papers: Paper[]; links: Array<[string, string]>; center: { x: number; y: number } } }
   | { type: 'MERGE_PAPERS'; payload: { keepId: string; mergeIds: string[] } }
   | { type: 'RENAME_TAG'; payload: { from: string; to: string | null } }
   | { type: 'ADD_NOTE'; payload: { id: string; position: { x: number; y: number }; color?: NoteColor } }
