@@ -48,3 +48,17 @@ export const RELATIONSHIP_OPTIONS = [
   'uses method',
   'related to',
 ];
+
+/**
+ * A link or image address from paper data (APIs, imported files) if it is a
+ * plain web address; `javascript:`, `data:` and the like are dropped.
+ */
+export function safeUrl(raw: string | undefined | null): string | undefined {
+  if (!raw) return undefined;
+  try {
+    const url = new URL(raw.trim());
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : undefined;
+  } catch {
+    return undefined;
+  }
+}

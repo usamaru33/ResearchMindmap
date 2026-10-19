@@ -4,7 +4,7 @@ import { ExpandSection } from './ExpandSection';
 import { ReadingSection } from './ReadingSection';
 import { CiteSection } from './CiteSection';
 import { SummarySection } from './SummarySection';
-import { getYearColor } from '../../utils/helpers';
+import { getYearColor, safeUrl } from '../../utils/helpers';
 import { useT } from '../../hooks/useT';
 import styles from './DetailPanel.module.css';
 
@@ -50,9 +50,9 @@ export function DetailPanel({
           </div>
 
           <div className={styles.body}>
-            {paper.thumbnailUrl && (
+            {safeUrl(paper.thumbnailUrl) && (
               <img
-                src={paper.thumbnailUrl}
+                src={safeUrl(paper.thumbnailUrl)}
                 alt={paper.title}
                 className={styles.thumbnail}
               />

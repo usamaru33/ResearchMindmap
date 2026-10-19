@@ -1,6 +1,7 @@
 import { useId, useState } from 'react';
 import type { Paper } from '../../types';
 import { STATUS_OPTIONS, normalizeTag } from '../../utils/reading';
+import { safeUrl } from '../../utils/helpers';
 import { useT } from '../../hooks/useT';
 import type { MessageKey } from '../../i18n';
 import styles from './DetailPanel.module.css';
@@ -14,11 +15,13 @@ interface ReadingSectionProps {
 
 function links(paper: Paper, pageLabel: string): Array<{ label: string; href: string }> {
   const out: Array<{ label: string; href: string }> = [];
-  if (paper.pdfUrl) out.push({ label: 'PDF', href: paper.pdfUrl });
+  const pdf = safeUrl(paper.pdfUrl);
+  const page = safeUrl(paper.url);
+  if (pdf) out.push({ label: 'PDF', href: pdf });
   if (paper.ids?.doi) out.push({ label: 'DOI', href: `https://doi.org/${paper.ids.doi}` });
   if (paper.ids?.arxiv) out.push({ label: 'arXiv', href: `https://arxiv.org/abs/${paper.ids.arxiv}` });
   if (paper.ids?.pmid) out.push({ label: 'PubMed', href: `https://pubmed.ncbi.nlm.nih.gov/${paper.ids.pmid}/` });
-  if (paper.url && !out.some((l) => l.href === paper.url)) out.push({ label: pageLabel, href: paper.url });
+  if (page && !out.some((l) => l.href === page)) out.push({ label: pageLabel, href: page });
   if (paper.ids?.openalex) out.push({ label: 'OpenAlex', href: `https://openalex.org/${paper.ids.openalex}` });
   return out;
 }

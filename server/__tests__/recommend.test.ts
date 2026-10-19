@@ -84,9 +84,9 @@ describe('POST /api/papers/recommend', () => {
   it('validates and returns recommendations', async () => {
     const config = loadConfig({ CACHE_TTL_HOURS: '0' });
     const app = createApp(config, createServices(config, { http: fakeOpenAlex(routes).http }));
-    const bad = await app.request('/api/papers/recommend', { method: 'POST', body: JSON.stringify({ seeds: [] }) });
+    const bad = await app.request('/api/papers/recommend', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ seeds: [] }) });
     expect(bad.status).toBe(400);
-    const res = await app.request('/api/papers/recommend', { method: 'POST', body: JSON.stringify({ seeds, exclude: ['W900'] }) });
+    const res = await app.request('/api/papers/recommend', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ seeds, exclude: ['W900'] }) });
     expect(res.status).toBe(200);
     expect(((await res.json()) as RecommendResponse).papers[0].title).toBe('Foundation');
   });

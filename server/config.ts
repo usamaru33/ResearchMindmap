@@ -1,7 +1,12 @@
 import { existsSync } from 'node:fs';
+import { listFromEnv } from './http/security';
 
 export interface AppConfig {
   port: number;
+  /** Interface to listen on; loopback by default so other machines cannot spend the API keys. */
+  host: string;
+  allowedHosts: string[];
+  allowedOrigins: string[];
   openalexApiKey?: string;
   semanticScholarApiKey?: string;
   ieeeApiKey?: string;
@@ -22,6 +27,9 @@ function optional(value: string | undefined): string | undefined {
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   return {
     port: Number(env.PORT ?? 8787),
+    host: optional(env.HOST) ?? '127.0.0.1',
+    allowedHosts: listFromEnv(env.ALLOWED_HOSTS),
+    allowedOrigins: listFromEnv(env.ALLOWED_ORIGINS),
     openalexApiKey: optional(env.OPENALEX_API_KEY),
     semanticScholarApiKey: optional(env.SEMANTIC_SCHOLAR_API_KEY),
     ieeeApiKey: optional(env.IEEE_API_KEY),

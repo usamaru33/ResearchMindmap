@@ -1,8 +1,11 @@
 import { Hono } from 'hono';
+import { bodyLimit } from 'hono/body-limit';
+import { secureHeaders } from 'hono/secure-headers';
 import type { HealthResponse } from '../shared/types';
 import type { AppConfig } from './config';
 import { createServices, type Services } from './services';
 import { ApiHttpError } from './http/errors';
+import { localOnly } from './http/security';
 import { getLlm } from './llm/client';
 import { exploreRoutes } from './routes/explore';
 import { trendRoutes } from './routes/trends';
@@ -26,6 +29,16 @@ function llmStatus(config: AppConfig): HealthResponse['llm'] {
 
 export function createApp(config: AppConfig, services: Services = createServices(config)) {
   const app = new Hono();
+
+  app.use('*', secureHeaders({ crossOriginResourcePolicy: 'same-origin' }));
+  app.use('/api/*', localOnly({ allowedHosts: config.allowedHosts, allowedOrigins: config.allowedOrigins }));
+  app.use(
+    '/api/*',
+    bodyLimit({
+      maxSize: 8 * 1024 * 1024,
+      onError: (c) => c.json({ error: { code: 'too_large', message: 'Request body is too large (8 MB max).' } }, 413),
+    }),
+  );
 
   app.get('/api/health', (c) => {
     const body: HealthResponse = {
@@ -58,8 +71,9 @@ export function createApp(config: AppConfig, services: Services = createServices
         err.status,
       );
     }
+    // Details stay in the server log; the response does not reveal internals.
     console.error(err);
-    return c.json({ error: { code: 'internal', message: err.message } }, 500);
+    return c.json({ error: { code: 'internal', message: 'Internal server error' } }, 500);
   });
 
   return app;
