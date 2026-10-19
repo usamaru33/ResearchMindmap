@@ -305,6 +305,29 @@ export interface RecommendResponse {
 }
 
 /** A paper as sent to /api/papers/check. */
+/** A work the map lacks, with why it matters (DESIGN 15.1). */
+export interface MissingCandidate {
+  paper: Paper;
+  /** Map papers (their ids) that cite it. */
+  citedBy: string[];
+  /** Map papers it cites. */
+  cites: string[];
+  /** Times it is cited together with the map by works citing the map. */
+  cocited: number;
+  score: number;
+}
+
+export interface MissingResponse {
+  candidates: MissingCandidate[];
+  /** Works cited by at least `threshold` map papers, and how many of them the map has. */
+  coverage: { threshold: number; total: number; inMap: number };
+  /** Map papers found in OpenAlex. */
+  seeds: number;
+  /** Works citing the map that were read for follow-up research and co-citation. */
+  citingWorks: number;
+  failed: Array<'forward'>;
+}
+
 export interface CheckInput {
   id: string;
   title: string;

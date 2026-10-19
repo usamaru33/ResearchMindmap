@@ -1,8 +1,9 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import type { CheckResponse, ExpandResponse, Paper, RecommendResponse } from '../../shared/types';
+import type { CheckResponse, ExpandResponse, MissingResponse, Paper, RecommendResponse } from '../../shared/types';
 import { checkPapers } from '../core/check';
 import { expandPaper } from '../core/expand';
+import { findMissingPapers } from '../core/missing';
 import { recommendPapers } from '../core/recommend';
 import { ApiHttpError } from '../http/errors';
 import { readJson } from '../http/validate';
@@ -36,6 +37,19 @@ const RecommendBody = z.object({
   limit: z.number().int().min(1).max(100).default(30),
 });
 
+const MissingBody = z.object({
+  papers: z
+    .array(
+      z.object({
+        id: z.string(),
+        ids: z.object({ doi: z.string().optional(), openalex: z.string().optional(), arxiv: z.string().optional() }).partial().optional(),
+      }),
+    )
+    .min(1)
+    .max(300),
+  limit: z.number().int().min(1).max(60).default(40),
+});
+
 const CheckBody = z.object({
   papers: z
     .array(
@@ -59,6 +73,16 @@ export function paperRoutes(services: Services) {
       const body = await readJson(c, CheckBody);
       const result = await checkPapers(body.papers, { http: services.http, apiKey: services.config.openalexApiKey });
       return c.json(result satisfies CheckResponse);
+    })
+    .post('/missing', async (c) => {
+      const body = await readJson(c, MissingBody);
+      const result = await findMissingPapers(body.papers, body.limit, {
+        http: services.http,
+        apiKey: services.config.openalexApiKey,
+      }).catch((err: Error) => {
+        throw new ApiHttpError(502, 'upstream_error', `OpenAlex: ${err.message}`);
+      });
+      return c.json(result satisfies MissingResponse);
     })
     .post('/recommend', async (c) => {
       const body = await readJson(c, RecommendBody);
