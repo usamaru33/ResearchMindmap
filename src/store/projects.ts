@@ -129,9 +129,10 @@ export class ProjectStore {
   }
 }
 
-/** Upgrade older saved projects. Only v1 exists so far. */
+/** Upgrade older saved projects. Only v1 exists so far; edges saved as right-angled steps become curves. */
 export function migrateProject(project: Project): Project {
-  return { ...project, schemaVersion: PROJECT_SCHEMA_VERSION };
+  const edges = project.edges.map((e) => (e.type === 'smoothstep' ? { ...e, type: 'default' } : e));
+  return { ...project, edges, schemaVersion: PROJECT_SCHEMA_VERSION };
 }
 
 export class ProjectImportError extends Error {}

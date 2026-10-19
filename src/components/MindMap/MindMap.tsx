@@ -333,7 +333,7 @@ export function MindMap({
               fitViewOptions={{ padding: 0.3 }}
               minZoom={0.1}
               maxZoom={2}
-              defaultEdgeOptions={{ type: 'smoothstep' }}
+              defaultEdgeOptions={{ type: 'default' }}
               proOptions={{ hideAttribution: true }}
             >
               <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />
