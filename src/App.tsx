@@ -14,6 +14,7 @@ import { useSettings } from './hooks/settingsContext';
 import type { MessageKey } from './i18n';
 import { useShortcuts } from './hooks/useShortcuts';
 import { SearchPanel, type BuildMode, type BuildTarget, type SearchTab } from './components/SearchPanel/SearchPanel';
+import { AddQuerySearch } from './components/SearchPanel/AddQuerySearch';
 import { apiPost } from './api/client';
 import { buildGraphElements } from './store/graphImport';
 import { tagCounts } from './utils/reading';
@@ -339,6 +340,9 @@ export default function App() {
             projectName={projects.activeProject.name}
             onFocusPaper={handleFocusPaper}
           />
+        }
+        addSearchPanel={
+          <AddQuerySearch mapIds={mapIds} onBuildMap={handleBuildMap} onSearched={(req, res) => recordHistory('query', req.query, res.results)} />
         }
         searchPanel={
           <SearchPanel

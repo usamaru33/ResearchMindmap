@@ -14,6 +14,8 @@ interface SidebarProps {
   onClose: () => void;
   /** Kept mounted while hidden so the search form and results survive closing the panel. */
   searchPanel: ReactNode;
+  /** Query search of the add panel; also kept mounted. */
+  addSearchPanel: ReactNode;
   libraryPanel: ReactNode;
   writingPanel: ReactNode;
   comparePanel: ReactNode;
@@ -34,15 +36,15 @@ const TITLES: Record<Exclude<SidebarMode, 'closed'>, MessageKey> = {
   edit: 'sidebar.edit',
 };
 
-export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, searchPanel, libraryPanel, writingPanel, comparePanel, screeningPanel, analysisPanel, mapIds, onAddPapers }: SidebarProps) {
+export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, searchPanel, addSearchPanel, libraryPanel, writingPanel, comparePanel, screeningPanel, analysisPanel, mapIds, onAddPapers }: SidebarProps) {
   const t = useT();
-  const [addTab, setAddTab] = useState<'identifiers' | 'references' | 'manual'>('identifiers');
+  const [addTab, setAddTab] = useState<'query' | 'identifiers' | 'references' | 'manual'>('query');
   const isOpen = mode !== 'closed';
   const isForm = mode === 'add' || mode === 'edit';
 
   return (
     <div
-      className={`${styles.sidebar} ${mode === 'compare' ? styles.sidebarXWide : mode === 'search' || mode === 'library' || mode === 'write' || mode === 'screen' || mode === 'analyze' ? styles.sidebarWide : ''} ${!isOpen ? styles.sidebarClosed : ''}`}
+      className={`${styles.sidebar} ${mode === 'compare' ? styles.sidebarXWide : mode === 'search' || (mode === 'add' && addTab === 'query') || mode === 'library' || mode === 'write' || mode === 'screen' || mode === 'analyze' ? styles.sidebarWide : ''} ${!isOpen ? styles.sidebarClosed : ''}`}
       aria-hidden={!isOpen}
     >
       <div className={styles.header}>
@@ -62,6 +64,15 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
         </Suspense>
         {mode === 'add' && (
           <div className={styles.addTabs} role="tablist">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={addTab === 'query'}
+              className={`${styles.addTab} ${addTab === 'query' ? styles.addTabActive : ''}`}
+              onClick={() => setAddTab('query')}
+            >
+              {t('sidebar.fromQuery')}
+            </button>
             <button
               type="button"
               role="tab"
@@ -91,7 +102,8 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
             </button>
           </div>
         )}
-        {mode === 'add' && addTab !== 'manual' && (
+        <div hidden={mode !== 'add' || addTab !== 'query'}>{addSearchPanel}</div>
+        {mode === 'add' && (addTab === 'identifiers' || addTab === 'references') && (
           <IdentifierImport key={addTab} mode={addTab} mapIds={mapIds} onAdd={onAddPapers} />
         )}
         {isForm && (mode === 'edit' || addTab === 'manual') && (
