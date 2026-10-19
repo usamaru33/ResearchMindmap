@@ -3,6 +3,8 @@ import type { PanelTabs } from '../../store/navigation';
 import { useT } from '../../hooks/useT';
 import { MapStatsView } from './MapStatsView';
 import { TrendsView } from './TrendsView';
+import { Tabs } from '../common/Tabs';
+import { tabPanel } from '../common/tabPanel';
 import styles from './Analysis.module.css';
 
 interface AnalysisPanelProps {
@@ -20,25 +22,18 @@ export function AnalysisPanel({ papers, filter, onFilter, onFocusPaper, latestQu
   const t = useT();
   return (
     <div className={styles.panel}>
-      <div className={styles.tabs} role="tablist">
-        {(['map', 'trends'] as const).map((v) => (
-          <button
-            key={v}
-            type="button"
-            role="tab"
-            aria-selected={tab === v}
-            className={`${styles.tab} ${tab === v ? styles.tabActive : ''}`}
-            onClick={() => setTab(v)}
-          >
-            {t(v === 'map' ? 'analysis.tab.map' : 'analysis.tab.trends')}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        id="analysis"
+        label={t('nav.analyze')}
+        tabs={(['map', 'trends'] as const).map((v) => ({ id: v, label: t(`analysis.tab.${v}`) }))}
+        value={tab}
+        onChange={setTab}
+      />
       {/* Trends keep their queries and chart while the other tab is shown. */}
-      <div hidden={tab !== 'map'}>
+      <div {...tabPanel('analysis', 'map', tab)}>
         <MapStatsView papers={papers} filter={filter} onFilter={onFilter} onFocusPaper={onFocusPaper} />
       </div>
-      <div hidden={tab !== 'trends'}>
+      <div {...tabPanel('analysis', 'trends', tab)}>
         <TrendsView initialQuery={latestQuery} />
       </div>
     </div>

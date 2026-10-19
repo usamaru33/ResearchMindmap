@@ -11,6 +11,8 @@ import { downloadText, safeFileName } from '../../utils/download';
 import { MiniMarkdown } from '../common/MiniMarkdown';
 import { CitationCheck } from './CitationCheck';
 import { GapsView } from './GapsView';
+import { Tabs } from '../common/Tabs';
+import { tabPanel } from '../common/tabPanel';
 import styles from './WritingPanel.module.css';
 
 interface WritingPanelProps {
@@ -67,35 +69,14 @@ export function WritingPanel({ papers, initialIds, groups, projectName, onFocusP
 
   return (
     <div className={styles.panel}>
-      <div className={styles.tabs} role="tablist">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'draft'}
-          className={`${styles.tab} ${tab === 'draft' ? styles.tabActive : ''}`}
-          onClick={() => setTab('draft')}
-        >
-          {t('write.tab.draft')}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'gaps'}
-          className={`${styles.tab} ${tab === 'gaps' ? styles.tabActive : ''}`}
-          onClick={() => setTab('gaps')}
-        >
-          {t('write.tab.gaps')}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'cite'}
-          className={`${styles.tab} ${tab === 'cite' ? styles.tabActive : ''}`}
-          onClick={() => setTab('cite')}
-        >
-          {t('write.tab.cite')}
-        </button>
-      </div>
+      <Tabs
+        id="write"
+        label={t('nav.write')}
+        tabs={(['draft', 'gaps', 'cite'] as const).map((v) => ({ id: v, label: t(`write.tab.${v}`) }))}
+        value={tab}
+        onChange={setTab}
+      />
+      <div {...tabPanel('write', tab, tab)} className={styles.panel}>
       {tab === 'cite' && <CitationCheck papers={papers} projectName={projectName} onFocusPaper={onFocusPaper} />}
       {tab !== 'cite' && (
         <>
@@ -210,6 +191,7 @@ export function WritingPanel({ papers, initialIds, groups, projectName, onFocusP
           )}
         </>
       )}
+      </div>
     </div>
   );
 }
