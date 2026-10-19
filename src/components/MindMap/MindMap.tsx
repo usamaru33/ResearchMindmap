@@ -305,7 +305,8 @@ export function MindMap({
               minZoom={0.1}
               maxZoom={2}
               defaultEdgeOptions={{ type: 'default' }}
-              proOptions={{ hideAttribution: true }}
+              // React Flow is MIT licensed; keep its attribution link, away from the zoom controls.
+              attributionPosition="bottom-center"
             >
               <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />
           {timeline && (

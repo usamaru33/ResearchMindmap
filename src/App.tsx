@@ -70,7 +70,11 @@ export default function App() {
   const mapIds = useMemo(() => new Set(state.nodes.map((n) => n.id)), [state.nodes]);
   const allPapers = getAllPapers();
   const knownTags = useMemo(() => tagCounts(allPapers.map((p) => p.tags)).map(([t]) => t), [allPapers]);
-  const { screenToFlowPosition, getNode, getNodes, setCenter, fitView } = useReactFlow();
+  const { screenToFlowPosition, getNode, getNodes, getNodesBounds, setCenter, fitView } = useReactFlow();
+  const mapBounds = () => {
+    const nodes = getNodes();
+    return nodes.length ? getNodesBounds(nodes) : null;
+  };
   const [helpOpen, setHelpOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mapFilter, setMapFilter] = useState('');
@@ -272,8 +276,8 @@ export default function App() {
       ['ris', 'cmd.exportRis', () => exportPapers(allPapers, 'ris', name)],
       ['csv', 'cmd.exportCsv', () => exportPapers(allPapers, 'csv', name)],
       ['json', 'cmd.exportJson', projects.exportActive],
-      ['png', 'cmd.exportPng', () => void exportMapImage(getNodes(), 'png', name).catch(() => undefined)],
-      ['svg', 'cmd.exportSvg', () => void exportMapImage(getNodes(), 'svg', name).catch(() => undefined)],
+      ['png', 'cmd.exportPng', () => void exportMapImage(mapBounds(), 'png', name).catch(() => undefined)],
+      ['svg', 'cmd.exportSvg', () => void exportMapImage(mapBounds(), 'svg', name).catch(() => undefined)],
       ['notes', 'cmd.notesMd', () => exportNotes(allPapers, 'md', name, state.aspects)],
       ['obsidian', 'cmd.notesObsidian', () => exportNotes(allPapers, 'obsidian', name, state.aspects)],
       ['new', 'cmd.newProject', () => projects.createNew()],
@@ -437,7 +441,7 @@ export default function App() {
           }
           onExportBibliography={(format) => exportPapers(allPapers, format, projects.activeProject.name)}
           onExportNotes={(format) => exportNotes(allPapers, format, projects.activeProject.name, state.aspects)}
-          onExportImage={(format) => exportMapImage(getNodes(), format, projects.activeProject.name)}
+          onExportImage={(format) => exportMapImage(mapBounds(), format, projects.activeProject.name)}
           onImportBibliography={async (file) => {
             const papers = parseBibliography(await file.text());
             if (papers.length) {

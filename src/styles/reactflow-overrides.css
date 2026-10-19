@@ -84,6 +84,8 @@
   fill: #d4d4d8;
 }
 
+/* Keep React Flow's attribution (MIT, unpaid use), but quiet. */
 .react-flow__attribution {
-  display: none;
+  background: transparent;
+  opacity: 0.6;
 }
