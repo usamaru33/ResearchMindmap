@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Paper, SourceReport } from '../../../shared/types';
-import { getYearColor, truncateAuthors } from '../../utils/helpers';
+import { getYearColor, safeUrl, truncateAuthors } from '../../utils/helpers';
 import { useT } from '../../hooks/useT';
 import styles from './SearchPanel.module.css';
 
@@ -55,7 +55,7 @@ interface ResultItemProps {
 function ResultItem({ paper, reason, checked, inMap, onToggle }: ResultItemProps) {
   const t = useT();
   const [open, setOpen] = useState(false);
-  const link = paper.url ?? (paper.ids?.doi ? `https://doi.org/${paper.ids.doi}` : undefined);
+  const link = safeUrl(paper.url) ?? (paper.ids?.doi ? `https://doi.org/${paper.ids.doi}` : undefined);
   return (
     <li className={`${styles.result} ${checked ? styles.resultChecked : ''}`}>
       <input
