@@ -6,6 +6,7 @@ import type { AppConfig } from './config';
 import { createServices, type Services } from './services';
 import { ApiHttpError } from './http/errors';
 import { localOnly } from './http/security';
+import { hasBuiltApp, mountStaticApp } from './http/static';
 import { getLlm } from './llm/client';
 import { exploreRoutes } from './routes/explore';
 import { trendRoutes } from './routes/trends';
@@ -59,6 +60,9 @@ export function createApp(config: AppConfig, services: Services = createServices
   app.route('/api/llm', llmRoutes(services));
   app.route('/api/explore', exploreRoutes(services));
   app.route('/api/trends', trendRoutes(services));
+
+  // Production mode: the API server also serves the built app (DESIGN 15.2).
+  if (hasBuiltApp(config.staticDir)) mountStaticApp(app, config.staticDir);
 
   app.notFound((c) =>
     c.json({ error: { code: 'not_found', message: `No route for ${c.req.path}` } }, 404),

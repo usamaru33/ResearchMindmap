@@ -15,6 +15,8 @@ export interface AppConfig {
   anthropicApiKey?: string;
   anthropicModel: string;
   cacheDir: string;
+  /** Built app served next to the API when it exists (production mode). */
+  staticDir: string;
   cacheTtlHours: number;
   enableDblp: boolean;
 }
@@ -38,6 +40,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     anthropicApiKey: optional(env.ANTHROPIC_API_KEY),
     anthropicModel: optional(env.ANTHROPIC_MODEL) ?? 'claude-opus-5-5',
     cacheDir: optional(env.CACHE_DIR) ?? '.cache',
+    staticDir: optional(env.STATIC_DIR) ?? 'dist',
     cacheTtlHours: Number(env.CACHE_TTL_HOURS ?? 72),
     enableDblp: env.ENABLE_DBLP === 'true',
   };
