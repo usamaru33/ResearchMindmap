@@ -56,6 +56,23 @@ export function screeningQueue(papers: Paper[]): Paper[] {
   return papers.map((p, i) => ({ p, i })).sort((a, b) => rank(a.p) - rank(b.p) || a.i - b.i).map((x) => x.p);
 }
 
+/** Which papers the screening view walks through; "todo" = not decided yet or maybe. */
+export type ScreenFilter = 'todo' | 'pending' | 'include' | 'maybe' | 'exclude' | 'all';
+
+export function matchesFilter(p: Paper, filter: ScreenFilter): boolean {
+  const d = p.screening?.decision;
+  switch (filter) {
+    case 'all':
+      return true;
+    case 'todo':
+      return !d || d === 'maybe';
+    case 'pending':
+      return !d;
+    default:
+      return d === filter;
+  }
+}
+
 /** A PRISMA-style summary block for a methods section. */
 export function prismaMarkdown(c: PrismaCounts): string {
   const lines = [

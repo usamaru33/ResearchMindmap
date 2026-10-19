@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { makePaper } from '../../shared/paper';
-import { prismaCounts, prismaMarkdown, screeningQueue } from './screening';
+import { matchesFilter, prismaCounts, prismaMarkdown, screeningQueue, type ScreenFilter } from './screening';
 
 const papers = [
   makePaper({ id: 'a', title: 'A', sources: ['openalex', 'crossref'], screening: { decision: 'include' } }),
@@ -20,6 +20,14 @@ describe('screening', () => {
 
   it('queues undecided papers first, then maybe', () => {
     expect(screeningQueue(papers).map((p) => p.id)).toEqual(['e', 'd', 'a', 'b', 'c']);
+  });
+
+  it('filters papers by decision; "todo" means undecided or maybe', () => {
+    const ids = (f: ScreenFilter) => papers.filter((p) => matchesFilter(p, f)).map((p) => p.id);
+    expect(ids('todo')).toEqual(['d', 'e']);
+    expect(ids('pending')).toEqual(['e']);
+    expect(ids('exclude')).toEqual(['b', 'c']);
+    expect(ids('all')).toHaveLength(5);
   });
 
   it('writes a PRISMA summary', () => {
