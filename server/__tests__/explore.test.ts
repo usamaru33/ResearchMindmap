@@ -115,6 +115,7 @@ describe('/api/explore', () => {
   it('searches entities', async () => {
     const res = await app([[/\/authors\?/, { results: [lecun] }]]).request('/api/explore/search', {
       method: 'POST',
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ kind: 'author', query: 'lecun' }),
     });
     expect(res.status).toBe(200);
@@ -122,7 +123,7 @@ describe('/api/explore', () => {
   });
 
   it('rejects an id of the wrong kind', async () => {
-    const res = await app([]).request('/api/explore/works', { method: 'POST', body: JSON.stringify({ kind: 'author', id: 'S1' }) });
+    const res = await app([]).request('/api/explore/works', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kind: 'author', id: 'S1' }) });
     expect(res.status).toBe(400);
   });
 
@@ -130,14 +131,14 @@ describe('/api/explore', () => {
     const res = await app([
       [/group_by/, { group_by: [] }],
       [/\/works\?/, { meta: { count: 1 }, results: [work('W1', 'Deep learning', 2015, 90)] }],
-    ]).request('/api/explore/works', { method: 'POST', body: JSON.stringify({ kind: 'author', id: 'A5001226970', limit: 10 }) });
+    ]).request('/api/explore/works', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kind: 'author', id: 'A5001226970', limit: 10 }) });
     expect(res.status).toBe(200);
     const body = (await res.json()) as ExploreWorksResponse;
     expect(body.papers[0].title).toBe('Deep learning');
   });
 
   it('reports upstream failures as 502', async () => {
-    const res = await app([]).request('/api/explore/search', { method: 'POST', body: JSON.stringify({ kind: 'venue', query: 'chi' }) });
+    const res = await app([]).request('/api/explore/search', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kind: 'venue', query: 'chi' }) });
     expect(res.status).toBe(502);
   });
 });
