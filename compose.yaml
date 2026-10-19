@@ -1,0 +1,28 @@
+# docker compose up --build   →   http://localhost:8787
+services:
+  app:
+    build: .
+    image: researchmindmap
+    # Only this machine can reach it: the API spends your API keys.
+    ports:
+      - "127.0.0.1:8787:8787"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Inside the container it must listen on all interfaces; the port above stays local.
+      HOST: 0.0.0.0
+      PORT: "8787"
+    volumes:
+      - cache:/app/.cache
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  cache:

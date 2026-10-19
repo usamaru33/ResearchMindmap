@@ -30,3 +30,32 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npm audit --omit=dev --audit-level=high
+
+  # The image builds, starts as a non-root user, and serves the app and the API (DESIGN 15.2).
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: docker compose config --quiet
+      - run: docker build -t researchmindmap:ci .
+      - name: Start the container
+        run: docker run -d --name rmm -p 127.0.0.1:8787:8787 --read-only --tmpfs /tmp --cap-drop ALL -v rmm-cache:/app/.cache researchmindmap:ci
+      - name: Wait until healthy
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8787/api/health; then exit 0; fi
+            sleep 2
+          done
+          docker logs rmm
+          exit 1
+      - name: Serves the app with a CSP, runs as non-root, rejects other hosts
+        run: |
+          curl -fsS http://localhost:8787/ | grep -q 'id="root"'
+          curl -fsSI http://localhost:8787/ | grep -qi "^content-security-policy: default-src 'self'"
+          test "$(docker exec rmm id -u)" != "0"
+          test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: evil.example' http://localhost:8787/api/health)" = "403"
+      - if: always()
+        run: docker rm -f rmm || true

@@ -102,7 +102,7 @@ M4 までで要件と機能一覧は完了した。M5 では、論文を書く�
 | # | 状態 | ブランチ | 内容 | 機能ID | 完了条件 |
 |---|---|---|---|---|---|
 | 7.1 | ☑ | `feat/missing-papers` | 見落とし論文の発見（`/api/papers/missing`、基礎文献・後続研究・共引用、網羅率） | A16 | マップの網羅率と、根拠つきの候補が出て、引用関係ごとマップに追加できる |
-| 7.2 | ☐ | `feat/easy-start` | 本番モード（API サーバーが画面も配る、CSP）、Docker / compose、CI でのイメージの確認 | E12 | `docker compose up` か `npm run app` だけで、http://localhost:8787 で使える |
+| 7.2 | ☑ | `feat/easy-start` | 本番モード（API サーバーが画面も配る、CSP）、Docker / compose、CI でのイメージの確認 | E12 | `docker compose up` か `npm run app` だけで、http://localhost:8787 で使える |
 
 ## 進め方の補足
 

@@ -19,6 +19,8 @@ This app is meant to run **on your own machine, for yourself**.
   - Host ヘッダーがこのマシン以外のもの（DNS リバインディング対策）/ Host headers other than this machine (DNS rebinding)
   - ほかのサイトのページからのもの（CSRF 対策）/ calls from other websites' pages (CSRF)
   - `application/json` 以外の本文 / bodies that are not `application/json`
+- Docker（`compose.yaml`）では、コンテナの中では全インターフェースで待ち受けますが、公開するポートは `127.0.0.1:8787` だけです。root ではないユーザー・読み取り専用のファイルシステム・権限なし（`cap_drop: ALL`）で動かします。
+  With Docker, the container listens on all its interfaces but publishes only `127.0.0.1:8787`, running as a non-root user with a read-only filesystem and no capabilities.
 - `HOST=0.0.0.0` などでネットワークに公開すると、**そのポートに届く人は誰でもあなたの API キーを使えます**。公開する場合は、認証つきのリバースプロキシの内側に置き、`ALLOWED_HOSTS` / `ALLOWED_ORIGINS` を設定してください。
   If you expose it (e.g. `HOST=0.0.0.0`), **anyone who can reach the port can spend your API keys**. Put it behind an authenticating reverse proxy and set `ALLOWED_HOSTS` / `ALLOWED_ORIGINS`.
 
