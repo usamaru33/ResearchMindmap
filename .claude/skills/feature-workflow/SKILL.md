@@ -76,7 +76,7 @@ gh pr create --base main --title "<type>: <日本語の要約>" --body-file <tmp
 ## 6. マージ
 
 1. 同じ PR の中で `docs/ROADMAP.md` の該当行を ☑ に、`docs/FEATURES.md` の該当機能の状態を ☑（一部なら ◐）にするコミットを入れる
-2. `gh pr merge <番号> --merge --delete-branch`（**merge commit** を使い、機能ごとのコミット履歴を残す）
+2. `gh pr merge <番号> --merge --delete-branch --auto`（**merge commit** を使い、機能ごとのコミット履歴を残す）。main は保護されていて CI（`check`）が通るまでマージできないので、`--auto` で CI の成功後に自動でマージさせ、`gh pr checks <番号> --watch` で終わるまで待つ。CI が落ちたら直してから push し直す（main への直接 push・force push はできない）
 3. `git checkout main && git pull`
 4. ユーザーに 1〜2 行で「何をマージしたか・PR 番号」を報告して次の項目へ
 
