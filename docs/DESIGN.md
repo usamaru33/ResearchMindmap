@@ -367,6 +367,7 @@ RQL → parse → AST
 | POST | `/api/explore/search` | `{ kind: 'author' \| 'venue', query }` | `{ entities: ExploreEntity[] }` |
 | POST | `/api/explore/works` | `{ kind, id, limit?, sort?: 'cited' \| 'recent', yearMin?, yearMax? }` | `{ papers, total, byYear }` |
 | POST | `/api/papers/check` | `{ papers: [{ id, title, year, type?, ids? }] (≤300) }` | `{ retracted: id[], published: { [id]: Paper }, checked: { retraction, preprints, preprintTotal }, failed: ('retraction' \| 'published')[] }` |
+| POST | `/api/papers/missing` | `{ papers: [{ id, ids }] (≤300), limit?(≤60, 既定 40) }` | `{ candidates: [{ paper, citedBy: id[], cites: id[], cocited, score }], coverage: { threshold, total, inMap }, seeds, citingWorks, failed: ('forward')[] }` |
 | POST | `/api/trends` | `{ queries: string[] (1–5), yearMin?(既定 終了年 − 19), yearMax?(既定 今年), share?(既定 true) }` | `{ series: [{ query, byYear, total, approximate, error?: 'invalid_query' \| 'upstream' }], all?: byYear, yearMin, yearMax }` |
 
 ### 8.1 設定（`.env`）
@@ -614,3 +615,39 @@ CACHE_TTL_HOURS=72
 - 判定ボタンは今の判定を押された状態（`aria-pressed`）で示す
 - カードの下に、選んだ状態の論文の短い一覧（判定のバッジつき）を出し、押すとその論文に移る
 - PRISMA の集計は、箱と矢印の流れ図（識別 → スクリーニング → 除外（理由の内訳）/ 保留・未判定 → 採用）で表示し、「Markdown をコピー」で今までどおりの文を写せる
+
+---
+
+## 15. 網羅性と配布（M7）
+
+### 15.1 見落とし論文の発見（A16）
+
+「おすすめ」（A8）は、選んだ論文に近い論文を探す。こちらは**マップ全体の網羅性**を調べ、分野の重要文献でマップに入っていないものを、根拠つきで示す。
+
+- 場所: 分析パネルのタブ「見落とし」。OpenAlex を使うので「OpenAlex で調べる」を押したときだけ調べる
+- サーバー: `POST /api/papers/missing`（`server/core/missing.ts`）。入力はマップの論文（`{ id, ids }`、最大 300 件）
+  1. 各論文の `referenced_works` を OpenAlex から 50 件ずつまとめて取る（A8 と同じ）
+  2. **基礎文献**: マップの論文の何件が引用しているか。根拠としてその論文の ID（マップ側の ID）を返す
+  3. **後続研究**: `cites:` の OR フィルタで、マップの論文を引用する被引用数の多い論文（最大 200 件）を取り、それぞれがマップの論文を何件引用しているか。根拠としてその ID を返す
+  4. **共引用**: 3 で取った「マップを引用する論文」の参考文献に、マップの論文と一緒に何回挙がるか（分野の人がマップの論文とセットで引用する文献）
+  5. 点数 = 基礎文献の件数 + 後続研究の件数 + 共引用の回数 ×（マップの件数 ÷ 取った引用論文の数）。共引用は件数の尺度が違うので、マップの件数に揃える
+  6. 根拠が弱いもの（基礎文献 1 件だけ、など）は落とす: 基礎文献か後続研究が 2 件以上、または共引用が 3 回以上。上位 40 件の書誌を取って返す
+  7. **網羅率**: マップの論文の 10%（最低 2 件）以上が引用している文献のうち、マップに入っている割合。「マップの 3 件以上が引用する文献 25 件のうち 17 件（68%）がマップにある」のように示す
+  8. 後続研究・共引用の取得に失敗しても、基礎文献と網羅率は返し、失敗を `failed` で伝える
+- 画面: 網羅率、手がかりごとの絞り込み（すべて / 基礎文献 / 後続研究 / 共引用）、候補の一覧（理由のバッジ、根拠の論文の一覧。押すとマップのその論文へ移動）。選んで「このマップに追加」すると、根拠の引用関係もつないで置く
+- 追加: `ADD_PAPERS_WITH_LINKS { papers, links: [引用する側, 引用される側][], center }`。`ADD_PAPERS` と同じく既存の論文と同一視し、つないだ引用から引用の矢印を作る。元に戻せる
+- マップにある論文は、サーバーでは OpenAlex ID で、画面では `matchExisting` でも除く
+
+### 15.2 かんたん起動（E12）
+
+Node.js の開発環境がなくても動かせるようにする。
+
+- **本番モード**: `npm run build` の後 `npm start` で、API サーバーが画面（`dist/`）も配る。ポートは 1 つ（8787）。`/api/*` 以外はファイルを返し、無ければ `index.html`（SPA）。`dist/` が無ければ API だけで動く（開発時は従来どおり Vite）
+  - 画面の応答に Content-Security-Policy を付ける（`default-src 'self'`、画像は `self` / `data:` / `https:`、スタイルは React の style 属性のため `'unsafe-inline'`、`frame-ancestors 'none'`）
+  - `npm run app` = ビルドして起動（1 コマンド）
+- **Docker**: `docker compose up` で起動し、http://localhost:8787 を開く
+  - 多段ビルド（ビルド用と実行用）。実行用は本番の依存だけ（`tsx` は実行に使うので dependencies へ移す）。root ではないユーザーで動かす
+  - コンテナの中では `HOST=0.0.0.0` で待ち受けるが、compose は `127.0.0.1:8787:8787` で公開し、このマシンからしか届かない（9 章の方針どおり）
+  - `.env` があれば読み込む（無くても動く）。キャッシュは名前付きボリューム。`.dockerignore` で `.env`・`.cache`・`node_modules`・`.git` を除く
+  - ヘルスチェック: `/api/health`
+- CI で Docker イメージをビルドして起動し、`/api/health` と画面が返ることを確かめる
