@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { toBibtex } from '../../../shared/biblio/bibtex';
 import type { Paper } from '../../types';
 import type { PaperGroup } from '../../store/groups';
+import type { PanelTabs } from '../../store/navigation';
 import { useApiHealth } from '../../hooks/useApiHealth';
 import { useT } from '../../hooks/useT';
 import { useSettings } from '../../hooks/settingsContext';
@@ -19,10 +20,11 @@ interface WritingPanelProps {
   groups: PaperGroup[];
   projectName: string;
   onFocusPaper: (id: string) => void;
+  tab: PanelTabs['write'];
+  onTab: (tab: PanelTabs['write']) => void;
 }
 
-export function WritingPanel({ papers, initialIds, groups, projectName, onFocusPaper }: WritingPanelProps) {
-  const [tab, setTab] = useState<'draft' | 'gaps' | 'cite'>('draft');
+export function WritingPanel({ papers, initialIds, groups, projectName, onFocusPaper, tab, onTab: setTab }: WritingPanelProps) {
   const health = useApiHealth();
   const llmEnabled = health.status === 'ok' && health.health.llm.enabled;
   const [selected, setSelected] = useState<Set<string>>(

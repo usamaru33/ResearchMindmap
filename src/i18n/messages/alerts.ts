@@ -10,6 +10,5 @@ export const alerts = {
   'alerts.checkedAt': ['確認: {when}', 'Checked {when}'],
   'alerts.markSeen': ['既読にする', 'Mark as seen'],
   'alerts.rootQuery': ['新着: {query}', 'New: {query}'],
-  'alerts.badge': ['保存した検索に新着 {n} 件', '{n} new {n|paper|papers} in saved searches'],
   'settings.autoCheck': ['起動時に保存した検索の新着を確認（1 日 1 回）', 'Check saved searches for new papers on open (once a day)'],
 } as const satisfies Record<string, Entry>;

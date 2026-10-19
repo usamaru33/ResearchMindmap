@@ -11,12 +11,12 @@ import type { AlertsState } from '../../hooks/useAlerts';
 import { ExploreSearch } from '../Explore/ExploreSearch';
 import { RecommendSearch } from './RecommendSearch';
 import { useT } from '../../hooks/useT';
+import type { PanelTabs } from '../../store/navigation';
 import styles from './SearchPanel.module.css';
 
 export type { BuildMapHandler, BuildMode, BuildTarget } from './ResultsSection';
 
-export type SearchTab = 'query' | 'vague' | 'explore' | 'recommend';
-type Tab = SearchTab;
+export type SearchTab = PanelTabs['search'];
 
 interface SearchPanelProps {
   search: SearchState;
@@ -28,8 +28,8 @@ interface SearchPanelProps {
   mapPapers: Paper[];
   /** Papers chosen in the library for recommendations. */
   recommendIds: string[];
-  /** Switch to a tab from outside (a new nonce triggers the switch). */
-  tabRequest: { tab: SearchTab; nonce: number } | null;
+  tab: SearchTab;
+  onTab: (tab: SearchTab) => void;
   onBuildMap: BuildMapHandler;
   history: HistoryEntry[];
   onPinHistory: (id: string) => void;
@@ -45,7 +45,8 @@ export function SearchPanel({
   mapIds,
   mapPapers,
   recommendIds,
-  tabRequest,
+  tab,
+  onTab: setTab,
   onBuildMap,
   history,
   onPinHistory,
@@ -54,12 +55,6 @@ export function SearchPanel({
 }: SearchPanelProps) {
   const health = useApiHealth();
   const t = useT();
-  const [tab, setTab] = useState<Tab>(tabRequest?.tab ?? 'query');
-  const [seenRequest, setSeenRequest] = useState(tabRequest?.nonce);
-  if (tabRequest && tabRequest.nonce !== seenRequest) {
-    setSeenRequest(tabRequest.nonce);
-    setTab(tabRequest.tab);
-  }
   const [queryText, setQueryText] = useState('');
   const [description, setDescription] = useState('');
 

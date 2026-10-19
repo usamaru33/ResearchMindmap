@@ -22,6 +22,8 @@ interface ProjectMenuProps {
   onExportImage: (format: 'png' | 'svg') => Promise<void>;
   /** Controls shown next to the project button (undo/redo, help). */
   extra?: ReactNode;
+  /** Shown before the project name (the feature-menu button). */
+  lead?: ReactNode;
 }
 
 function formatDate(iso: string): string {
@@ -45,6 +47,7 @@ export function ProjectMenu({
   onImportBibliography,
   onExportImage,
   extra,
+  lead,
 }: ProjectMenuProps) {
   const t = useT();
   const [open, setOpen] = useState(false);
@@ -103,6 +106,7 @@ export function ProjectMenu({
   return (
     <div className={styles.root} ref={rootRef}>
       <div className={styles.row}>
+        {lead}
         <button
           className={styles.trigger}
           onClick={() => setOpen((v) => !v)}

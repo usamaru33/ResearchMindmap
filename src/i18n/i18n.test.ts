@@ -12,8 +12,8 @@ describe('format', () => {
 
 describe('translations', () => {
   it('switches language', () => {
-    expect(makeTranslate('ja')('toolbar.search')).toBe('検索');
-    expect(makeTranslate('en')('toolbar.search')).toBe('Search');
+    expect(makeTranslate('ja')('toolbar.autoLayout')).toBe('自動整列');
+    expect(makeTranslate('en')('toolbar.autoLayout')).toBe('Auto Layout');
   });
 
   it('has both languages for every key, with the same placeholders', () => {

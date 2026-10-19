@@ -2,8 +2,6 @@ import type { Entry } from '../format';
 
 /** The analysis panel: map statistics and research trends. */
 export const analysis = {
-  'toolbar.analyze': ['分析', 'Analyze'],
-  'toolbar.analyzeTitle': ['マップの統計と研究動向', 'Map statistics and research trends'],
   'sidebar.analyze': ['分析', 'Analysis'],
   'analysis.tab.map': ['このマップ', 'This map'],
   'analysis.tab.trends': ['研究動向', 'Research trends'],

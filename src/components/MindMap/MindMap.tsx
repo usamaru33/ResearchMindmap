@@ -47,21 +47,6 @@ interface MindMapProps {
   layoutDirection: LayoutDirection;
   viewRequest: ViewRequest;
   dispatch: React.Dispatch<UndoAction>;
-  onAddPaper: () => void;
-  onToggleSearch: () => void;
-  searchOpen: boolean;
-  /** New papers found in saved searches (shown on the Search button). */
-  searchBadge: number;
-  onToggleLibrary: () => void;
-  libraryOpen: boolean;
-  onToggleWrite: () => void;
-  writeOpen: boolean;
-  onToggleCompare: () => void;
-  compareOpen: boolean;
-  onToggleScreen: () => void;
-  screenOpen: boolean;
-  onToggleAnalyze: () => void;
-  analyzeOpen: boolean;
   /** Text filter that highlights matching papers (owned by the app so other panels can set it). */
   filter: string;
   onFilter: (text: string) => void;
@@ -73,20 +58,6 @@ export function MindMap({
   layoutDirection,
   viewRequest,
   dispatch,
-  onAddPaper,
-  onToggleSearch,
-  searchOpen,
-  searchBadge,
-  onToggleLibrary,
-  libraryOpen,
-  onToggleWrite,
-  writeOpen,
-  onToggleCompare,
-  compareOpen,
-  onToggleScreen,
-  screenOpen,
-  onToggleAnalyze,
-  analyzeOpen,
   filter,
   onFilter,
 }: MindMapProps) {
@@ -362,21 +333,7 @@ export function MindMap({
                 <Toolbar
                   layoutDirection={layoutDirection}
                   onAutoLayout={handleAutoLayout}
-                  onAddPaper={onAddPaper}
-                  onToggleSearch={onToggleSearch}
-                  searchOpen={searchOpen}
-                  searchBadge={searchBadge}
-                  onToggleLibrary={onToggleLibrary}
-                  libraryOpen={libraryOpen}
-                onToggleWrite={onToggleWrite}
-                writeOpen={writeOpen}
-              onToggleCompare={onToggleCompare}
-              compareOpen={compareOpen}
-              onToggleScreen={onToggleScreen}
-              screenOpen={screenOpen}
-              onToggleAnalyze={onToggleAnalyze}
-              analyzeOpen={analyzeOpen}
-              onAddNote={handleAddNote}
+                  onAddNote={handleAddNote}
                   onFitView={handleFitView}
                   onToggleDirection={handleToggleDirection}
                   showCitations={showCitations}
