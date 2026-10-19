@@ -9,7 +9,7 @@ export interface PanelTabs {
   search: 'query' | 'vague' | 'explore' | 'recommend' | 'mine';
   add: 'query' | 'identifiers' | 'references' | 'manual';
   library: 'list' | 'check' | 'tags';
-  analyze: 'map' | 'trends';
+  analyze: 'map' | 'trends' | 'missing';
   write: 'draft' | 'gaps' | 'cite';
 }
 
@@ -98,6 +98,7 @@ export const NAV_GROUPS: NavGroup[] = [
         tabs: [
           { id: 'map', label: 'analysis.tab.map' },
           { id: 'trends', label: 'analysis.tab.trends' },
+          { id: 'missing', label: 'analysis.tab.missing' },
         ],
       },
     ],
