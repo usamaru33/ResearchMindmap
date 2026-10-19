@@ -5,6 +5,8 @@ import { IdentifierImport } from './IdentifierImport';
 import { useT } from '../../hooks/useT';
 import type { MessageKey } from '../../i18n';
 import { navLocation, type PanelTabs } from '../../store/navigation';
+import { Tabs } from '../common/Tabs';
+import { tabPanel } from '../common/tabPanel';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -27,6 +29,13 @@ interface SidebarProps {
   addTab: PanelTabs['add'];
   onAddTab: (tab: PanelTabs['add']) => void;
 }
+
+const ADD_TABS: Array<[PanelTabs['add'], MessageKey]> = [
+  ['query', 'sidebar.fromQuery'],
+  ['identifiers', 'sidebar.fromIds'],
+  ['references', 'sidebar.fromReferences'],
+  ['manual', 'sidebar.manual'],
+];
 
 const TITLES: Record<Exclude<SidebarMode, 'closed'>, MessageKey> = {
   search: 'sidebar.search',
@@ -69,48 +78,20 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
           {mode === 'analyze' && analysisPanel}
         </Suspense>
         {mode === 'add' && (
-          <div className={styles.addTabs} role="tablist">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={addTab === 'query'}
-              className={`${styles.addTab} ${addTab === 'query' ? styles.addTabActive : ''}`}
-              onClick={() => setAddTab('query')}
-            >
-              {t('sidebar.fromQuery')}
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={addTab === 'identifiers'}
-              className={`${styles.addTab} ${addTab === 'identifiers' ? styles.addTabActive : ''}`}
-              onClick={() => setAddTab('identifiers')}
-            >
-              {t('sidebar.fromIds')}
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={addTab === 'references'}
-              className={`${styles.addTab} ${addTab === 'references' ? styles.addTabActive : ''}`}
-              onClick={() => setAddTab('references')}
-            >
-              {t('sidebar.fromReferences')}
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={addTab === 'manual'}
-              className={`${styles.addTab} ${addTab === 'manual' ? styles.addTabActive : ''}`}
-              onClick={() => setAddTab('manual')}
-            >
-              {t('sidebar.manual')}
-            </button>
-          </div>
+          <Tabs
+            id="add"
+            label={t('nav.add')}
+            tabs={ADD_TABS.map(([id, label]) => ({ id, label: t(label) }))}
+            value={addTab}
+            onChange={setAddTab}
+            className={styles.addTabs}
+          />
         )}
-        <div hidden={mode !== 'add' || addTab !== 'query'}>{addSearchPanel}</div>
+        <div {...tabPanel('add', 'query', mode === 'add' ? addTab : '')}>{addSearchPanel}</div>
         {mode === 'add' && (addTab === 'identifiers' || addTab === 'references') && (
-          <IdentifierImport key={addTab} mode={addTab} mapIds={mapIds} onAdd={onAddPapers} />
+          <div {...tabPanel('add', addTab, addTab)}>
+            <IdentifierImport key={addTab} mode={addTab} mapIds={mapIds} onAdd={onAddPapers} />
+          </div>
         )}
         {isForm && (mode === 'edit' || addTab === 'manual') && (
           <PaperForm

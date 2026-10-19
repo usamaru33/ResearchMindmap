@@ -189,3 +189,11 @@
   background: var(--color-danger);
   border-radius: 999px;
 }
+
+/* A narrow canvas (menu and panels open): move below the project menu and use the full width. */
+@container (max-width: 1080px) {
+  .toolbar {
+    max-width: calc(100cqw - 32px);
+    margin-top: 52px;
+  }
+}

@@ -13,6 +13,7 @@ export const palette = {
   'cmd.search': ['検索を開く', 'Open search'],
   'cmd.vague': ['なんとなく検索', 'Vague search'],
   'cmd.explore': ['著者・会議から探す', 'Explore authors and venues'],
+  'cmd.mine': ['自分のライブラリを検索', 'Search my library'],
   'cmd.recommend': ['おすすめの論文を探す', 'Find recommended papers'],
   'cmd.library': ['ライブラリを開く', 'Open library'],
   'cmd.write': ['執筆支援を開く', 'Open writing'],

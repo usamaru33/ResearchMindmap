@@ -6,7 +6,7 @@ export type NavPanel = Exclude<SidebarMode, 'closed' | 'edit'>;
 
 /** The tab each tabbed panel shows. App owns these so the menu and the panels agree. */
 export interface PanelTabs {
-  search: 'query' | 'vague' | 'explore' | 'recommend';
+  search: 'query' | 'vague' | 'explore' | 'recommend' | 'mine';
   add: 'query' | 'identifiers' | 'references' | 'manual';
   library: 'list' | 'check' | 'tags';
   analyze: 'map' | 'trends';
@@ -53,6 +53,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { id: 'vague', label: 'search.tab.vague' },
           { id: 'explore', label: 'search.tab.explore' },
           { id: 'recommend', label: 'search.tab.recommend' },
+          { id: 'mine', label: 'search.tab.mine' },
         ],
       },
       {

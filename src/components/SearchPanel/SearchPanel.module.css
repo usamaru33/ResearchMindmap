@@ -709,3 +709,187 @@
   background: var(--color-bg);
   border-radius: var(--radius-sm);
 }
+
+/* Search scope (DESIGN 14.3) */
+.scopes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+  border: none;
+}
+
+.scopeLegend {
+  margin-bottom: var(--space-xs);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.scope {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.scope:hover {
+  border-color: var(--color-border-hover);
+}
+
+.scope input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scope:has(input:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.scopeOn,
+.scopeOn:hover {
+  background: var(--color-accent-light);
+  border-color: var(--color-accent);
+}
+
+.scopeIcon {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.scopeText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scopeTitle {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.scopeOn .scopeTitle {
+  color: var(--color-accent);
+}
+
+.scopeHint {
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}
+
+.methodHint {
+  margin-top: calc(-1 * var(--space-sm));
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Own-library search */
+.mineBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.mineBar .searchBtn {
+  width: auto;
+  padding: 6px 14px;
+}
+
+.mineList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  list-style: none;
+}
+
+.mineItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.mineItem input {
+  margin-top: 3px;
+}
+
+.mineInMap {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: #047857;
+  background: #ecfdf5;
+  border-radius: 4px;
+}
+
+.mineBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mineTitle {
+  padding: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-align: left;
+  color: var(--color-text-primary);
+  background: none;
+  border: none;
+}
+
+button.mineTitle:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.mineMeta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.mineProjects {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.mineProject,
+.mineTag {
+  padding: 0 6px;
+  font-size: var(--font-size-xs);
+  line-height: 18px;
+  border-radius: 4px;
+}
+
+.mineProject {
+  color: var(--color-text-secondary);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+}
+
+.mineProjectCurrent {
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+  border-color: transparent;
+}
+
+.mineTag {
+  color: var(--color-text-secondary);
+}
