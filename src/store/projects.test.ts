@@ -96,6 +96,17 @@ describe('project files', () => {
     expect(imported.nodes[0].position).toEqual({ x: 10, y: 20 });
   });
 
+  it('turns edges saved as right-angled steps into curves', () => {
+    const file = JSON.stringify({
+      nodes: [],
+      edges: [
+        { id: 'cite-a-b', source: 'a', target: 'b', type: 'smoothstep' },
+        { id: 'grp-c-a', source: 'c', target: 'a', type: 'default' },
+      ],
+    });
+    expect(parseProjectFile(file).edges.map((e) => e.type)).toEqual(['default', 'default']);
+  });
+
   it('rejects files that are not projects', () => {
     expect(() => parseProjectFile('nope')).toThrow(ProjectImportError);
     expect(() => parseProjectFile('{"foo":1}')).toThrow(ProjectImportError);

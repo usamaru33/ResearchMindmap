@@ -30,7 +30,8 @@ export function createStyledEdge(
     id,
     source,
     target,
-    type: 'smoothstep',
+    // Bezier curves, like the map's structural edges.
+    type: 'default',
     animated: style.animated,
     style: { stroke: style.stroke, strokeWidth: style.strokeWidth },
     // Citations are the bulk of the edges; arrows say enough, labels would clutter.
