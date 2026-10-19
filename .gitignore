@@ -25,4 +25,13 @@ dist-ssr
 
 # Local secrets and API response cache
 .env
+.env.*
+!.env.example
 .cache
+*.pem
+*.key
+
+# Test and tool output
+coverage
+test-results
+playwright-report

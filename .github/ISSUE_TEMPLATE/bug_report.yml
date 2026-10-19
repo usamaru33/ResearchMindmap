@@ -1,0 +1,36 @@
+name: 不具合の報告 / Bug report
+description: 期待どおりに動かないことを報告する / Something does not work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **APIキー・`.env` の中身・個人情報は書かないでください。** 脆弱性は [SECURITY.md](../blob/main/SECURITY.md) の方法で非公開で報告してください。
+        **Do not paste API keys, `.env` contents or personal data.** Report vulnerabilities privately as described in SECURITY.md.
+  - type: textarea
+    id: what
+    attributes:
+      label: 何が起きたか / What happened
+      description: 期待した動作と実際の動作 / Expected vs. actual behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順 / Steps to reproduce
+      placeholder: |
+        1. 検索パネルで … / In the search panel …
+        2. …
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: 環境 / Environment
+      placeholder: OS, browser, Node.js version (e.g. Windows 11, Chrome 140, Node 22)
+  - type: textarea
+    id: logs
+    attributes:
+      label: エラー・ログ / Errors or logs
+      description: ブラウザのコンソールや `npm run dev` の出力（キーやメールアドレスは消してください）/ Browser console or server output (remove keys and e-mail addresses)
+      render: text
