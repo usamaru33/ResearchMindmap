@@ -73,6 +73,7 @@ export const chrome = {
   'sidebar.edit': ['論文を編集', 'Edit Paper'],
   'sidebar.close': ['閉じる', 'Close'],
   'sidebar.loading': ['読み込み中…', 'Loading…'],
+  'sidebar.fromQuery': ['クエリ検索', 'Query search'],
   'sidebar.fromIds': ['識別子から', 'From identifiers'],
   'sidebar.fromReferences': ['参考文献リスト', 'Reference list'],
   'sidebar.manual': ['手入力', 'Manual'],

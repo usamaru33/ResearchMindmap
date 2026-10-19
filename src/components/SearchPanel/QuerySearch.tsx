@@ -6,7 +6,7 @@ import { useSettings } from '../../hooks/settingsContext';
 import { localizedReason } from '../../i18n/localized';
 import { SOURCE_LIMIT_OPTIONS } from '../../store/settings';
 import { QueryInput } from './QueryInput';
-import { Elapsed, ResultsSection, type BuildMapHandler } from './ResultsSection';
+import { Elapsed, ResultsSection, type BuildMapHandler, type BuildTarget } from './ResultsSection';
 import { SourceReports } from './SearchResults';
 import { EMPTY_CHIPS, PUBLISHER_CHIPS, combineQuery, type FilterChips } from './searchFilters';
 import { useT } from '../../hooks/useT';
@@ -21,9 +21,11 @@ interface QuerySearchProps {
   onBuildMap: BuildMapHandler;
   text: string;
   onTextChange: (text: string) => void;
+  /** Where "Build" goes by default. */
+  defaultTarget?: BuildTarget;
 }
 
-export function QuerySearch({ search, onSearch, sources, healthError, mapIds, onBuildMap, text, onTextChange }: QuerySearchProps) {
+export function QuerySearch({ search, onSearch, sources, healthError, mapIds, onBuildMap, text, onTextChange, defaultTarget }: QuerySearchProps) {
   const [chips, setChips] = useState<FilterChips>(EMPTY_CHIPS);
   const { settings } = useSettings();
   const t = useT();
@@ -181,6 +183,7 @@ export function QuerySearch({ search, onSearch, sources, healthError, mapIds, on
               mapIds={mapIds}
               query={search.request.query}
               mode="query"
+              defaultTarget={defaultTarget}
               onBuildMap={onBuildMap}
             />
           </>
