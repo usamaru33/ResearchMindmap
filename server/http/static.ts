@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Hono } from 'hono';
-import { serveStatic } from '@hono/node-server/serve-static';
 
 /**
  * What the built app may load: only its own files, plus images from paper
@@ -31,6 +30,11 @@ export function hasBuiltApp(dir: string): boolean {
  * Serve the built app from `dir` next to the API: files as they are, any other
  * GET outside /api/ gets index.html (the app routes on the client).
  */
+// Loaded only when the app is served: importing it at startup kept `tsx watch`
+// under `npm run dev` from ever starting the server.
+let serveStaticModule: Promise<typeof import('@hono/node-server/serve-static')> | null = null;
+const loadServeStatic = () => (serveStaticModule ??= import('@hono/node-server/serve-static'));
+
 export function mountStaticApp(app: Hono, dir: string): void {
   app.use('*', async (c, next) => {
     await next();
@@ -38,6 +42,14 @@ export function mountStaticApp(app: Hono, dir: string): void {
       c.res.headers.set('Content-Security-Policy', CONTENT_SECURITY_POLICY);
     }
   });
-  app.get('*', async (c, next) => (c.req.path.startsWith('/api/') ? next() : serveStatic({ root: dir })(c, next)));
-  app.get('*', async (c, next) => (c.req.path.startsWith('/api/') ? next() : serveStatic({ root: dir, path: 'index.html' })(c, next)));
+  app.get('*', async (c, next) => {
+    if (c.req.path.startsWith('/api/')) return next();
+    const { serveStatic } = await loadServeStatic();
+    return serveStatic({ root: dir })(c, next);
+  });
+  app.get('*', async (c, next) => {
+    if (c.req.path.startsWith('/api/')) return next();
+    const { serveStatic } = await loadServeStatic();
+    return serveStatic({ root: dir, path: 'index.html' })(c, next);
+  });
 }
