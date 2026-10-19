@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import type { Paper } from '../../types';
+import type { PanelTabs } from '../../store/navigation';
 import { useT } from '../../hooks/useT';
 import { MapStatsView } from './MapStatsView';
 import { TrendsView } from './TrendsView';
@@ -12,11 +12,12 @@ interface AnalysisPanelProps {
   onFocusPaper: (id: string) => void;
   /** The map's latest query search, to start the trends with. */
   latestQuery: string;
+  tab: PanelTabs['analyze'];
+  onTab: (tab: PanelTabs['analyze']) => void;
 }
 
-export function AnalysisPanel({ papers, filter, onFilter, onFocusPaper, latestQuery }: AnalysisPanelProps) {
+export function AnalysisPanel({ papers, filter, onFilter, onFocusPaper, latestQuery, tab, onTab: setTab }: AnalysisPanelProps) {
   const t = useT();
-  const [tab, setTab] = useState<'map' | 'trends'>('map');
   return (
     <div className={styles.panel}>
       <div className={styles.tabs} role="tablist">

@@ -2,15 +2,7 @@ import type { Entry } from '../format';
 
 /** Toolbar, view menu, project menu, sidebar, shortcuts. */
 export const chrome = {
-  'toolbar.search': ['検索', 'Search'],
-  'toolbar.library': ['ライブラリ', 'Library'],
-  'toolbar.write': ['執筆', 'Write'],
-  'toolbar.writeTitle': ['マップから関連研究の下書きを作る', 'Draft a related work section from the map'],
-  'toolbar.compare': ['比較表', 'Compare'],
-  'toolbar.compareTitle': ['文献の比較表', 'Literature comparison table'],
-  'toolbar.screen': ['スクリーニング', 'Screen'],
-  'toolbar.screenTitle': ['系統的レビューのスクリーニング', 'Systematic review screening'],
-  'toolbar.addPaper': ['+ 論文を追加', '+ Add Paper'],
+  'toolbar.label': ['マップの操作', 'Map tools'],
   'toolbar.autoLayout': ['自動整列', 'Auto Layout'],
   'toolbar.leftRight': ['左→右', 'Left→Right'],
   'toolbar.topBottom': ['上→下', 'Top→Bottom'],

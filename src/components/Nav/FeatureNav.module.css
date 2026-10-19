@@ -1,0 +1,142 @@
+.nav {
+  flex-shrink: 0;
+  width: 208px;
+  height: 100%;
+  padding: var(--space-lg) var(--space-sm);
+  overflow-y: auto;
+  background: var(--color-bg);
+  border-right: 1px solid var(--color-border);
+}
+
+.closed {
+  display: none;
+}
+
+.group + .group {
+  margin-top: var(--space-lg);
+}
+
+.groupTitle {
+  margin: 0 0 var(--space-xs);
+  padding: 0 var(--space-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.items,
+.tabs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: 7px var(--space-sm);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  text-align: left;
+  color: var(--color-text-primary);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.item:hover {
+  background: var(--color-accent-light);
+}
+
+.itemActive {
+  font-weight: 600;
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+}
+
+.itemLabel {
+  flex: 1;
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.badge {
+  min-width: 18px;
+  padding: 0 5px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  color: #fff;
+  background: var(--color-danger);
+  border-radius: 9px;
+}
+
+.tabs {
+  margin: 2px 0 var(--space-xs) 17px;
+  padding-left: var(--space-sm);
+  border-left: 2px solid var(--color-border);
+}
+
+.tab {
+  display: block;
+  width: 100%;
+  padding: 5px var(--space-sm);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.tab:hover {
+  color: var(--color-text-primary);
+  background: var(--color-accent-light);
+}
+
+.tabActive {
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.toggle:hover,
+.toggleOn {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}

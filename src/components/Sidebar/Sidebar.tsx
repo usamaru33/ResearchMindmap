@@ -1,9 +1,10 @@
-import { Suspense, useState, type ReactNode } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import type { Paper, SidebarMode } from '../../types';
 import { PaperForm } from '../PaperForm/PaperForm';
 import { IdentifierImport } from './IdentifierImport';
 import { useT } from '../../hooks/useT';
 import type { MessageKey } from '../../i18n';
+import { navLocation, type PanelTabs } from '../../store/navigation';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -23,6 +24,8 @@ interface SidebarProps {
   analysisPanel: ReactNode;
   mapIds: Set<string>;
   onAddPapers: (papers: Paper[]) => void;
+  addTab: PanelTabs['add'];
+  onAddTab: (tab: PanelTabs['add']) => void;
 }
 
 const TITLES: Record<Exclude<SidebarMode, 'closed'>, MessageKey> = {
@@ -36,11 +39,11 @@ const TITLES: Record<Exclude<SidebarMode, 'closed'>, MessageKey> = {
   edit: 'sidebar.edit',
 };
 
-export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, searchPanel, addSearchPanel, libraryPanel, writingPanel, comparePanel, screeningPanel, analysisPanel, mapIds, onAddPapers }: SidebarProps) {
+export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, searchPanel, addSearchPanel, libraryPanel, writingPanel, comparePanel, screeningPanel, analysisPanel, mapIds, onAddPapers, addTab, onAddTab: setAddTab }: SidebarProps) {
   const t = useT();
-  const [addTab, setAddTab] = useState<'query' | 'identifiers' | 'references' | 'manual'>('query');
   const isOpen = mode !== 'closed';
   const isForm = mode === 'add' || mode === 'edit';
+  const group = navLocation(mode)?.group;
 
   return (
     <div
@@ -48,7 +51,10 @@ export function Sidebar({ mode, selectedPaper, allPapers, onSubmit, onClose, sea
       aria-hidden={!isOpen}
     >
       <div className={styles.header}>
-        <span className={styles.headerTitle}>{mode === 'closed' ? '' : t(TITLES[mode])}</span>
+        <h2 className={styles.headerTitle}>
+          {group && <span className={styles.headerGroup}>{t(group.label)}</span>}
+          {mode === 'closed' ? '' : t(TITLES[mode])}
+        </h2>
         <button className={styles.closeBtn} onClick={onClose} aria-label={t('sidebar.close')}>
           &times;
         </button>

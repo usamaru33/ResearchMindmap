@@ -5,25 +5,12 @@ import { localizedReason } from '../../i18n/localized';
 import { useT } from '../../hooks/useT';
 import styles from './Toolbar.module.css';
 
+/** Map operations only; the features live in the feature menu (DESIGN 14.2). */
 interface ToolbarProps {
   layoutDirection: LayoutDirection;
   onAutoLayout: () => void;
-  onAddPaper: () => void;
   onFitView: () => void;
   onToggleDirection: () => void;
-  onToggleSearch: () => void;
-  searchOpen: boolean;
-  searchBadge: number;
-  onToggleLibrary: () => void;
-  libraryOpen: boolean;
-  onToggleWrite: () => void;
-  writeOpen: boolean;
-  onToggleCompare: () => void;
-  compareOpen: boolean;
-  onToggleScreen: () => void;
-  screenOpen: boolean;
-  onToggleAnalyze: () => void;
-  analyzeOpen: boolean;
   onAddNote: () => void;
   showCitations: boolean;
   onToggleCitations: () => void;
@@ -35,22 +22,8 @@ interface ToolbarProps {
 export function Toolbar({
   layoutDirection,
   onAutoLayout,
-  onAddPaper,
   onFitView,
   onToggleDirection,
-  onToggleSearch,
-  searchOpen,
-  searchBadge,
-  onToggleLibrary,
-  libraryOpen,
-  onToggleWrite,
-  writeOpen,
-  onToggleCompare,
-  compareOpen,
-  onToggleScreen,
-  screenOpen,
-  onToggleAnalyze,
-  analyzeOpen,
   onAddNote,
   showCitations,
   onToggleCitations,
@@ -75,58 +48,7 @@ export function Toolbar({
       : t('toolbar.llmUnknown');
 
   return (
-    <div className={styles.toolbar}>
-      <button
-        className={`${styles.btn} ${searchOpen ? styles.btnActive : ''}`}
-        onClick={onToggleSearch}
-        aria-pressed={searchOpen}
-        title={searchBadge > 0 ? t('alerts.badge', { n: searchBadge }) : undefined}
-      >
-        {t('toolbar.search')}
-        {searchBadge > 0 && <span className={styles.badge}>{searchBadge}</span>}
-      </button>
-      <button
-        className={`${styles.btn} ${libraryOpen ? styles.btnActive : ''}`}
-        onClick={onToggleLibrary}
-        aria-pressed={libraryOpen}
-      >
-        {t('toolbar.library')}
-      </button>
-      <button
-        className={`${styles.btn} ${writeOpen ? styles.btnActive : ''}`}
-        onClick={onToggleWrite}
-        aria-pressed={writeOpen}
-        title={t('toolbar.writeTitle')}
-      >
-        {t('toolbar.write')}
-      </button>
-      <button
-        className={`${styles.btn} ${compareOpen ? styles.btnActive : ''}`}
-        onClick={onToggleCompare}
-        aria-pressed={compareOpen}
-        title={t('toolbar.compareTitle')}
-      >
-        {t('toolbar.compare')}
-      </button>
-      <button
-        className={`${styles.btn} ${screenOpen ? styles.btnActive : ''}`}
-        onClick={onToggleScreen}
-        aria-pressed={screenOpen}
-        title={t('toolbar.screenTitle')}
-      >
-        {t('toolbar.screen')}
-      </button>
-      <button
-        className={`${styles.btn} ${analyzeOpen ? styles.btnActive : ''}`}
-        onClick={onToggleAnalyze}
-        aria-pressed={analyzeOpen}
-        title={t('toolbar.analyzeTitle')}
-      >
-        {t('toolbar.analyze')}
-      </button>
-      <button className={styles.btn} onClick={onAddPaper}>
-        {t('toolbar.addPaper')}
-      </button>
+    <div className={styles.toolbar} role="toolbar" aria-label={t('toolbar.label')}>
       <button className={styles.btn} onClick={onAddNote} title={t('toolbar.noteTitle')}>
         {t('toolbar.note')}
       </button>

@@ -8,6 +8,7 @@ import { useT } from '../../hooks/useT';
 import { LibraryCheck } from './LibraryCheck';
 import { TagManager } from './TagManager';
 import type { MessageKey } from '../../i18n';
+import type { PanelTabs } from '../../store/navigation';
 import styles from './Library.module.css';
 
 interface LibraryProps {
@@ -21,6 +22,8 @@ interface LibraryProps {
   onRecommend: (ids: string[]) => void;
   onMerge: (keepId: string, mergeIds: string[]) => void;
   onRenameTag: (from: string, to: string | null) => void;
+  view: PanelTabs['library'];
+  onView: (view: PanelTabs['library']) => void;
 }
 
 const COLUMNS: Array<{ key: SortKey; label: MessageKey | '★'; className?: string }> = [
@@ -31,9 +34,8 @@ const COLUMNS: Array<{ key: SortKey; label: MessageKey | '★'; className?: stri
   { key: 'rating', label: '★', className: styles.colNum },
 ];
 
-export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDelete, onDraft, onRecommend, onMerge, onRenameTag }: LibraryProps) {
+export function Library({ papers, knownTags, selectedId, onFocus, onUpdate, onDelete, onDraft, onRecommend, onMerge, onRenameTag, view, onView: setView }: LibraryProps) {
   const t = useT();
-  const [view, setView] = useState<'list' | 'tags' | 'check'>('list');
   const [filters, setFilters] = useState<LibraryFilters>(EMPTY_FILTERS);
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'added', dir: 'desc' });
   const [checked, setChecked] = useState<Set<string>>(new Set());
