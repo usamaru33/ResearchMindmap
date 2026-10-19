@@ -6,8 +6,19 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     groups:
+      # react and react-dom must always be the same version.
+      react:
+        patterns: [react, react-dom, '@types/react', '@types/react-dom']
       dev-dependencies:
         dependency-type: development
+        update-types: [minor, patch]
+    ignore:
+      # Pinned on purpose: later releases render React Flow maps incorrectly
+      # (React Flow's own export example uses 1.11.11). Update by hand after checking image export.
+      - dependency-name: html-to-image
+      # Major versions (e.g. TypeScript 7, ESLint 10) need code changes; upgrade them by hand.
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
