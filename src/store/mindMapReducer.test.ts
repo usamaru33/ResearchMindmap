@@ -363,3 +363,13 @@ describe('notes', () => {
     expect(s.edges).toEqual([]);
   });
 });
+
+describe('React Flow changes', () => {
+  it('apply to the current nodes, so a late change cannot restore a previous map', () => {
+    const before = initMindMapState({ nodes: [createPaperNode(paper('old'), { x: 0, y: 0 })], edges: [], layoutDirection: 'LR' });
+    const loaded = mindMapReducer(before, { type: 'LOAD_MAP', payload: { nodes: [createPaperNode(paper('new'), { x: 0, y: 0 })], edges: [], layoutDirection: 'LR' } });
+    // React Flow measures the old node it had rendered just before the switch.
+    const after = mindMapReducer(loaded, { type: 'NODE_CHANGES', payload: [{ type: 'dimensions', id: 'old', dimensions: { width: 10, height: 10 } }] });
+    expect(after.nodes.map((n) => n.id)).toEqual(['new']);
+  });
+});

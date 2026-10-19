@@ -14,7 +14,7 @@ export type UndoAction = MindMapAction | { type: 'UNDO' } | { type: 'REDO' } | {
 const LIMIT = 100;
 
 // Actions that change the document and should be undoable in one step.
-// SET_NODES / SET_EDGES are excluded: they fire continuously during drags and
+// NODE_CHANGES / EDGE_CHANGES are excluded: they fire continuously during drags and
 // for measurements; a drag is recorded once via CHECKPOINT at drag start.
 const RECORDED = new Set<MindMapAction['type']>([
   'ADD_PAPER',

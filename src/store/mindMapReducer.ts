@@ -1,4 +1,4 @@
-import { MarkerType } from '@xyflow/react';
+import { MarkerType, applyEdgeChanges, applyNodeChanges } from '@xyflow/react';
 import { isPaperNode, type MindMapState, type MindMapAction, type MapNode, type MapSnapshot, type PaperNode, type PaperEdge, type Paper } from '../types';
 import { titleSimilarity } from '../../shared/ids';
 import { matchExisting } from './identity';
@@ -349,11 +349,13 @@ export function initMindMapState(snapshot: MapSnapshot): MindMapState {
 
 export function mindMapReducer(state: MindMapState, action: MindMapAction): MindMapState {
   switch (action.type) {
-    case 'SET_NODES':
-      return { ...state, nodes: action.payload };
+    // Applied to the state as it is now, not to the nodes the component last rendered:
+    // a change reported right after a project switch must not bring the old map back.
+    case 'NODE_CHANGES':
+      return { ...state, nodes: applyNodeChanges(action.payload, state.nodes) };
 
-    case 'SET_EDGES':
-      return { ...state, edges: action.payload };
+    case 'EDGE_CHANGES':
+      return { ...state, edges: applyEdgeChanges(action.payload, state.edges) };
 
     case 'ADD_PAPER': {
       const newNode = createPaperNode(action.payload.paper, action.payload.position);
