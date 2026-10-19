@@ -15,6 +15,8 @@ import type { MessageKey } from './i18n';
 import { useShortcuts } from './hooks/useShortcuts';
 import { SearchPanel, type BuildMode, type BuildTarget, type SearchTab } from './components/SearchPanel/SearchPanel';
 import { AddQuerySearch } from './components/SearchPanel/AddQuerySearch';
+import { FeatureNav, NavToggle } from './components/Nav/FeatureNav';
+import { DEFAULT_TABS, isTabbed, loadNavOpen, saveNavOpen, type NavPanel, type PanelTabs } from './store/navigation';
 import { apiPost } from './api/client';
 import { buildGraphElements } from './store/graphImport';
 import { tagCounts } from './utils/reading';
@@ -40,6 +42,14 @@ const ComparisonTable = lazy(() =>
 const ScreeningPanel = lazy(() => import('./components/Screening/ScreeningPanel').then((m) => ({ default: m.ScreeningPanel })));
 const AnalysisPanel = lazy(() => import('./components/Analysis/AnalysisPanel').then((m) => ({ default: m.AnalysisPanel })));
 
+function localStore(): Storage | null {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
   const [initialProject] = useState(() =>
     loadInitialProject(() => createProject('Sample: Transformers & friends', sampleNodes)),
@@ -60,6 +70,15 @@ export default function App() {
   const [mapFilter, setMapFilter] = useState('');
   const [paletteOpen, setPaletteOpen] = useState(false);
   const { settings, update: updateSettings } = useSettings();
+  const [navOpen, setNavOpen] = useState(() => loadNavOpen(localStore(), window.innerWidth));
+  const toggleNav = useCallback(() => {
+    setNavOpen((open) => {
+      saveNavOpen(localStore(), !open);
+      return !open;
+    });
+  }, []);
+  const [tabs, setTabs] = useState<PanelTabs>(DEFAULT_TABS);
+  const setTab = useCallback(<P extends keyof PanelTabs>(panel: P, tab: PanelTabs[P]) => setTabs((s) => ({ ...s, [panel]: tab })), []);
 
   const selectedPaper = getSelectedPaper();
   // The paper form and the detail panel compete for attention; search can sit next to details.
@@ -71,14 +90,11 @@ export default function App() {
     dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'add' });
   }, [dispatch]);
 
-  const handleToggleSearch = useCallback(() => {
-    dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'search' ? 'closed' : 'search' });
-  }, [dispatch, state.sidebarMode]);
-
   useShortcuts({
     undo: () => dispatch({ type: 'UNDO' }),
     redo: () => dispatch({ type: 'REDO' }),
     openSearch: () => {
+      setTab('search', 'query');
       dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'search' });
       window.setTimeout(() => document.querySelector<HTMLTextAreaElement>('[data-query-input]')?.focus(), 50);
     },
@@ -126,21 +142,19 @@ export default function App() {
 
   const [draftIds, setDraftIds] = useState<string[]>([]);
   const [recommendIds, setRecommendIds] = useState<string[]>([]);
-  const [tabRequest, setTabRequest] = useState<{ tab: SearchTab; nonce: number } | null>(null);
+  const openSearchTab = useCallback(
+    (tab: SearchTab) => {
+      setTab('search', tab);
+      dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'search' });
+    },
+    [dispatch, setTab],
+  );
   const openRecommend = useCallback(
     (ids: string[]) => {
       setRecommendIds(ids);
-      setTabRequest((r) => ({ tab: 'recommend', nonce: (r?.nonce ?? 0) + 1 }));
-      dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'search' });
+      openSearchTab('recommend');
     },
-    [dispatch],
-  );
-  const openSearchTab = useCallback(
-    (tab: SearchTab) => {
-      setTabRequest((r) => ({ tab, nonce: (r?.nonce ?? 0) + 1 }));
-      dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'search' });
-    },
-    [dispatch],
+    [openSearchTab],
   );
   const groups = useMemo(() => clusterGroups(state.nodes, state.edges), [state.nodes, state.edges]);
   const openWriting = useCallback(
@@ -150,26 +164,22 @@ export default function App() {
     },
     [dispatch],
   );
-  const handleToggleWrite = useCallback(() => {
-    if (state.sidebarMode === 'write') dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'closed' });
-    else openWriting([]);
-  }, [dispatch, state.sidebarMode, openWriting]);
 
-  const handleToggleScreen = useCallback(() => {
-    dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'screen' ? 'closed' : 'screen' });
-  }, [dispatch, state.sidebarMode]);
-
-  const handleToggleAnalyze = useCallback(() => {
-    dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'analyze' ? 'closed' : 'analyze' });
-  }, [dispatch, state.sidebarMode]);
-
-  const handleToggleCompare = useCallback(() => {
-    dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'compare' ? 'closed' : 'compare' });
-  }, [dispatch, state.sidebarMode]);
-
-  const handleToggleLibrary = useCallback(() => {
-    dispatch({ type: 'SET_SIDEBAR_MODE', payload: state.sidebarMode === 'library' ? 'closed' : 'library' });
-  }, [dispatch, state.sidebarMode]);
+  /** From the feature menu: open a panel (at a tab); choosing the open panel itself closes it. */
+  const openPanel = useCallback(
+    (panel: NavPanel, tab?: string) => {
+      const shown = state.sidebarMode === panel;
+      if (tab && isTabbed(panel)) setTabs((s) => ({ ...s, [panel]: tab }));
+      if (shown) {
+        if (!tab) dispatch({ type: 'SET_SIDEBAR_MODE', payload: 'closed' });
+        return;
+      }
+      if (panel === 'add') handleAddPaper();
+      else if (panel === 'write') openWriting([]);
+      else dispatch({ type: 'SET_SIDEBAR_MODE', payload: panel });
+    },
+    [dispatch, state.sidebarMode, handleAddPaper, openWriting],
+  );
 
   const handleFocusPaper = useCallback(
     (id: string) => {
@@ -263,6 +273,7 @@ export default function App() {
       ['settings', 'cmd.settings', () => setSettingsOpen(true)],
       ['help', 'cmd.help', () => setHelpOpen(true), '?'],
       ['language', 'cmd.language', () => updateSettings({ uiLanguage: lang === 'ja' ? 'en' : 'ja' })],
+      ['nav', 'cmd.toggleNav', toggleNav],
     ];
     if (mapFilter) defs.push(['clear-filter', 'cmd.clearFilter', () => setMapFilter('')]);
     const commands: PaletteCommand[] = defs.map(([id, key, run, shortcut]) => ({ id, ...bilingual(key, lang), run, shortcut }));
@@ -274,6 +285,7 @@ export default function App() {
 
   return (
     <div className={styles.app}>
+      <FeatureNav open={navOpen} mode={state.sidebarMode} tabs={tabs} onOpen={openPanel} searchBadge={alertCount} />
       <Sidebar
         mode={state.sidebarMode}
         selectedPaper={selectedPaper}
@@ -281,6 +293,8 @@ export default function App() {
         onSubmit={handleSubmitPaper}
         onClose={handleCloseSidebar}
         mapIds={mapIds}
+        addTab={tabs.add}
+        onAddTab={(tab) => setTab('add', tab)}
         onAddPapers={(papers) => {
           const center = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
           dispatch({ type: 'ADD_PAPERS', payload: { papers, center } });
@@ -302,6 +316,8 @@ export default function App() {
             onRecommend={openRecommend}
             onMerge={(keepId, mergeIds) => dispatch({ type: 'MERGE_PAPERS', payload: { keepId, mergeIds } })}
             onRenameTag={(from, to) => dispatch({ type: 'RENAME_TAG', payload: { from, to } })}
+            view={tabs.library}
+            onView={(tab) => setTab('library', tab)}
           />
         }
         comparePanel={
@@ -329,6 +345,8 @@ export default function App() {
             onFilter={setMapFilter}
             onFocusPaper={handleFocusPaper}
             latestQuery={state.history.find((h) => h.kind === 'query')?.text ?? ''}
+            tab={tabs.analyze}
+            onTab={(tab) => setTab('analyze', tab)}
           />
         }
         writingPanel={
@@ -339,6 +357,8 @@ export default function App() {
             groups={groups}
             projectName={projects.activeProject.name}
             onFocusPaper={handleFocusPaper}
+            tab={tabs.write}
+            onTab={(tab) => setTab('write', tab)}
           />
         }
         addSearchPanel={
@@ -363,7 +383,8 @@ export default function App() {
             mapIds={mapIds}
             mapPapers={allPapers}
             recommendIds={recommendIds}
-            tabRequest={tabRequest}
+            tab={tabs.search}
+            onTab={(tab) => setTab('search', tab)}
             onBuildMap={handleBuildMap}
           />
         }
@@ -380,6 +401,7 @@ export default function App() {
           onDelete={projects.removeActive}
           onExport={projects.exportActive}
           onImport={projects.importFile}
+          lead={<NavToggle open={navOpen} onToggle={toggleNav} />}
           extra={
             <UndoButtons
               canUndo={canUndo}
@@ -408,20 +430,6 @@ export default function App() {
           layoutDirection={state.layoutDirection}
           viewRequest={state.viewRequest}
           dispatch={dispatch}
-          onAddPaper={handleAddPaper}
-          onToggleSearch={handleToggleSearch}
-          searchOpen={state.sidebarMode === 'search'}
-          searchBadge={alertCount}
-          onToggleLibrary={handleToggleLibrary}
-          libraryOpen={state.sidebarMode === 'library'}
-          onToggleWrite={handleToggleWrite}
-          writeOpen={state.sidebarMode === 'write'}
-          onToggleCompare={handleToggleCompare}
-          compareOpen={state.sidebarMode === 'compare'}
-          onToggleScreen={handleToggleScreen}
-          screenOpen={state.sidebarMode === 'screen'}
-          onToggleAnalyze={handleToggleAnalyze}
-          analyzeOpen={state.sidebarMode === 'analyze'}
           filter={mapFilter}
           onFilter={setMapFilter}
         />
