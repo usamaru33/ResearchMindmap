@@ -1,4 +1,4 @@
-import type { Node, Edge } from '@xyflow/react';
+import type { Node, Edge, NodeChange, EdgeChange } from '@xyflow/react';
 import type { ExpandKind, Paper } from '../../shared/types';
 
 export type { Paper } from '../../shared/types';
@@ -100,8 +100,9 @@ export interface MapSnapshot {
 }
 
 export type MindMapAction =
-  | { type: 'SET_NODES'; payload: MapNode[] }
-  | { type: 'SET_EDGES'; payload: PaperEdge[] }
+  /** React Flow's own changes (drag, measure, select), applied to the current state in the reducer. */
+  | { type: 'NODE_CHANGES'; payload: NodeChange<MapNode>[] }
+  | { type: 'EDGE_CHANGES'; payload: EdgeChange<PaperEdge>[] }
   | { type: 'ADD_PAPER'; payload: { paper: Paper; position: { x: number; y: number } } }
   | { type: 'UPDATE_PAPER'; payload: Paper }
   | { type: 'DELETE_PAPER'; payload: string }

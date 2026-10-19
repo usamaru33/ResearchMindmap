@@ -7,8 +7,6 @@ import {
   BackgroundVariant,
   Panel,
   ViewportPortal,
-  applyNodeChanges,
-  applyEdgeChanges,
   useReactFlow,
   type NodeChange,
   type EdgeChange,
@@ -164,13 +162,13 @@ export function MindMap({
       const removedIds = changes.filter((c) => c.type === 'remove').map((c) => c.id);
       const rest = changes.filter((c) => c.type !== 'remove');
       if (rest.length > 0) {
-        dispatch({ type: 'SET_NODES', payload: applyNodeChanges(rest, nodes) });
+        dispatch({ type: 'NODE_CHANGES', payload: rest });
       }
       if (removedIds.length > 0) {
         dispatch({ type: 'DELETE_PAPERS', payload: removedIds });
       }
     },
-    [nodes, dispatch],
+    [dispatch],
   );
 
   const onEdgesChange = useCallback(
@@ -178,13 +176,13 @@ export function MindMap({
       const removedIds = changes.filter((c) => c.type === 'remove').map((c) => c.id);
       const rest = changes.filter((c) => c.type !== 'remove');
       if (rest.length > 0) {
-        dispatch({ type: 'SET_EDGES', payload: applyEdgeChanges(rest, edges) });
+        dispatch({ type: 'EDGE_CHANGES', payload: rest });
       }
       if (removedIds.length > 0) {
         dispatch({ type: 'REMOVE_CONNECTIONS', payload: removedIds });
       }
     },
-    [edges, dispatch],
+    [dispatch],
   );
 
   const onConnect = useCallback((connection: Connection) => {

@@ -34,14 +34,14 @@ describe('undo/redo', () => {
     let s = start();
     s = reducer(s, { type: 'SELECT_NODE', payload: 'a' });
     s = reducer(s, { type: 'SET_SIDEBAR_MODE', payload: 'library' });
-    s = reducer(s, { type: 'SET_NODES', payload: s.present.nodes.map((n) => ({ ...n, position: { x: 5, y: 5 } })) });
+    s = reducer(s, { type: 'NODE_CHANGES', payload: s.present.nodes.map((n) => ({ type: 'position', id: n.id, position: { x: 5, y: 5 } })) });
     expect(s.past).toHaveLength(0);
   });
 
   it('records a drag once through a checkpoint', () => {
     let s = start();
     s = reducer(s, { type: 'CHECKPOINT' });
-    for (let i = 1; i <= 3; i++) s = reducer(s, { type: 'SET_NODES', payload: s.present.nodes.map((n) => ({ ...n, position: { x: i, y: 0 } })) });
+    for (let i = 1; i <= 3; i++) s = reducer(s, { type: 'NODE_CHANGES', payload: s.present.nodes.map((n) => ({ type: 'position', id: n.id, position: { x: i, y: 0 } })) });
     s = reducer(s, { type: 'UNDO' });
     expect(s.present.nodes[0].position).toEqual({ x: 0, y: 0 });
   });
