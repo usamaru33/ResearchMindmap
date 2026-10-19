@@ -373,3 +373,23 @@ describe('React Flow changes', () => {
     expect(after.nodes.map((n) => n.id)).toEqual(['new']);
   });
 });
+
+describe('ADD_PAPERS_WITH_LINKS', () => {
+  it('adds the papers and the citations that tie them to the map', () => {
+    const s = stateOf([paper('a'), paper('b')]);
+    const next = mindMapReducer(s, {
+      type: 'ADD_PAPERS_WITH_LINKS',
+      payload: {
+        papers: [paper('found'), paper('follow')],
+        // a and b cite "found"; "follow" cites a; a link to an unknown id is ignored.
+        links: [['a', 'found'], ['b', 'found'], ['follow', 'a'], ['a', 'nowhere']],
+        center: { x: 0, y: 0 },
+      },
+    });
+    const refs = Object.fromEntries(next.nodes.filter(isPaperNode).map((n) => [n.id, n.data.paper.references]));
+    expect(refs.a).toEqual(['found']);
+    expect(refs.b).toEqual(['found']);
+    expect(refs.follow).toEqual(['a']);
+    expect(next.edges.filter((e) => e.id.startsWith('cite-')).map((e) => e.id).sort()).toEqual(['cite-a-follow', 'cite-found-a', 'cite-found-b']);
+  });
+});

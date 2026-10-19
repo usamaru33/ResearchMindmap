@@ -28,6 +28,7 @@ const RECORDED = new Set<MindMapAction['type']>([
   'IMPORT_GRAPH',
   'ADD_LINKED_PAPERS',
   'ADD_PAPERS',
+  'ADD_PAPERS_WITH_LINKS',
   'MERGE_PAPERS',
   'RENAME_TAG',
   // ADD_NOTE is not recorded: a new note is a draft until its first text (UPDATE_NOTE).
