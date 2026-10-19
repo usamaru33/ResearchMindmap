@@ -1,5 +1,5 @@
 import { tr } from '../i18n/current';
-import { getNodesBounds, getViewportForBounds, type Node } from '@xyflow/react';
+import { getViewportForBounds, type Rect } from '@xyflow/react';
 import { safeFileName } from './download';
 
 export type ImageFormat = 'png' | 'svg';
@@ -15,13 +15,13 @@ export function imageSize(bounds: { width: number; height: number }): { width: n
 
 /**
  * Render the whole map (not just what is on screen) to PNG or SVG and save it.
+ * `bounds` comes from React Flow's `getNodesBounds` (null for an empty map).
  * html-to-image is loaded on demand to keep it out of the main bundle.
  */
-export async function exportMapImage(nodes: Node[], format: ImageFormat, baseName: string): Promise<void> {
+export async function exportMapImage(bounds: Rect | null, format: ImageFormat, baseName: string): Promise<void> {
   const viewport = document.querySelector<HTMLElement>('.react-flow__viewport');
-  if (!viewport || nodes.length === 0) throw new Error(tr('error.noNodes'));
+  if (!viewport || !bounds) throw new Error(tr('error.noNodes'));
   const { toPng, toSvg } = await import('html-to-image');
-  const bounds = getNodesBounds(nodes);
   const { width, height } = imageSize(bounds);
   const view = getViewportForBounds(bounds, width, height, 0.05, 4, PADDING);
   const options = {
