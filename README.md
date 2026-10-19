@@ -5,7 +5,8 @@
 - [機能](#機能) — 何ができるか
 - [はじめかた](#はじめかた) — インストールと起動
 - [技術](#技術) — 仕組みと構成
-- [ドキュメント](#ドキュメント)
+- [セキュリティとプライバシー](#セキュリティとプライバシー)
+- [ドキュメント](#ドキュメント)・[コントリビュート](#コントリビュート)・[ライセンス](#ライセンス)
 
 ---
 
@@ -91,13 +92,17 @@ author:"Hinton" NOT title:survey oa:true
 
 ## はじめかた
 
-必要なもの: Node.js 22 以上
+必要なもの: Node.js 22 以上（[.nvmrc](.nvmrc)）
 
 ```bash
-npm install
-cp .env.example .env     # APIキーは任意（下記）
-npm run dev              # http://localhost:5173 を開く（API サーバーは :8787）
+git clone <このリポジトリの URL>
+cd ResearchMindmap
+npm ci                   # package-lock.json どおりに入れる
+cp .env.example .env     # APIキーは任意（下記）。.env はコミットしないこと
+npm run dev              # http://localhost:5173 を開く（API サーバーは 127.0.0.1:8787）
 ```
+
+最初はサンプルのマップが開きます。左上の ☰ で機能メニューを開き、「論文を集める › 論文を検索」から検索してマップを作ってください。データはブラウザに保存されるので、大事なプロジェクトはプロジェクトメニューから JSON に書き出しておくと安心です。
 
 ### APIキー（すべて任意）
 
@@ -111,7 +116,7 @@ npm run dev              # http://localhost:5173 を開く（API サーバーは
 | `NCBI_API_KEY` | PubMed の回数上限が低い |
 | `ANTHROPIC_API_KEY` | Claude を使う機能は、Claude なしの代替処理で動く（下記） |
 
-そのほか `CROSSREF_MAILTO`（Crossref の polite pool 用の連絡先）、`ENABLE_DBLP`（DBLP を使う）、`CACHE_DIR` / `CACHE_TTL_HOURS`（応答キャッシュ）があります。一覧は [.env.example](.env.example) を見てください。
+そのほか `CROSSREF_MAILTO`（Crossref の polite pool 用の連絡先。Crossref に送られます）、`ENABLE_DBLP`（DBLP を使う）、`CACHE_DIR` / `CACHE_TTL_HOURS`（応答キャッシュ）、`HOST` / `ALLOWED_HOSTS` / `ALLOWED_ORIGINS`（API を受け付ける範囲。下記）があります。一覧は [.env.example](.env.example) を見てください。
 
 ---
 
@@ -192,7 +197,7 @@ Claude は構造化出力（`messages.parse` + zod）とストリーミング（
 - **リトライ**: 429・5xx・ネットワークエラーは指数バックオフで最大 3 回。`Retry-After` に従います
 - **キャッシュ**: リクエストごとにメモリ（LRU 500 件）とディスク（`.cache/`、既定 72 時間）
 - **データの誤りへの対策**: 外部 DB の記録が別の論文の題名を持つことがあるため、取り込みや公開版の置き換えの前に題名・著者・年を照らし合わせます
-- **セキュリティ**: APIキーはサーバーだけが持ち、応答に含めません。外部の HTML は描画しません
+- **セキュリティ**: APIキーはサーバーだけが持ち、応答に含めません。外部の HTML は描画せず、論文データ中のリンクは http(s) だけ使います。API へのアクセスの制限は[セキュリティとプライバシー](#セキュリティとプライバシー)を見てください
 
 ### ディレクトリ
 
@@ -224,8 +229,29 @@ npm run build        # tsc -b && vite build（サーバーの型検査を含む�
 
 ---
 
+## セキュリティとプライバシー
+
+自分のパソコンで自分だけが使うことを前提にしています。詳しくは [SECURITY.md](SECURITY.md) を見てください。
+
+- **APIキー**は `.env`（git 管理外）に置き、サーバーだけが使います。ブラウザにも応答にも出しません
+- **API サーバー**は既定で `127.0.0.1` だけで待ち受け、ほかのマシン宛ての Host・ほかのサイトのページからの呼び出し・JSON 以外の本文を拒否します。`HOST=0.0.0.0` などでネットワークに公開すると、届く人は誰でもあなたの API キーを使えるので、認証つきのリバースプロキシの内側に置いてください
+- **プロジェクト・メモ・タグ**はブラウザの localStorage だけに保存されます
+- **外部に送られるもの**: 検索クエリ・論文の識別子と題名（論文データベースへ）、Claude を使う機能では選んだ論文の書誌・抄録と入力した文（Anthropic へ）、`CROSSREF_MAILTO`（Crossref へ）
+
+脆弱性は公開の Issue ではなく、GitHub の Security タブから非公開で報告してください。
+
+---
+
 ## ドキュメント
 
 - [docs/DESIGN.md](docs/DESIGN.md) — 設計書（アーキテクチャ、データモデル、API、クエリ言語）
 - [docs/FEATURES.md](docs/FEATURES.md) — 機能一覧と進み具合
 - [docs/ROADMAP.md](docs/ROADMAP.md) — 工程表
+
+## コントリビュート
+
+Issue・Pull Request を歓迎します。手順と守ること（テストから外部 API を呼ばない、文言は日英両方、など）は [CONTRIBUTING.md](CONTRIBUTING.md) にあります。
+
+## ライセンス
+
+[MIT License](LICENSE)

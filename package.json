@@ -2,7 +2,12 @@
   "name": "researchmindmap",
   "private": true,
   "version": "0.0.0",
+  "description": "Search scholarly databases and turn the results into a research mind map",
+  "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "concurrently -k -n web,api -c cyan,magenta \"vite\" \"npm:dev:server\"",
     "dev:web": "vite",
