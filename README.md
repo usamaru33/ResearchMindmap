@@ -2,6 +2,10 @@
 
 論文データベースを横断検索して、研究領域のマインドマップを作るアプリです。検索した論文はマップの上で読み、整理し、関係を調べ、論文の執筆までそのまま使えます。
 
+[![最新リリース](https://img.shields.io/github/v/release/usamaru33/ResearchMindmap?label=%E6%9C%80%E6%96%B0%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9)](https://github.com/usamaru33/ResearchMindmap/releases/latest)
+
+**[Windows 版をダウンロード（ResearchMindmap.exe）](https://github.com/usamaru33/ResearchMindmap/releases/latest/download/ResearchMindmap.exe)** — インストール不要。ダブルクリックするとブラウザで開きます（[リリース一覧](https://github.com/usamaru33/ResearchMindmap/releases)・[使い方と確かめ方](#0-windows-アプリいちばんかんたんインストール不要)）
+
 ![クエリ検索の結果から作ったマインドマップ。中央の検索式から、トピックのまとまりを経て論文が広がり、論文どうしは引用の矢印でつながっている](docs/images/mindmap.png)
 
 - [使用例](#使用例) — 画面で見る使い方
