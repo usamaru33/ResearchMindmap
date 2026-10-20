@@ -40,6 +40,21 @@ describe('expandPaper', () => {
     expect(calls).toHaveLength(2);
   });
 
+  it('keeps ids from the browser to one path segment of the OpenAlex URL', async () => {
+    const urls: string[] = [];
+    const http = new HttpClient({
+      log: () => {},
+      fetch: (async (input: string | URL | Request) => {
+        urls.push(String(input));
+        return new Response('{"id":"https://openalex.org/W1"}', { headers: { 'content-type': 'application/json' } });
+      }) as typeof fetch,
+    });
+    await expandPaper({ ...seed, ids: { doi: '10.1/../../authors?x=' } }, 'references', 5, { http });
+    await expandPaper({ ...seed, ids: { openalex: '../authors' } }, 'references', 5, { http });
+    expect(new URL(urls[0]).pathname).toBe('/works/doi%3A10.1%2F..%2F..%2Fauthors%3Fx%3D');
+    expect(urls).toHaveLength(1);
+  });
+
   it('lists citing papers with the cites filter', async () => {
     const { http, calls } = fakeOpenAlex([
       [/works\/W1\?/, { id: 'https://openalex.org/W1' }],
