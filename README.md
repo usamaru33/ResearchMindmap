@@ -156,7 +156,22 @@ author:"Hinton" NOT title:survey oa:true
 
 ## はじめかた
 
-使い方に合わせて 3 通りの起動方法があります。どれも http://localhost のこのマシンからだけ使えます。
+使い方に合わせて 4 通りの起動方法があります。どれもこのマシンからだけ使えます。
+
+### 0. Windows アプリ（いちばんかんたん。インストール不要）
+
+1. [Releases](https://github.com/usamaru33/ResearchMindmap/releases/latest) から `ResearchMindmap.exe` をダウンロード
+2. ダブルクリックすると、ブラウザでアプリが開きます。黒いウィンドウを閉じると終了します
+3. APIキーを使うときは `%APPDATA%\ResearchMindmap\.env`（初回起動で作られます）を編集して、起動し直します
+
+exe はコード署名していないので、「Windows によって PC が保護されました」と出ることがあります。GitHub がビルドした本物か確かめてから「詳細情報」→「実行」を選んでください。
+
+```powershell
+(Get-FileHash .\ResearchMindmap.exe -Algorithm SHA256).Hash   # リリースの SHA256SUMS.txt と同じか
+gh attestation verify .\ResearchMindmap.exe --repo usamaru33/ResearchMindmap
+```
+
+自分でビルドするなら `npm ci && npm run build && npm run build:exe`（Windows で）→ `release/ResearchMindmap.exe`。
 
 ### A. Docker で動かす（Node.js は不要）
 
@@ -322,6 +337,7 @@ npm run build        # tsc -b && vite build（サーバーの型検査を含む�
 
 - **APIキー**は `.env`（git 管理外）に置き、サーバーだけが使います。ブラウザにも応答にも出しません
 - **API サーバー**は既定で `127.0.0.1` だけで待ち受け、ほかのマシン宛ての Host・ほかのサイトのページからの呼び出し・JSON 以外の本文を拒否します。`HOST=0.0.0.0` などでネットワークに公開すると、届く人は誰でもあなたの API キーを使えるので、認証つきのリバースプロキシの内側に置いてください。Docker でもコンテナのポートは `127.0.0.1` にだけ公開し、root ではないユーザー・読み取り専用のファイルシステムで動かします
+- **Windows アプリ**は必ず `127.0.0.1` で待ち受け、起動ごとの乱数トークンで、アプリが開いたタブ以外（同じパソコンのほかのプログラムやユーザー）からの API 呼び出しを拒否します。exe は GitHub Actions でビルドし、SHA-256 とビルド来歴（attestation）を付けて公開します
 - **画面**には Content-Security-Policy を付け、自分のサーバー以外のスクリプトは読み込みません
 - **プロジェクト・メモ・タグ**はブラウザの localStorage だけに保存されます
 - **外部に送られるもの**: 検索クエリ・論文の識別子と題名（論文データベースへ）、Claude を使う機能では選んだ論文の書誌・抄録と入力した文（Anthropic へ）、`CROSSREF_MAILTO`（Crossref へ）

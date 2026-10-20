@@ -651,3 +651,22 @@ Node.js の開発環境がなくても動かせるようにする。
   - `.env` があれば読み込む（無くても動く）。キャッシュは名前付きボリューム。`.dockerignore` で `.env`・`.cache`・`node_modules`・`.git` を除く
   - ヘルスチェック: `/api/health`
 - CI で Docker イメージをビルドして起動し、`/api/health` と画面が返ることを確かめる
+
+### 15.3 Windows アプリ（E13）
+
+Node.js も Docker も入れずに、exe をダブルクリックするだけで使えるようにする。
+
+- **作り方**: Node.js の Single Executable Application。`server/desktop.ts` を esbuild で 1 ファイル（CJS）にまとめ、`dist/` を SEA の assets として埋め込み、`postject` で Node.js の実行ファイルの複製に注入する（`npm run build:exe` → `release/ResearchMindmap.exe`）。Node.js の署名は注入で壊れるので `signtool remove` で外す
+- **起動**: `127.0.0.1` の 8787（使用中なら空いているポート）で待ち受け、既定のブラウザで `http://127.0.0.1:<port>/?launch=<token>` を開く。黒いウィンドウを閉じると終了
+- **守り**（9 章に加えて）
+  - `.env` の `HOST` / `ALLOWED_HOSTS` / `ALLOWED_ORIGINS` は無視し、必ずこのマシンだけで待ち受ける
+  - 起動ごとに 256 bit の乱数トークンを作る。`/?launch=<token>` が HttpOnly・SameSite=Strict の Cookie（名前にポートを含む）を渡して `/` へ 303。`/api/*` はこの Cookie が無いと 401。同じマシンのほかのプログラム・ほかのユーザー・前回の起動のタブからは API キーを使えない
+  - 画面は exe の中のメモリから配り、ディスクに展開しない（ほかのプログラムが書き換えられない）。埋め込んだファイル以外は `index.html`
+  - ブラウザはシェルを通さずに開く（`explorer.exe <url>`）
+- **保存先**: 設定 `%APPDATA%\ResearchMindmap\.env`（初回に `.env.example` から作る。既存のものは上書きしない）、キャッシュ `%LOCALAPPDATA%\ResearchMindmap\cache`。どちらもそのユーザーだけが読めるフォルダ
+- **リリース**: `vX.Y.Z` のタグを push すると `.github/workflows/release.yml` が GitHub の Windows ランナーでビルドする
+  - ビルドは読み取り専用のトークン・`npm ci --ignore-scripts` で行い、書き込み権限（リリース作成・署名）は別ジョブだけが持つ。Actions はコミット SHA で固定
+  - Node.js 22 の最新パッチを埋め込む（`check-latest`）。`npm audit`・lint・テスト・exe のスモークテスト（`scripts/smoke-exe.mjs`）が通ったものだけを出す
+  - SHA-256 と、Sigstore で署名したビルド来歴（`actions/attest-build-provenance`）を付ける。`gh attestation verify` で、このリポジトリのワークフローがビルドしたものか確かめられる
+  - コード署名証明書は使っていない（SmartScreen の警告が出る）
+- PR の CI でも Windows で exe をビルドしてスモークテストを通す
