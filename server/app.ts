@@ -6,7 +6,8 @@ import type { AppConfig } from './config';
 import { createServices, type Services } from './services';
 import { ApiHttpError } from './http/errors';
 import { localOnly } from './http/security';
-import { hasBuiltApp, mountStaticApp } from './http/static';
+import { launchSession } from './http/session';
+import { hasBuiltApp, mountEmbeddedApp, mountStaticApp, type EmbeddedFiles } from './http/static';
 import { getLlm } from './llm/client';
 import { exploreRoutes } from './routes/explore';
 import { trendRoutes } from './routes/trends';
@@ -28,11 +29,20 @@ function llmStatus(config: AppConfig): HealthResponse['llm'] {
     : { enabled: false, model: null, reason: 'ANTHROPIC_API_KEY が未設定（LLM なしの代替処理で動作）', reasonEn: 'ANTHROPIC_API_KEY is not set (features fall back to non-LLM processing)' };
 }
 
-export function createApp(config: AppConfig, services: Services = createServices(config)) {
+/** Set by the desktop app (DESIGN 15.3). */
+export interface AppOptions {
+  /** Require the cookie handed out by `/?launch=<token>` for every API call. */
+  launchToken?: string;
+  /** Serve this build instead of `config.staticDir`. */
+  embeddedApp?: EmbeddedFiles;
+}
+
+export function createApp(config: AppConfig, services: Services = createServices(config), options: AppOptions = {}) {
   const app = new Hono();
 
   app.use('*', secureHeaders({ crossOriginResourcePolicy: 'same-origin' }));
   app.use('/api/*', localOnly({ allowedHosts: config.allowedHosts, allowedOrigins: config.allowedOrigins }));
+  if (options.launchToken) app.use('*', launchSession(options.launchToken, config.port));
   app.use(
     '/api/*',
     bodyLimit({
@@ -62,7 +72,8 @@ export function createApp(config: AppConfig, services: Services = createServices
   app.route('/api/trends', trendRoutes(services));
 
   // Production mode: the API server also serves the built app (DESIGN 15.2).
-  if (hasBuiltApp(config.staticDir)) mountStaticApp(app, config.staticDir);
+  if (options.embeddedApp) mountEmbeddedApp(app, options.embeddedApp);
+  else if (hasBuiltApp(config.staticDir)) mountStaticApp(app, config.staticDir);
 
   app.notFound((c) =>
     c.json({ error: { code: 'not_found', message: `No route for ${c.req.path}` } }, 404),

@@ -1,7 +1,7 @@
 {
   "name": "researchmindmap",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Search scholarly databases and turn the results into a research mind map",
   "license": "MIT",
   "type": "module",
@@ -18,7 +18,9 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:exe": "node scripts/build-exe.mjs",
+    "smoke:exe": "node scripts/smoke-exe.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",
@@ -40,10 +42,12 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "concurrently": "^10.0.6",
+    "esbuild": "0.28.2",
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
+    "postject": "1.0.0-alpha.6",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.71.2",
     "vite": "^8.0.4",

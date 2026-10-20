@@ -24,8 +24,10 @@ function withKey(params: URLSearchParams, apiKey?: string): URLSearchParams {
 
 /** Locate the paper in OpenAlex (single-entity lookups are free) and read its link lists. */
 async function resolveWork(paper: Paper, ctx: ExpandContext): Promise<WorkLinks | null> {
-  const key = paper.ids?.openalex ?? (paper.ids?.doi ? `doi:${paper.ids.doi}` : paper.ids?.arxiv ? `doi:10.48550/arxiv.${paper.ids.arxiv}` : null);
-  if (!key) return null;
+  // The ids come from the browser: keep them to one path segment of the OpenAlex URL.
+  const id = normalizeOpenAlexId(paper.ids?.openalex) ?? (paper.ids?.doi ? `doi:${paper.ids.doi}` : paper.ids?.arxiv ? `doi:10.48550/arxiv.${paper.ids.arxiv}` : null);
+  if (!id) return null;
+  const key = encodeURIComponent(id);
   try {
     const params = withKey(new URLSearchParams({ select: 'id,referenced_works,related_works' }), ctx.apiKey);
     const { data } = await ctx.http.getJson<WorkLinks>('openalex', `${BASE}/${key}?${params.toString()}`, { signal: ctx.signal });

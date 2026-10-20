@@ -35,3 +35,7 @@ dist-ssr
 coverage
 test-results
 playwright-report
+
+# Desktop app build (npm run build:exe)
+build
+release

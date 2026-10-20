@@ -51,7 +51,7 @@ function oaParams(ctx: ResolveContext, extra: Record<string, string> = {}): stri
 
 async function openAlexByKey(key: string, ctx: ResolveContext): Promise<Paper | null> {
   try {
-    const { data } = await ctx.http.getJson<OpenAlexWork>('openalex', `${OA}/${key}?${oaParams(ctx)}`);
+    const { data } = await ctx.http.getJson<OpenAlexWork>('openalex', `${OA}/${encodeURIComponent(key)}?${oaParams(ctx)}`);
     return normalizeOpenAlexWork(data);
   } catch {
     return null;
