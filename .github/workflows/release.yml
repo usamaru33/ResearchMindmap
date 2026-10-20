@@ -1,0 +1,104 @@
+name: Release
+
+# Pushing a tag vX.Y.Z builds the Windows desktop app on GitHub's runners and
+# publishes it with a SHA-256 checksum and a signed build provenance attestation
+# (DESIGN 15.3). Running it by hand builds and checks the app without releasing.
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # Builds with a read-only token: dependency code never runs next to the write permissions below.
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          # Embed the newest Node.js 22 patch release, with its security fixes.
+          check-latest: true
+      - name: The tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: npm run build:exe
+      - run: npm run smoke:exe
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: desktop-app
+          path: |
+            release/ResearchMindmap.exe
+            release/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # create the release
+      id-token: write # sign the attestation
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: desktop-app
+          path: release
+      - name: Check the checksum
+        working-directory: release
+        run: sha256sum --check SHA256SUMS.txt
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: release/ResearchMindmap.exe
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          sha=$(cut -d' ' -f1 release/SHA256SUMS.txt)
+          cat > notes.md <<EOF
+          ## Windows 版 / Windows app
+
+          \`ResearchMindmap.exe\` をダウンロードしてダブルクリックすると、ブラウザでアプリが開きます。黒いウィンドウを閉じると終了します。
+          Download \`ResearchMindmap.exe\` and double-click it: the app opens in your browser. Close the console window to stop it.
+
+          - APIキーなどの設定 / Settings (API keys): \`%APPDATA%\\ResearchMindmap\\.env\`（初回起動時に作成 / created on first run）
+          - このパソコンの、アプリが開いたタブからしか使えません / Only the tab the app opened, on this machine, can use it.
+
+          ### 「Windows によって PC が保護されました」と出たら / If SmartScreen warns you
+
+          この exe はコード署名していません。下の方法で GitHub 上でビルドされた本物か確かめてから、「詳細情報」→「実行」を選んでください。
+          The executable is not code-signed. Check that it is the one GitHub built (below), then choose "More info" → "Run anyway".
+
+          ### 本物か確かめる / Verify the download
+
+          SHA-256: \`${sha}\`
+
+          \`\`\`powershell
+          (Get-FileHash .\\ResearchMindmap.exe -Algorithm SHA256).Hash
+          gh attestation verify .\\ResearchMindmap.exe --repo ${GH_REPO}
+          \`\`\`
+          EOF
+          gh release create "$TAG" release/ResearchMindmap.exe release/SHA256SUMS.txt \
+            --title "Research Mind Map $TAG" --notes-file notes.md --generate-notes --verify-tag
