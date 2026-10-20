@@ -12,3 +12,5 @@ docs
 coverage
 test-results
 *.log
+build
+release
