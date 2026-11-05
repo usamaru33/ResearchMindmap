@@ -18,7 +18,7 @@ import {
 
 const SAVE_DELAY_MS = 500;
 
-function browserStorage(): KeyValueStorage {
+export function browserStorage(): KeyValueStorage {
   try {
     const probe = '__rmm_probe__';
     window.localStorage.setItem(probe, probe);
@@ -62,6 +62,9 @@ function toSnapshot(project: Project): MapSnapshot {
 
 type ProjectMeta = Pick<Project, 'id' | 'name' | 'createdAt'>;
 
+/** What a user can have changed; `updatedAt` is left out on purpose. */
+const contentKey = (p: Project) => JSON.stringify([p.name, p.nodes, p.edges, p.layoutDirection, p.aspects ?? [], p.history ?? []]);
+
 export function useProjects(
   initial: Project,
   state: MindMapState,
@@ -89,9 +92,17 @@ export function useProjects(
     [initial.schemaVersion, state.nodes, state.edges, state.layoutDirection, state.aspects, state.history],
   );
 
+  // The update time of the stored copy this editor last saved or loaded, to notice a copy replaced by a sync.
+  const savedAt = useRef(initial.updatedAt);
+
   const saveNow = useCallback(
     (m: ProjectMeta = meta) => {
-      const ok = projectStore.save(buildProject(m));
+      const project = buildProject(m);
+      const stored = projectStore.load(m.id);
+      // Nothing changed: keep the update time, or two synced devices would keep re-sending the same project.
+      if (stored && contentKey(stored) === contentKey(project)) return;
+      const ok = projectStore.save(project);
+      if (ok) savedAt.current = project.updatedAt;
       setSaveError(ok ? null : tr('error.storageFull'));
       setProjects(projectStore.list());
     },
@@ -111,6 +122,7 @@ export function useProjects(
   const activate = useCallback(
     (project: Project) => {
       projectStore.setActiveId(project.id);
+      savedAt.current = project.updatedAt;
       setMeta({ id: project.id, name: project.name, createdAt: project.createdAt });
       dispatch({ type: 'LOAD_MAP', payload: toSnapshot(project) });
       setProjects(projectStore.list());
@@ -167,6 +179,25 @@ export function useProjects(
     }
   }, [meta.id, activate]);
 
+  /** After a sync changed the stored projects: refresh the list and reload the open map if it was replaced or removed. */
+  const refresh = useCallback(() => {
+    const list = projectStore.list();
+    setProjects(list);
+    const current = projectStore.load(meta.id);
+    if (current) {
+      if (current.updatedAt !== savedAt.current) activate(current);
+      return;
+    }
+    const next = list[0] ? projectStore.load(list[0].id) : null;
+    if (next) {
+      activate(next);
+    } else {
+      const fresh = createProject('Untitled map');
+      projectStore.save(fresh);
+      activate(fresh);
+    }
+  }, [meta.id, activate]);
+
   const exportActive = useCallback(() => {
     const project = buildProject(meta);
     const blob = new Blob([serializeProjectFile(project)], { type: 'application/json' });
@@ -202,5 +233,7 @@ export function useProjects(
     removeActive,
     exportActive,
     importFile,
+    saveNow,
+    refresh,
   };
 }

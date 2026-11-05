@@ -4,9 +4,15 @@ import { localizedReason } from '../../i18n/localized';
 import { useSettings } from '../../hooks/settingsContext';
 import { DEFAULT_SETTINGS, SOURCE_LIMIT_OPTIONS, VAGUE_LIMIT_OPTIONS } from '../../store/settings';
 import { useT } from '../../hooks/useT';
+import type { GoogleSync } from '../../hooks/useGoogleSync';
 import styles from './SettingsDialog.module.css';
 
-export function SettingsDialog({ onClose }: { onClose: () => void }) {
+function when(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? '' : d.toLocaleString(undefined, { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+export function SettingsDialog({ onClose, sync }: { onClose: () => void; sync: GoogleSync }) {
   const health = useApiHealth();
   const { settings, update } = useSettings();
   const t = useT();
@@ -135,6 +141,48 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
             </select>
           </label>
         </section>
+
+        {sync.available && (
+          <section className={styles.section}>
+            <h4>{t('sync.title')}</h4>
+            <p className={styles.hint}>{t('sync.desc')}</p>
+            {sync.status === 'signedOut' || sync.status === 'signingIn' || sync.status === 'expired' ? (
+              <>
+                {sync.status === 'expired' && (
+                  <div className={styles.syncError} role="alert">
+                    {t('sync.expired')}
+                  </div>
+                )}
+                <div className={styles.syncActions}>
+                  <button type="button" className={styles.syncBtn} onClick={sync.signIn} disabled={sync.status === 'signingIn'}>
+                    {sync.status === 'signingIn' ? t('sync.signingIn') : sync.status === 'expired' ? t('sync.signInAgain') : t('sync.signIn')}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.row}>
+                  <span>{t('sync.signedInAs', { email: sync.email ?? '' })}</span>
+                  <button type="button" className={styles.reset} onClick={sync.signOut}>
+                    {t('sync.signOut')}
+                  </button>
+                </div>
+                <div className={styles.syncActions}>
+                  <button type="button" className={styles.syncBtn} onClick={sync.syncNow} disabled={sync.status === 'syncing'}>
+                    {sync.status === 'syncing' ? t('sync.syncing') : t('sync.now')}
+                  </button>
+                  <span className={styles.syncLast}>{sync.lastSyncAt ? t('sync.last', { when: when(sync.lastSyncAt) }) : t('sync.never')}</span>
+                </div>
+              </>
+            )}
+            {sync.message && (
+              <div className={sync.message.kind === 'error' ? styles.syncError : styles.hint} role={sync.message.kind === 'error' ? 'alert' : 'status'}>
+                {sync.message.text}
+              </div>
+            )}
+            <p className={styles.hint}>{t('sync.hint')}</p>
+          </section>
+        )}
 
         <div className={styles.footer}>
           <button type="button" className={styles.reset} onClick={() => update({ ...DEFAULT_SETTINGS, uiLanguage: settings.uiLanguage })}>

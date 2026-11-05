@@ -27,6 +27,8 @@ import { useMindMapStore } from './hooks/useMindMapStore';
 import { loadInitialProject, projectStore, useProjects } from './hooks/useProjects';
 import { useSearch, useVagueSearch } from './hooks/useSearch';
 import { useAlerts } from './hooks/useAlerts';
+import { useApiHealth } from './hooks/useApiHealth';
+import { useGoogleSync } from './hooks/useGoogleSync';
 import { seenKeys } from './store/alerts';
 import { createProject } from './store/projects';
 import { sampleNodes } from './data/sampleData';
@@ -65,6 +67,13 @@ export default function App() {
   const projects = useProjects(initialProject, state, dispatch);
   const search = useSearch();
   const vague = useVagueSearch();
+  const apiHealth = useApiHealth();
+  const googleSync = useGoogleSync({
+    clientId: apiHealth.status === 'ok' ? apiHealth.health.googleSync?.clientId ?? null : null,
+    projects: projects.projects,
+    flush: projects.saveNow,
+    onChanged: projects.refresh,
+  });
   const alerts = useAlerts(projects.activeProject.id, state.history, dispatch);
   const alertCount = Object.values(alerts.found).reduce((n, list) => n + list.length, 0);
   const mapIds = useMemo(() => new Set(state.nodes.map((n) => n.id)), [state.nodes]);
@@ -490,7 +499,7 @@ export default function App() {
           onClose={() => setPaletteOpen(false)}
         />
       )}
-      {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} sync={googleSync} />}
     </div>
   );
 }
