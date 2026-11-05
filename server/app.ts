@@ -42,6 +42,7 @@ export function createApp(config: AppConfig, services: Services = createServices
 
   // Google's sign-in popup talks to window.opener, which 'same-origin' would cut off (DESIGN 16.3).
   const googleSync = !!config.googleClientId;
+  const picker = googleSync && config.googleApiKey && config.googleAppId ? { apiKey: config.googleApiKey, appId: config.googleAppId } : null;
   app.use(
     '*',
     secureHeaders({
@@ -65,7 +66,7 @@ export function createApp(config: AppConfig, services: Services = createServices
       version: VERSION,
       sources: sourceStatuses(config),
       llm: llmStatus(config),
-      googleSync: { enabled: googleSync, clientId: config.googleClientId ?? null },
+      googleSync: { enabled: googleSync, clientId: config.googleClientId ?? null, picker },
     };
     return c.json(body);
   });
@@ -81,7 +82,7 @@ export function createApp(config: AppConfig, services: Services = createServices
   app.route('/api/trends', trendRoutes(services));
 
   // Production mode: the API server also serves the built app (DESIGN 15.2).
-  const csp = buildContentSecurityPolicy(googleSync);
+  const csp = buildContentSecurityPolicy(googleSync, !!picker);
   if (options.embeddedApp) mountEmbeddedApp(app, options.embeddedApp, csp);
   else if (hasBuiltApp(config.staticDir)) mountStaticApp(app, config.staticDir, csp);
 

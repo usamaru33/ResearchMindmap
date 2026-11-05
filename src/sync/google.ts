@@ -2,7 +2,8 @@
 // returns an access token. The token stays in memory; nothing is stored or sent to our server.
 
 const SCRIPT_URL = 'https://accounts.google.com/gsi/client';
-const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
+// Only files this app created or the user picked, not the whole Drive.
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const SCOPES = `${DRIVE_SCOPE} https://www.googleapis.com/auth/userinfo.email`;
 
 interface TokenResponse {
@@ -97,6 +98,88 @@ export interface Account {
   /** Google's stable ID for the account (the email can change). */
   id: string;
   email: string;
+}
+
+// --- Google Picker: the user chooses a file someone shared, which gives this app access to it. ---
+
+const PICKER_SCRIPT_URL = 'https://apis.google.com/js/api.js';
+
+interface PickerResult {
+  action: string;
+  docs?: Array<{ id: string }>;
+}
+interface PickerApi {
+  Action: { PICKED: string; CANCEL: string };
+  DocsView: new () => { setMimeTypes(types: string): unknown; setOwnedByMe(own: boolean): unknown; setIncludeFolders(on: boolean): unknown };
+  PickerBuilder: new () => {
+    addView(view: unknown): unknown;
+    setOAuthToken(token: string): unknown;
+    setDeveloperKey(key: string): unknown;
+    setAppId(id: string): unknown;
+    setCallback(cb: (result: PickerResult) => void): unknown;
+    build(): { setVisible(on: boolean): void };
+  };
+}
+
+export interface PickerConfig {
+  apiKey: string;
+  /** Number of the Google Cloud project. */
+  appId: string;
+}
+
+let pickerLoading: Promise<PickerApi> | null = null;
+
+function loadPicker(): Promise<PickerApi> {
+  pickerLoading ??= new Promise<PickerApi>((resolve, reject) => {
+    const fail = () => {
+      pickerLoading = null;
+      reject(new SignInError('script'));
+    };
+    const ready = () => {
+      const gapi = (window as unknown as { gapi?: { load(name: string, done: () => void): void } }).gapi;
+      if (!gapi) return fail();
+      gapi.load('picker', () => {
+        const picker = (window as unknown as { google?: { picker?: PickerApi } }).google?.picker;
+        if (picker) resolve(picker);
+        else fail();
+      });
+    };
+    if ((window as unknown as { gapi?: unknown }).gapi) return ready();
+    const el = document.createElement('script');
+    el.src = PICKER_SCRIPT_URL;
+    el.async = true;
+    el.onload = ready;
+    el.onerror = () => {
+      el.remove();
+      fail();
+    };
+    document.head.append(el);
+  });
+  return pickerLoading;
+}
+
+/** Open Google Picker on JSON files (shared ones first). Resolves with the chosen file's ID, or null if closed. */
+export async function pickSharedFile(accessToken: string, config: PickerConfig): Promise<string | null> {
+  const picker = await loadPicker();
+  return new Promise<string | null>((resolve) => {
+    const sharedWithMe = new picker.DocsView();
+    sharedWithMe.setOwnedByMe(false);
+    sharedWithMe.setMimeTypes('application/json');
+    sharedWithMe.setIncludeFolders(false);
+    const mine = new picker.DocsView();
+    mine.setMimeTypes('application/json');
+    const built = new picker.PickerBuilder();
+    built.addView(sharedWithMe);
+    built.addView(mine);
+    built.setOAuthToken(accessToken);
+    built.setDeveloperKey(config.apiKey);
+    built.setAppId(config.appId);
+    built.setCallback((result) => {
+      if (result.action === picker.Action.PICKED) resolve(result.docs?.[0]?.id ?? null);
+      else if (result.action === picker.Action.CANCEL) resolve(null);
+    });
+    built.build().setVisible(true);
+  });
 }
 
 export async function fetchAccount(accessToken: string, fetchFn: typeof fetch = (...a) => fetch(...a)): Promise<Account> {

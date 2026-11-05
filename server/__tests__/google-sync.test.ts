@@ -21,7 +21,7 @@ describe('Google sync is off without GOOGLE_CLIENT_ID', () => {
 
   it('says so in /api/health and changes nothing else', async () => {
     const body = (await (await get(app, '/api/health')).json()) as HealthResponse;
-    expect(body.googleSync).toEqual({ enabled: false, clientId: null });
+    expect(body.googleSync).toEqual({ enabled: false, clientId: null, picker: null });
     const page = await get(app, '/');
     expect(page.headers.get('content-security-policy')).toBe(CONTENT_SECURITY_POLICY);
     expect(page.headers.get('content-security-policy')).not.toContain('google');
@@ -40,7 +40,7 @@ describe('Google sync with a client ID', () => {
 
   it('hands the public client ID to the page', async () => {
     const body = (await (await get(app, '/api/health')).json()) as HealthResponse;
-    expect(body.googleSync).toEqual({ enabled: true, clientId: '123-abc.apps.googleusercontent.com' });
+    expect(body.googleSync).toEqual({ enabled: true, clientId: '123-abc.apps.googleusercontent.com', picker: null });
   });
 
   it('lets the page reach only the Google addresses it needs, and keep the sign-in popup', async () => {
@@ -50,10 +50,38 @@ describe('Google sync with a client ID', () => {
     expect(csp).toContain("script-src 'self' https://accounts.google.com/gsi/client");
     expect(csp).toContain("connect-src 'self' https://accounts.google.com/gsi/ https://www.googleapis.com");
     expect(csp).toContain('frame-src https://accounts.google.com/gsi/');
+    // Picker is not set up, so its hosts stay out.
+    expect(csp).not.toContain('apis.google.com');
+    expect(csp).not.toContain('docs.google.com');
     // Everything else stays as strict as before.
     expect(csp).toContain("default-src 'self'");
     expect(csp).toContain("object-src 'none'");
     expect(csp).toContain("frame-ancestors 'none'");
     expect(page.headers.get('cross-origin-opener-policy')).toBe('same-origin-allow-popups');
+  });
+
+  describe('Google Picker (opening files other people shared)', () => {
+    const env = { GOOGLE_CLIENT_ID: 'id', GOOGLE_API_KEY: 'key', GOOGLE_APP_ID: '4242', STATIC_DIR: '' };
+
+    it('needs the API key and the project number together', async () => {
+      for (const partial of [{ GOOGLE_API_KEY: 'key' }, { GOOGLE_APP_ID: '4242' }]) {
+        const app = createApp(loadConfig({ GOOGLE_CLIENT_ID: 'id', ...partial, STATIC_DIR: builtApp() }));
+        expect(((await (await get(app, '/api/health')).json()) as HealthResponse).googleSync.picker).toBeNull();
+      }
+      // Picker settings without a client ID mean nothing: sign-in is what everything hangs on.
+      const noId = createApp(loadConfig({ GOOGLE_API_KEY: 'key', GOOGLE_APP_ID: '4242', STATIC_DIR: builtApp() }));
+      expect(((await (await get(noId, '/api/health')).json()) as HealthResponse).googleSync).toEqual({ enabled: false, clientId: null, picker: null });
+    });
+
+    it('hands the key and number to the page, and allows only the extra Google hosts it loads', async () => {
+      const app = createApp(loadConfig({ ...env, STATIC_DIR: builtApp() }));
+      const body = (await (await get(app, '/api/health')).json()) as HealthResponse;
+      expect(body.googleSync.picker).toEqual({ apiKey: 'key', appId: '4242' });
+      const csp = (await get(app, '/')).headers.get('content-security-policy') ?? '';
+      expect(csp).toBe(buildContentSecurityPolicy(true, true));
+      expect(csp).toContain("script-src 'self' https://accounts.google.com/gsi/client https://apis.google.com");
+      expect(csp).toContain('frame-src https://accounts.google.com/gsi/ https://docs.google.com');
+      expect(csp).toContain("frame-ancestors 'none'");
+    });
   });
 });

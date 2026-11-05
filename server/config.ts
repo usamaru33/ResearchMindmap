@@ -21,6 +21,9 @@ export interface AppConfig {
   enableDblp: boolean;
   /** OAuth client ID for syncing projects through Google Drive (DESIGN 16); sync is off without it. */
   googleClientId?: string;
+  /** Browser API key and Cloud project number for Google Picker (opening files shared with the user; DESIGN 16.3). */
+  googleApiKey?: string;
+  googleAppId?: string;
 }
 
 function optional(value: string | undefined): string | undefined {
@@ -46,6 +49,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     cacheTtlHours: Number(env.CACHE_TTL_HOURS ?? 72),
     enableDblp: env.ENABLE_DBLP === 'true',
     googleClientId: optional(env.GOOGLE_CLIENT_ID),
+    googleApiKey: optional(env.GOOGLE_API_KEY),
+    googleAppId: optional(env.GOOGLE_APP_ID),
   };
 }
 

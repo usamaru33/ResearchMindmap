@@ -7,16 +7,17 @@ import type { Hono } from 'hono';
  * data (https) and the data:/blob: URLs used by image export. Style attributes
  * need 'unsafe-inline' (React sets them); scripts do not.
  */
-export function buildContentSecurityPolicy(googleSync = false): string {
+export function buildContentSecurityPolicy(googleSync = false, picker = false): string {
   // Google sign-in (DESIGN 16.3) loads one script, calls Google's APIs and may frame its own page.
+  // Google Picker adds its loader script and a frame from docs.google.com.
   return [
     "default-src 'self'",
-    googleSync ? "script-src 'self' https://accounts.google.com/gsi/client" : "script-src 'self'",
+    googleSync ? "script-src 'self' https://accounts.google.com/gsi/client" + (picker ? ' https://apis.google.com' : '') : "script-src 'self'",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
     googleSync ? "connect-src 'self' https://accounts.google.com/gsi/ https://www.googleapis.com" : "connect-src 'self'",
-    ...(googleSync ? ['frame-src https://accounts.google.com/gsi/'] : []),
+    ...(googleSync ? ['frame-src https://accounts.google.com/gsi/' + (picker ? ' https://docs.google.com' : '')] : []),
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

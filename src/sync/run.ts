@@ -5,6 +5,7 @@ import { tr } from '../i18n/current';
 import {
   ProjectImportError,
   parseProjectFile,
+  projectFileName,
   serializeProjectFile,
   uniqueName,
   type Project,
@@ -26,6 +27,8 @@ export interface SyncResult {
   deleted: number;
   /** Changed on both sides; the other device's version was kept as a new project. */
   conflicts: number;
+  /** Edited here but only readable on Drive: the edits were kept as a separate project. */
+  forked: number;
   /** Edited here while the sync ran, so left for the next one. */
   skipped: number;
   /** Files on Drive that could not be read as projects. */
@@ -46,7 +49,7 @@ export async function runSync(local: LocalProjects, remote: Remote, base: SyncBa
   const localTimes = Object.fromEntries(local.list().map((p) => [p.id, p.updatedAt]));
   const plan = planSync(localTimes, Object.fromEntries([...remoteFiles].map(([id, f]) => [id, f.updatedAt])), base);
 
-  const result: SyncResult = { uploaded: 0, downloaded: 0, deleted: 0, conflicts: 0, skipped: 0, unreadable: 0, changed: [], base: {} };
+  const result: SyncResult = { uploaded: 0, downloaded: 0, deleted: 0, conflicts: 0, forked: 0, skipped: 0, unreadable: 0, changed: [], base: {} };
   const next = result.base;
   for (const id of plan.same) next[id] = localTimes[id];
 
@@ -72,10 +75,31 @@ export async function runSync(local: LocalProjects, remote: Remote, base: SyncBa
   const upload = async (id: string) => {
     const project = local.load(id);
     if (!project) return;
-    await remote.write(id, serializeProjectFile(project), project.updatedAt, remoteFiles.get(id)?.fileId);
+    await remote.write(id, serializeProjectFile(project), project.updatedAt, remoteFiles.get(id)?.fileId, projectFileName(project.name));
     next[id] = project.updatedAt;
     result.uploaded++;
   };
+
+  // A file we may only read cannot take our edits: keep them as a project of our own, then take Drive's version.
+  const readOnly = (id: string) => remoteFiles.get(id)?.canEdit === false;
+  const forks = [...plan.upload, ...plan.conflicts].filter(readOnly);
+  plan.upload = plan.upload.filter((id) => !readOnly(id));
+  plan.conflicts = plan.conflicts.filter((id) => !readOnly(id));
+  for (const id of forks) {
+    const mine = local.load(id);
+    if (!mine || editedSince(id)) {
+      result.skipped++;
+      keepBase(id);
+      continue;
+    }
+    const fork = { ...mine, id: crypto.randomUUID(), name: uniqueName(`${mine.name}${tr('sync.copySuffix')}`, local.list().map((p) => p.name)) };
+    if (!local.save(fork)) throw new Error(tr('error.storage'));
+    result.changed.push(fork.id);
+    result.forked++;
+    plan.download.push(id);
+    // Drive's version replaces ours below, so the edit check must not see the copy as a change.
+    localTimes[id] = local.list().find((p) => p.id === id)?.updatedAt ?? localTimes[id];
+  }
 
   for (const id of plan.download) {
     if (localTimes[id] !== undefined && editedSince(id)) {
@@ -109,6 +133,11 @@ export async function runSync(local: LocalProjects, remote: Remote, base: SyncBa
   for (const id of plan.upload) await upload(id);
 
   for (const id of plan.deleteRemote) {
+    // Someone else's file stays: removing it here must not remove it for everyone.
+    if (!remoteFiles.get(id)!.ownedByMe) {
+      keepBase(id);
+      continue;
+    }
     await remote.remove(remoteFiles.get(id)!.fileId);
     result.deleted++;
   }

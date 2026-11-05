@@ -19,36 +19,43 @@ function fakeFetch(responses: Array<Response | Error>) {
 }
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
+const query = (call: Call) => new URL(call.url).searchParams.get('q');
 const header = (call: Call, name: string) => (call.init.headers as Record<string, string>)[name];
+const file = (id: string, projectId: string, updatedAt: string, extra: object = {}) => ({
+  id,
+  appProperties: { rmmProject: '1', projectId, updatedAt },
+  ...extra,
+});
 
-describe('Drive appData client', () => {
-  it('lists project files from the appData folder with the access token', async () => {
+describe('Drive client: project files', () => {
+  it('lists the app\'s project files with the access token, and who owns them', async () => {
     const { fn, calls } = fakeFetch([
       json({
         files: [
-          { id: 'f1', name: 'rmm-project-p1.json', appProperties: { updatedAt: '2026-11-01T00:00:00.000Z' } },
-          { id: 'f2', name: 'rmm-project-p2.json', appProperties: { updatedAt: '2026-11-02T00:00:00.000Z' } },
-          { id: 'f3', name: 'rmm-project-p3.json' }, // no update time: not ours to read
-          { id: 'f4', name: 'other.json', appProperties: { updatedAt: 'x' } },
+          file('f1', 'p1', '2026-11-01T00:00:00.000Z'),
+          file('f2', 'p2', '2026-11-02T00:00:00.000Z', { ownedByMe: false, capabilities: { canEdit: false } }),
+          { id: 'f3', appProperties: { rmmProject: '1', projectId: 'p3' } }, // no update time: not ours to read
+          { id: 'f4', appProperties: { rmmProject: '1', updatedAt: 'x' } }, // no project ID
         ],
       }),
     ]);
     const files = await createDrive(() => 'tok', fn).list();
     expect(files).toEqual([
-      { fileId: 'f1', id: 'p1', updatedAt: '2026-11-01T00:00:00.000Z' },
-      { fileId: 'f2', id: 'p2', updatedAt: '2026-11-02T00:00:00.000Z' },
+      { fileId: 'f1', id: 'p1', updatedAt: '2026-11-01T00:00:00.000Z', ownedByMe: true, canEdit: true },
+      { fileId: 'f2', id: 'p2', updatedAt: '2026-11-02T00:00:00.000Z', ownedByMe: false, canEdit: false },
     ]);
-    expect(calls[0].url).toContain('spaces=appDataFolder');
+    expect(query(calls[0])).toContain("appProperties has { key='rmmProject' and value='1' }");
+    expect(calls[0].url).not.toContain('appDataFolder');
     expect(header(calls[0], 'Authorization')).toBe('Bearer tok');
   });
 
   it('follows pages and keeps the newer of two files for one project', async () => {
     const { fn, calls } = fakeFetch([
-      json({ files: [{ id: 'old', name: 'rmm-project-p1.json', appProperties: { updatedAt: 'A' } }], nextPageToken: 'next' }),
-      json({ files: [{ id: 'new', name: 'rmm-project-p1.json', appProperties: { updatedAt: 'B' } }] }),
+      json({ files: [file('old', 'p1', 'A')], nextPageToken: 'next' }),
+      json({ files: [file('new', 'p1', 'B')] }),
     ]);
     const files = await createDrive(() => 't', fn).list();
-    expect(files).toEqual([{ fileId: 'new', id: 'p1', updatedAt: 'B' }]);
+    expect(files).toMatchObject([{ fileId: 'new', id: 'p1', updatedAt: 'B' }]);
     expect(calls[1].url).toContain('pageToken=next');
   });
 
@@ -58,25 +65,39 @@ describe('Drive appData client', () => {
     expect(calls[0].url).toContain('/files/f1?alt=media');
   });
 
-  it('creates a file in the appData folder with the update time as a property', async () => {
-    const { fn, calls } = fakeFetch([json({ id: 'new-file' })]);
-    const id = await createDrive(() => 't', fn).write('p1', '{"x":1}', 'U1');
-    expect(id).toBe('new-file');
-    expect(calls[0].init.method).toBe('POST');
-    expect(calls[0].url).toContain('/upload/drive/v3/files?uploadType=multipart');
-    expect(header(calls[0], 'Content-Type')).toMatch(/^multipart\/related; boundary=/);
-    const body = String(calls[0].init.body);
-    expect(body).toContain('"name":"rmm-project-p1.json"');
-    expect(body).toContain('"parents":["appDataFolder"]');
-    expect(body).toContain('"appProperties":{"updatedAt":"U1"}');
+  it('creates a file in the ResearchMindmap folder, making the folder once', async () => {
+    const { fn, calls } = fakeFetch([json({}), json({ id: 'folder' }), json({ id: 'file-1' }), json({ id: 'file-2' })]);
+    const drive = createDrive(() => 't', fn);
+    expect(await drive.write('p1', '{"x":1}', 'U1', undefined, 'Map.rmm.json')).toBe('file-1');
+    expect(await drive.write('p2', '{}', 'U2', undefined, 'Other.rmm.json')).toBe('file-2');
+
+    expect(query(calls[0])).toContain("appProperties has { key='rmmFolder' and value='1' }"); // looked for first
+    expect(String(calls[1].init.body)).toContain('"name":"ResearchMindmap"');
+    expect(calls).toHaveLength(4); // the folder was not looked up again
+    expect(calls[2].init.method).toBe('POST');
+    expect(calls[2].url).toContain('/upload/drive/v3/files?uploadType=multipart');
+    expect(header(calls[2], 'Content-Type')).toMatch(/^multipart\/related; boundary=/);
+    const body = String(calls[2].init.body);
+    expect(body).toContain('"name":"Map.rmm.json"');
+    expect(body).toContain('"parents":["folder"]');
+    expect(body).toContain('"appProperties":{"rmmProject":"1","projectId":"p1","updatedAt":"U1"}');
     expect(body).toContain('{"x":1}');
   });
 
-  it('replaces an existing file without moving it', async () => {
+  it('reuses a folder it already made', async () => {
+    const { fn, calls } = fakeFetch([json({ files: [{ id: 'existing' }] }), json({ id: 'f' })]);
+    await createDrive(() => 't', fn).write('p1', '{}', 'U1', undefined, 'Map.rmm.json');
+    expect(calls).toHaveLength(2);
+    expect(String(calls[1].init.body)).toContain('"parents":["existing"]');
+  });
+
+  it('replaces an existing file, renaming it, without moving it or looking for the folder', async () => {
     const { fn, calls } = fakeFetch([json({ id: 'f1' })]);
-    await createDrive(() => 't', fn).write('p1', '{}', 'U2', 'f1');
+    await createDrive(() => 't', fn).write('p1', '{}', 'U2', 'f1', 'Renamed.rmm.json');
+    expect(calls).toHaveLength(1);
     expect(calls[0].init.method).toBe('PATCH');
     expect(calls[0].url).toContain('/files/f1?uploadType=multipart');
+    expect(String(calls[0].init.body)).toContain('"name":"Renamed.rmm.json"');
     expect(String(calls[0].init.body)).not.toContain('parents');
   });
 
@@ -98,5 +119,40 @@ describe('Drive appData client', () => {
     expect(await kind(new Response('Request had insufficient authentication scopes', { status: 403 }))).toBe('auth');
     expect(await kind(new TypeError('Failed to fetch'))).toBe('network');
     expect(await kind(new Response('boom', { status: 500 }))).toBe('http');
+  });
+});
+
+describe('Drive client: sharing', () => {
+  it('lists the people a file is shared with, leaving out links and domains', async () => {
+    const { fn, calls } = fakeFetch([
+      json({
+        permissions: [
+          { id: 'a', type: 'user', emailAddress: 'me@example.com', displayName: 'Me', role: 'owner' },
+          { id: 'b', type: 'user', emailAddress: 'you@example.com', role: 'writer' },
+          { id: 'anyone', type: 'anyone', role: 'reader' },
+        ],
+      }),
+    ]);
+    expect(await createDrive(() => 't', fn).people('f1')).toEqual([
+      { id: 'a', email: 'me@example.com', name: 'Me', role: 'owner' },
+      { id: 'b', email: 'you@example.com', name: 'you@example.com', role: 'writer' },
+    ]);
+    expect(calls[0].url).toContain('/files/f1/permissions');
+  });
+
+  it('shares with a person by e-mail address, with the role asked for', async () => {
+    const { fn, calls } = fakeFetch([json({ id: 'perm' })]);
+    await createDrive(() => 't', fn).share('f1', 'you@example.com', 'reader');
+    expect(calls[0].init.method).toBe('POST');
+    expect(calls[0].url).toContain('/files/f1/permissions');
+    expect(JSON.parse(String(calls[0].init.body))).toEqual({ type: 'user', role: 'reader', emailAddress: 'you@example.com' });
+    expect(header(calls[0], 'Content-Type')).toBe('application/json');
+  });
+
+  it('removes a permission', async () => {
+    const { fn, calls } = fakeFetch([new Response(null, { status: 204 })]);
+    await createDrive(() => 't', fn).unshare('f1', 'perm 1');
+    expect(calls[0].init.method).toBe('DELETE');
+    expect(calls[0].url).toContain('/files/f1/permissions/perm%201');
   });
 });

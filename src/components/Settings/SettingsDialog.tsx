@@ -5,6 +5,7 @@ import { useSettings } from '../../hooks/settingsContext';
 import { DEFAULT_SETTINGS, SOURCE_LIMIT_OPTIONS, VAGUE_LIMIT_OPTIONS } from '../../store/settings';
 import { useT } from '../../hooks/useT';
 import type { GoogleSync } from '../../hooks/useGoogleSync';
+import { SharePanel } from './SharePanel';
 import styles from './SettingsDialog.module.css';
 
 function when(iso: string): string {
@@ -12,7 +13,7 @@ function when(iso: string): string {
   return Number.isNaN(d.getTime()) ? '' : d.toLocaleString(undefined, { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-export function SettingsDialog({ onClose, sync }: { onClose: () => void; sync: GoogleSync }) {
+export function SettingsDialog({ onClose, sync, projectId }: { onClose: () => void; sync: GoogleSync; projectId: string }) {
   const health = useApiHealth();
   const { settings, update } = useSettings();
   const t = useT();
@@ -173,6 +174,15 @@ export function SettingsDialog({ onClose, sync }: { onClose: () => void; sync: G
                   </button>
                   <span className={styles.syncLast}>{sync.lastSyncAt ? t('sync.last', { when: when(sync.lastSyncAt) }) : t('sync.never')}</span>
                 </div>
+                <SharePanel key={projectId} sync={sync} projectId={projectId} />
+                {sync.canOpenShared && (
+                  <div className={styles.share}>
+                    <button type="button" className={styles.syncBtn} onClick={sync.openShared} disabled={sync.status === 'syncing'}>
+                      {t('sync.openShared')}
+                    </button>
+                    <p className={styles.hint}>{t('sync.openSharedHint')}</p>
+                  </div>
+                )}
               </>
             )}
             {sync.message && (

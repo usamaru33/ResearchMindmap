@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ProjectStore, createProject, serializeProjectFile, type KeyValueStorage, type Project } from '../store/projects';
-import type { Remote } from './drive';
+import type { Remote, RemoteFile } from './drive';
 import type { SyncBase } from './plan';
 import { runSync } from './run';
 
@@ -11,19 +11,25 @@ function memory(): KeyValueStorage {
 
 /** Drive, in memory. */
 function fakeDrive() {
-  const files = new Map<string, { id: string; text: string; updatedAt: string }>();
+  const files = new Map<string, { id: string; text: string; updatedAt: string; ownedByMe?: boolean; canEdit?: boolean }>();
+  const writes: string[] = [];
   let n = 0;
   const remote: Remote = {
-    list: async () => [...files].map(([fileId, f]) => ({ fileId, id: f.id, updatedAt: f.updatedAt })),
+    list: async () =>
+      [...files].map(([fileId, f]): RemoteFile => ({ fileId, id: f.id, updatedAt: f.updatedAt, ownedByMe: f.ownedByMe ?? true, canEdit: f.canEdit ?? true })),
     read: async (fileId) => files.get(fileId)!.text,
     write: async (id, text, updatedAt, fileId) => {
       const key = fileId ?? `file-${++n}`;
-      files.set(key, { id, text, updatedAt });
+      files.set(key, { ...files.get(key), id, text, updatedAt });
+      writes.push(id);
       return key;
     },
     remove: async (fileId) => void files.delete(fileId),
+    people: async () => [],
+    share: async () => {},
+    unshare: async () => {},
   };
-  return { remote, files };
+  return { remote, files, writes };
 }
 
 /** One device: its own local store and the record of its last sync. */
@@ -174,5 +180,56 @@ describe('runSync across two devices', () => {
     expect(a.store.load('listed-id')?.updatedAt).toBe('2026-11-05T00:00:00.000Z');
     expect(a.store.load('other')).toBeNull();
     expect(await a.sync()).toMatchObject({ uploaded: 0, downloaded: 0 });
+  });
+
+  describe('files shared by someone else', () => {
+    it('does not remove a file we do not own when it is deleted here, and does not bring it back', async () => {
+      const drive = fakeDrive();
+      const a = device(drive);
+      const project = createProject('Theirs');
+      drive.files.set('f', { id: project.id, text: serializeProjectFile(project), updatedAt: project.updatedAt, ownedByMe: false });
+      await a.sync();
+      expect(a.store.load(project.id)).not.toBeNull();
+
+      a.store.remove(project.id);
+      const res = await a.sync();
+      expect(res.deleted).toBe(0);
+      expect(drive.files.size).toBe(1);
+      expect(await a.sync()).toMatchObject({ downloaded: 0, uploaded: 0 });
+      expect(a.store.load(project.id)).toBeNull();
+    });
+
+    it('does not upload edits to a file we may only read; the edits stay as our own project', async () => {
+      const drive = fakeDrive();
+      const a = device(drive);
+      const project = createProject('Shared with me');
+      drive.files.set('f', { id: project.id, text: serializeProjectFile(project), updatedAt: project.updatedAt, ownedByMe: false, canEdit: false });
+      await a.sync();
+
+      edit(a.store, project.id, { name: 'My notes on it' });
+      const res = await a.sync();
+      expect(res).toMatchObject({ forked: 1, uploaded: 0 });
+      expect(drive.writes).toEqual([]); // never written to the read-only file
+      expect(a.store.load(project.id)?.name).toBe('Shared with me'); // the shared one is Drive's version again
+      const names = a.store.list().map((p) => p.name);
+      expect(names).toHaveLength(2);
+      expect(names.find((n) => n !== 'Shared with me')).toMatch(/^My notes on it/);
+      // And it stays settled: no further copies on later runs, apart from sending the new one up.
+      const again = await a.sync();
+      expect(again).toMatchObject({ forked: 0, downloaded: 0, conflicts: 0 });
+      expect(a.store.list()).toHaveLength(2);
+    });
+
+    it('still takes the owner updates to a file we may only read', async () => {
+      const drive = fakeDrive();
+      const a = device(drive);
+      const project = createProject('Shared with me');
+      drive.files.set('f', { id: project.id, text: serializeProjectFile(project), updatedAt: project.updatedAt, ownedByMe: false, canEdit: false });
+      await a.sync();
+      const newer = { ...project, name: 'Updated by owner', updatedAt: new Date(Date.parse(project.updatedAt) + 60_000).toISOString() };
+      drive.files.set('f', { id: project.id, text: serializeProjectFile(newer), updatedAt: newer.updatedAt, ownedByMe: false, canEdit: false });
+      expect(await a.sync()).toMatchObject({ downloaded: 1, forked: 0 });
+      expect(a.store.load(project.id)?.name).toBe('Updated by owner');
+    });
   });
 });

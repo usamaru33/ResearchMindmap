@@ -70,6 +70,7 @@ export default function App() {
   const apiHealth = useApiHealth();
   const googleSync = useGoogleSync({
     clientId: apiHealth.status === 'ok' ? apiHealth.health.googleSync?.clientId ?? null : null,
+    picker: apiHealth.status === 'ok' ? apiHealth.health.googleSync?.picker ?? null : null,
     projects: projects.projects,
     flush: projects.saveNow,
     onChanged: projects.refresh,
@@ -499,7 +500,7 @@ export default function App() {
           onClose={() => setPaletteOpen(false)}
         />
       )}
-      {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} sync={googleSync} />}
+      {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} sync={googleSync} projectId={projects.activeProject.id} />}
     </div>
   );
 }
