@@ -14,6 +14,7 @@ import { notes } from './messages/notes';
 import { palette } from './messages/palette';
 import { nav } from './messages/nav';
 import { missing } from './messages/missing';
+import { sync } from './messages/sync';
 
 export { detectLang, format, type Lang } from './format';
 
@@ -33,6 +34,7 @@ export const MESSAGES = {
   ...palette,
   ...nav,
   ...missing,
+  ...sync,
 } as const satisfies Record<string, Entry>;
 
 export type MessageKey = keyof typeof MESSAGES;

@@ -7,18 +7,25 @@ import type { Hono } from 'hono';
  * data (https) and the data:/blob: URLs used by image export. Style attributes
  * need 'unsafe-inline' (React sets them); scripts do not.
  */
-export const CONTENT_SECURITY_POLICY = [
-  "default-src 'self'",
-  "script-src 'self'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
-  "font-src 'self' data:",
-  "connect-src 'self'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-].join('; ');
+export function buildContentSecurityPolicy(googleSync = false, picker = false): string {
+  // Google sign-in (DESIGN 16.3) loads one script, calls Google's APIs and may frame its own page.
+  // Google Picker adds its loader script and a frame from docs.google.com.
+  return [
+    "default-src 'self'",
+    googleSync ? "script-src 'self' https://accounts.google.com/gsi/client" + (picker ? ' https://apis.google.com' : '') : "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    googleSync ? "connect-src 'self' https://accounts.google.com/gsi/ https://www.googleapis.com" : "connect-src 'self'",
+    ...(googleSync ? ['frame-src https://accounts.google.com/gsi/' + (picker ? ' https://docs.google.com' : '')] : []),
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+  ].join('; ');
+}
+
+export const CONTENT_SECURITY_POLICY = buildContentSecurityPolicy();
 
 /** Whether `dir` holds a built app (production mode, DESIGN 15.2). */
 export function hasBuiltApp(dir: string): boolean {
@@ -35,17 +42,17 @@ export function hasBuiltApp(dir: string): boolean {
 let serveStaticModule: Promise<typeof import('@hono/node-server/serve-static')> | null = null;
 const loadServeStatic = () => (serveStaticModule ??= import('@hono/node-server/serve-static'));
 
-function addCspHeader(app: Hono): void {
+function addCspHeader(app: Hono, csp: string): void {
   app.use('*', async (c, next) => {
     await next();
     if ((c.res.headers.get('content-type') ?? '').includes('text/html')) {
-      c.res.headers.set('Content-Security-Policy', CONTENT_SECURITY_POLICY);
+      c.res.headers.set('Content-Security-Policy', csp);
     }
   });
 }
 
-export function mountStaticApp(app: Hono, dir: string): void {
-  addCspHeader(app);
+export function mountStaticApp(app: Hono, dir: string, csp = CONTENT_SECURITY_POLICY): void {
+  addCspHeader(app, csp);
   app.get('*', async (c, next) => {
     if (c.req.path.startsWith('/api/')) return next();
     const { serveStatic } = await loadServeStatic();
@@ -84,10 +91,10 @@ export function contentTypeFor(path: string): string {
  * so nothing is unpacked to disk where other programs could change it. Only
  * the listed files exist; any other GET outside /api/ gets index.html.
  */
-export function mountEmbeddedApp(app: Hono, files: EmbeddedFiles): void {
+export function mountEmbeddedApp(app: Hono, files: EmbeddedFiles, csp = CONTENT_SECURITY_POLICY): void {
   const index = files.get('/index.html');
   if (!index) throw new Error('embedded app has no index.html');
-  addCspHeader(app);
+  addCspHeader(app, csp);
   app.get('*', (c, next) => {
     if (c.req.path.startsWith('/api/')) return next();
     const file = files.get(c.req.path) ?? index;
