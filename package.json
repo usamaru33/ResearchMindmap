@@ -23,7 +23,7 @@
     "smoke:exe": "node scripts/smoke-exe.mjs"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.135.0",
+    "@anthropic-ai/sdk": "^0.137.0",
     "@dagrejs/dagre": "^3.1.1",
     "@hono/node-server": "^2.1.5",
     "@xyflow/react": "^12.12.0",
