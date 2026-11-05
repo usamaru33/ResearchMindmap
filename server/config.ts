@@ -19,6 +19,8 @@ export interface AppConfig {
   staticDir: string;
   cacheTtlHours: number;
   enableDblp: boolean;
+  /** OAuth client ID for syncing projects through Google Drive (DESIGN 16); sync is off without it. */
+  googleClientId?: string;
 }
 
 function optional(value: string | undefined): string | undefined {
@@ -43,6 +45,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     staticDir: optional(env.STATIC_DIR) ?? 'dist',
     cacheTtlHours: Number(env.CACHE_TTL_HOURS ?? 72),
     enableDblp: env.ENABLE_DBLP === 'true',
+    googleClientId: optional(env.GOOGLE_CLIENT_ID),
   };
 }
 

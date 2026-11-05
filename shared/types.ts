@@ -86,6 +86,8 @@ export interface HealthResponse {
   version: string;
   sources: SourceStatus[];
   llm: { enabled: boolean; model: string | null; reason?: string; reasonEn?: string };
+  /** Syncing projects through Google Drive (DESIGN 16). The client ID is public, not a secret. */
+  googleSync: { enabled: boolean; clientId: string | null };
 }
 
 export interface ApiError {

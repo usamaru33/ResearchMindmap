@@ -7,7 +7,7 @@ import { createServices, type Services } from './services';
 import { ApiHttpError } from './http/errors';
 import { localOnly } from './http/security';
 import { launchSession } from './http/session';
-import { hasBuiltApp, mountEmbeddedApp, mountStaticApp, type EmbeddedFiles } from './http/static';
+import { buildContentSecurityPolicy, hasBuiltApp, mountEmbeddedApp, mountStaticApp, type EmbeddedFiles } from './http/static';
 import { getLlm } from './llm/client';
 import { exploreRoutes } from './routes/explore';
 import { trendRoutes } from './routes/trends';
@@ -40,7 +40,15 @@ export interface AppOptions {
 export function createApp(config: AppConfig, services: Services = createServices(config), options: AppOptions = {}) {
   const app = new Hono();
 
-  app.use('*', secureHeaders({ crossOriginResourcePolicy: 'same-origin' }));
+  // Google's sign-in popup talks to window.opener, which 'same-origin' would cut off (DESIGN 16.3).
+  const googleSync = !!config.googleClientId;
+  app.use(
+    '*',
+    secureHeaders({
+      crossOriginResourcePolicy: 'same-origin',
+      crossOriginOpenerPolicy: googleSync ? 'same-origin-allow-popups' : 'same-origin',
+    }),
+  );
   app.use('/api/*', localOnly({ allowedHosts: config.allowedHosts, allowedOrigins: config.allowedOrigins }));
   if (options.launchToken) app.use('*', launchSession(options.launchToken, config.port));
   app.use(
@@ -57,6 +65,7 @@ export function createApp(config: AppConfig, services: Services = createServices
       version: VERSION,
       sources: sourceStatuses(config),
       llm: llmStatus(config),
+      googleSync: { enabled: googleSync, clientId: config.googleClientId ?? null },
     };
     return c.json(body);
   });
@@ -72,8 +81,9 @@ export function createApp(config: AppConfig, services: Services = createServices
   app.route('/api/trends', trendRoutes(services));
 
   // Production mode: the API server also serves the built app (DESIGN 15.2).
-  if (options.embeddedApp) mountEmbeddedApp(app, options.embeddedApp);
-  else if (hasBuiltApp(config.staticDir)) mountStaticApp(app, config.staticDir);
+  const csp = buildContentSecurityPolicy(googleSync);
+  if (options.embeddedApp) mountEmbeddedApp(app, options.embeddedApp, csp);
+  else if (hasBuiltApp(config.staticDir)) mountStaticApp(app, config.staticDir, csp);
 
   app.notFound((c) =>
     c.json({ error: { code: 'not_found', message: `No route for ${c.req.path}` } }, 404),
