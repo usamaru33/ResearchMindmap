@@ -104,6 +104,7 @@ M4 までで要件と機能一覧は完了した。M5 では、論文を書く�
 | 7.1 | ☑ | `feat/missing-papers` | 見落とし論文の発見（`/api/papers/missing`、基礎文献・後続研究・共引用、網羅率） | A16 | マップの網羅率と、根拠つきの候補が出て、引用関係ごとマップに追加できる |
 | 7.2 | ☑ | `feat/easy-start` | 本番モード（API サーバーが画面も配る、CSP）、Docker / compose、CI でのイメージの確認 | E12 | `docker compose up` か `npm run app` だけで、http://localhost:8787 で使える |
 | 7.3 | ☑ | `feat/windows-exe` | Windows アプリ（exe、起動トークン、画面の埋め込み）と、タグで GitHub Release に出すワークフロー（チェックサム・ビルド来歴） | E13 | Releases の exe をダブルクリックするだけで使え、`gh attestation verify` で確かめられる |
+| 7.4 | ☑ | `feat/pdf-references` | PDF の参考文献ページをブラウザの中で読み、参考文献リストの取り込み欄に入れる（pdf.js） | A17 | PDF を選ぶと参考文献が欄に入り、1 件ずつ照会して取り込める。見出しがない・文字がない PDF は理由が出る |
 
 ## 進め方の補足
 
