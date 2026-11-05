@@ -706,7 +706,7 @@ Node.js も Docker も入れずに、exe をダブルクリックするだけで
 
 - `.env` の `GOOGLE_CLIENT_ID`（Google Cloud の OAuth クライアント ID。種類は「ウェブ アプリケーション」）。未設定なら同期は無効で、画面にも出さない（キーなしでも動く原則）。クライアント ID は秘密ではないので `/api/health` の `googleSync.clientId` で画面に渡す
 - 設定したときだけ CSP に Google を足す: `script-src` に `https://accounts.google.com/gsi/client`、`connect-src` に `https://accounts.google.com/gsi/` と `https://www.googleapis.com`、`frame-src` に `https://accounts.google.com/gsi/`。未設定のときは従来どおり（9 章）
-- Google Cloud 側では「承認済みの JavaScript 生成元」に、使う画面の生成元（`http://localhost:8787`、`http://127.0.0.1:8787`）を登録する。**生成元はポートまで一致が必要**なので、Windows アプリが 8787 の代わりに別のポートで起動したときは、そのポートでは同期できない（`PORT` で固定できる）。OAuth 同意画面が「テスト」のままだと、登録したテストユーザーしか使えない
+- Google Cloud 側では「承認済みの JavaScript 生成元」に、使う画面の生成元（`http://localhost:8787`、`http://127.0.0.1:8787`）を登録する。ログインのポップアップが開き元の画面と通信できるよう、同期を有効にしたときだけ `Cross-Origin-Opener-Policy` を `same-origin-allow-popups` にする（既定は `same-origin`）。**生成元はポートまで一致が必要**なので、Windows アプリが 8787 の代わりに別のポートで起動したときは、そのポートでは同期できない（`PORT` で固定できる）。OAuth 同意画面が「テスト」のままだと、登録したテストユーザーしか使えない
 
 ### 16.4 画面
 

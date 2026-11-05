@@ -220,6 +220,7 @@ npm run dev              # http://localhost:5173 を開く（変更がすぐ反�
 | `IEEE_API_KEY` | IEEE Xplore は使わない（IEEE の論文は OpenAlex / Crossref から取る） |
 | `NCBI_API_KEY` | PubMed の回数上限が低い |
 | `ANTHROPIC_API_KEY` | Claude を使う機能は、Claude なしの代替処理で動く（下記） |
+| `GOOGLE_CLIENT_ID` | デバイス間の同期（Google ログイン）は出ない。Google Cloud で種類「ウェブ アプリケーション」の OAuth クライアント ID を作り、「承認済みの JavaScript 生成元」に開くアドレス（例 `http://localhost:8787`）を登録する。プロジェクトは自分の Google Drive の非公開領域に保存され、このアプリのサーバーには残らない |
 
 そのほか `CROSSREF_MAILTO`（Crossref の polite pool 用の連絡先。Crossref に送られます）、`ENABLE_DBLP`（DBLP を使う）、`CACHE_DIR` / `CACHE_TTL_HOURS`（応答キャッシュ）、`HOST` / `ALLOWED_HOSTS` / `ALLOWED_ORIGINS`（API を受け付ける範囲。下記）があります。一覧は [.env.example](.env.example) を見てください。
 
