@@ -9,8 +9,9 @@ export async function readPdfPages(data: ArrayBuffer): Promise<string[][]> {
   // Loaded on demand: pdf.js is large and only this tab needs it.
   const [pdfjs, worker] = await Promise.all([import('pdfjs-dist'), import('pdfjs-dist/build/pdf.worker.min.mjs?url')]);
   pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
-  const doc = await pdfjs.getDocument({ data }).promise;
+  const task = pdfjs.getDocument({ data });
   try {
+    const doc = await task.promise;
     const pages: string[][] = [];
     for (let n = 1; n <= Math.min(doc.numPages, MAX_PAGES); n++) {
       const page = await doc.getPage(n);
@@ -19,6 +20,6 @@ export async function readPdfPages(data: ArrayBuffer): Promise<string[][]> {
     }
     return pages;
   } finally {
-    void doc.destroy();
+    void task.destroy();
   }
 }
